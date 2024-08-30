@@ -2,6 +2,8 @@ package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -12,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameScreen implements Screen {
@@ -25,14 +28,44 @@ public class GameScreen implements Screen {
     private Texture exitButtonTexture;
     private Rectangle exitButtonBounds;
 
+    private InputProcessor gameInputProcessor;
     public GameScreen(final Main game) {
         this.game = game;
         chara = new Player(this);
         fruit = new Fruit(this);
         bomb = new Bomb(this);
         initComponents();
+        setupInputProcessor();
     }
+    private void setupInputProcessor() {
+        gameInputProcessor = new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    game.setScreen(new PauseMenuScreen(game, GameScreen.this));
+                    clickSound.play();
+                    game.pause();
+                    return true;
+                }
+                return false;
+            }
 
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                // Convert touch coordinates to our game world coordinates
+                Vector3 touchPos = new Vector3(screenX, screenY, 0);
+                camera.unproject(touchPos);
+
+                if (exitButtonBounds.contains(touchPos.x, touchPos.y)) {
+                    game.setScreen(new PauseMenuScreen(game, GameScreen.this));
+                    clickSound.play();
+                    game.pause();
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -111,10 +144,13 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         gameMusic.play();
+        Gdx.input.setInputProcessor(gameInputProcessor);
     }
 
     @Override
-    public void hide() {}
+    public void hide() {
+        Gdx.input.setInputProcessor(null);
+    }
 
     @Override
     public void pause() {}
