@@ -34,6 +34,7 @@ orange.png
 pause.png
 pixel.fnt
 pixel.png
+placeholder.png
 runleft.png
 runright.png
 scores.png

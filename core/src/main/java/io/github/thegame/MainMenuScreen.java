@@ -6,8 +6,10 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -20,14 +22,14 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
     private Music menuMusic;
     private Sound clickSound;
-
-    // Define constants for your desired virtual screen size
+    private boolean isTransitioning = false;
+    private Screen nextScreen;
     private static final float VIRTUAL_WIDTH = 480;
     private static final float VIRTUAL_HEIGHT = 640;
-
+    private static final float TRANSITION_DURATION = 2f;
     public MainMenuScreen(final Main game) {
         this.game = game;
-        // Use ExtendViewport to maintain aspect ratio while extending the shorter dimension
+
         stage = new Stage(new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
@@ -54,19 +56,16 @@ public class MainMenuScreen implements Screen {
         background.setFillParent(true);
         root.addActor(background);
 
-        // Create a table for UI elements
         table = new Table();
         table.setFillParent(true);
         root.addActor(table);
 
-        // Logo
         Texture logoTexture = new Texture(Gdx.files.internal("logo.png"));
         Image logo = new Image(logoTexture);
 
-        // Buttons
         Texture buttonBackground = new Texture(Gdx.files.internal("button2.png"));
         ImageTextButton newGame = createButton("Play", buttonBackground, () -> {
-            game.setScreen(new GameScreen(game));
+            transitionToScreen(new GameScreen(game));
             clickSound.play();
         });
 
@@ -76,7 +75,12 @@ public class MainMenuScreen implements Screen {
         });
 
         ImageTextButton tutorial = createButton("Tutorial", buttonBackground, () -> {
-            game.setScreen(new TutorialScreen(game));
+            transitionToScreen(new TutorialScreen(game));
+            clickSound.play();
+        });
+
+        ImageTextButton bullet = createButton("Bullet", buttonBackground, () -> {
+            transitionToScreen(new BulletHellScreen(game));
             clickSound.play();
         });
 
@@ -87,7 +91,9 @@ public class MainMenuScreen implements Screen {
         table.row();
         table.add(scores).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(20);
         table.row();
-        table.add(tutorial).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table));
+        table.add(tutorial).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(20);
+        table.row();
+        table.add(bullet).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table));
     }
 
     private ImageTextButton createButton(String text, Texture background, Runnable action) {
@@ -115,11 +121,19 @@ public class MainMenuScreen implements Screen {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
 
-        // Debug rendering to show stage boundaries
-        stage.getViewport().apply();
-        game.batch.begin();
-        game.font.draw(game.batch, "Stage size: " + stage.getWidth() + "x" + stage.getHeight(), 10, 20);
-        game.batch.end();
+        if (!isTransitioning) {
+            stage.getViewport().apply();
+        }
+
+        if (!isTransitioning && nextScreen != null) {
+            Screen currentScreen = game.getScreen();
+            game.setScreen(nextScreen);
+            nextScreen = null;
+
+            if (currentScreen != null) {
+                currentScreen.dispose();
+            }
+        }
     }
 
     @Override
@@ -143,10 +157,33 @@ public class MainMenuScreen implements Screen {
         // Method intentionally left empty
     }
     private void transitionToScreen(Screen newScreen) {
-        // Dispose of the current screen
-        dispose();
-        // Set and show the new screen
-        game.setScreen(newScreen);
+        if (isTransitioning) return;
+        isTransitioning = true;
+        nextScreen = newScreen;
+
+        table.addAction(Actions.sequence(
+            Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
+            Actions.run(() -> {
+                isTransitioning = false;
+                // The actual screen transition will happen in the render method
+            })
+        ));
+
+        // Create a new table for the incoming screen
+        Table incomingTable = new Table();
+        incomingTable.setFillParent(true);
+        stage.addActor(incomingTable);
+
+        // Add a placeholder texture or color to represent the incoming screen
+        Texture placeholder = new Texture(Gdx.files.internal("placeholder.png"));
+        Image placeholderImage = new Image(placeholder);
+        placeholderImage.setScaling(Scaling.stretch);
+        placeholderImage.setFillParent(true);
+        incomingTable.add(placeholderImage);
+
+        // Animate the incoming table
+        incomingTable.setPosition(stage.getWidth(), 0);
+        incomingTable.addAction(Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine));
     }
 
     @Override
