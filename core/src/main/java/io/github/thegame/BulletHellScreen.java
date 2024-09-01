@@ -74,7 +74,7 @@ public class BulletHellScreen implements Screen {
     private Texture heart;
     private Texture inputHighlight;
     private boolean isInitialState = true;
-
+    private Texture blackbg;
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -153,6 +153,12 @@ public class BulletHellScreen implements Screen {
         inputHighlight = new Texture(highlightPixmap);
         highlightPixmap.dispose();
 
+        Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pix.setColor(0, 0, 0.1f, 0.9f);
+        pix.fillRectangle(0, 0, 1, 1);
+        blackbg = new Texture(pix);
+        pix.dispose();
+
         enemySpawnTimer = 0;
         symbolSpawnTimer = 0;
         difficultyIncreaseTimer = 0;
@@ -222,17 +228,17 @@ public class BulletHellScreen implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        float controlZoneHeight = camera.viewportHeight / 6;
+        float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
-
+        batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
         if (isInitialState) {
             // Draw both left and right highlight areas
             batch.draw(inputHighlight, 0, 0, halfWidth, controlZoneHeight);
             batch.draw(inputHighlight, halfWidth, 0, halfWidth, controlZoneHeight);
-        } else if (isTouchingLeft) {
+        } else if (!isTouchingLeft) {
             // Draw only left highlight area
             batch.draw(inputHighlight, 0, 0, halfWidth, controlZoneHeight);
-        } else if (isTouchingRight) {
+        } else if (!isTouchingRight) {
             // Draw only right highlight area
             batch.draw(inputHighlight, halfWidth, 0, halfWidth, controlZoneHeight);
         }
@@ -244,7 +250,7 @@ public class BulletHellScreen implements Screen {
         font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
         drawHearts(batch);
         for (int i = 0; i < powerUps.size(); i++) {
-            font.draw(batch, powerUps.get(i), 35 * (i + 1), 215);
+            font.draw(batch, powerUps.get(i), camera.viewportWidth/10 * i + 1, camera.viewportHeight/8);
         }
 
         for (BulletEnemy enemy : enemies) enemy.draw(batch);
@@ -540,7 +546,7 @@ public class BulletHellScreen implements Screen {
             Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touchPos);
 
-            float controlZoneHeight = camera.viewportHeight / 6;
+            float controlZoneHeight = camera.viewportHeight / 8;
             if (touchPos.y < controlZoneHeight) {
                 if (touchPos.x < camera.viewportWidth / 2) {
                     player.moveLeft(delta);
