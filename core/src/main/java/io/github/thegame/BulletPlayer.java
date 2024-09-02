@@ -27,10 +27,10 @@ public class BulletPlayer {
         texture = new Texture(pixmap);
         pixmap.dispose();
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
-        speed = 200;
+        speed = 210;
         collectedSymbol = "";
-        fireRate = 0.5f;
-        bulletDamage = 10;
+        fireRate = 0.1f;
+        bulletDamage = 50;
         numBullets = 1;
         health = 3;
         this.isStunned = false;

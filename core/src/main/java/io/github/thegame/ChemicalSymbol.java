@@ -23,10 +23,9 @@ public class ChemicalSymbol {
         texture = new Texture(pixmap);
         pixmap.dispose();
         bounds = new Rectangle((int)x, (int)y, texture.getWidth(), texture.getHeight());
-        speed = 50;
+        speed = 65;
     }
     public void init(float x, float y) {
-        this.symbol = symbol;
         position = new Vector2(x, y);
         this.bounds.setPosition(position);
         // Reset any other necessary fields

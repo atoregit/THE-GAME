@@ -36,8 +36,13 @@ public class BulletHellScreen implements Screen {
     private OrthographicCamera camera;
     private SpriteBatch batch;
 
-    private long lastEnemySpawnTime;
-    private long lastSymbolSpawnTime;
+    private static final float ENEMY_SPAWN_INTERVAL = 3.5f; // Seconds between enemy spawns
+    private static final float SYMBOL_SPAWN_INTERVAL = 7f; // Seconds between symbol spawns
+    private float enemySpawnTimer;
+    private float symbolSpawnTimer;
+
+    private static final float DIFFICULTY_INCREASE_INTERVAL = 60f; // Seconds between difficulty increases
+    private float difficultyIncreaseTimer;
     private float timeSinceLastShot;
 
     private Array<BulletDamage> damageIndicators;
@@ -61,7 +66,15 @@ public class BulletHellScreen implements Screen {
     private boolean isTouchingLeft = false;
     private boolean isTouchingRight = false;
 
-    private Texture white;
+    private boolean isPaused = false;
+    private Texture pauseButtonTexture;
+    private Vector2 pauseButtonPosition;
+    private static final float PAUSE_BUTTON_SIZE = 50f;
+    private Texture transparent;
+    private Texture heart;
+    private Texture inputHighlight;
+    private boolean isInitialState = true;
+    private Texture blackbg;
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -71,10 +84,16 @@ public class BulletHellScreen implements Screen {
         Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
         pixmap.setColor(1, 1, 1, 1);
         pixmap.fillRectangle(0, 0, 30, 30);
-        white = new Texture(pixmap);
+        pixmap.setColor(1, 1, 1, 0.5f);
+        pixmap.fill();
+        transparent = new Texture(pixmap);
+        pixmap.setColor(1, 0, 0, 1);
+        pixmap.fillRectangle(0, 0, 25, 25);
+        heart = new Texture(pixmap);
         pixmap.dispose();
+
         player = new BulletPlayer(240f, 150f);
-        player.setFireRate(0.5f);
+        player.setFireRate(1.5f);
         enemies = new Array<BulletEnemy>();
         symbols = new Array<ChemicalSymbol>();
         bullets = new Array<Bullet>();
@@ -119,74 +138,155 @@ public class BulletHellScreen implements Screen {
                 return effect;
             }
         };
+
+        Pixmap pausePixmap = new Pixmap(64, 64, Pixmap.Format.RGBA8888);
+        pausePixmap.setColor(Color.WHITE);
+        pausePixmap.fillRectangle(0, 0, 64, 64);
+        pausePixmap.setColor(Color.BLACK);
+        pausePixmap.fillRectangle(16, 8, 12, 48);
+        pausePixmap.fillRectangle(36, 8, 12, 48);
+        pauseButtonTexture = new Texture(pausePixmap);
+        pausePixmap.dispose();
+        Pixmap highlightPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        highlightPixmap.setColor(1, 1, 1, 0.3f);  // White with 30% opacity
+        highlightPixmap.fill();
+        inputHighlight = new Texture(highlightPixmap);
+        highlightPixmap.dispose();
+
+        Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pix.setColor(0, 0, 0.1f, 0.9f);
+        pix.fillRectangle(0, 0, 1, 1);
+        blackbg = new Texture(pix);
+        pix.dispose();
+
+        enemySpawnTimer = 0;
+        symbolSpawnTimer = 0;
+        difficultyIncreaseTimer = 0;
+        pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
     }
 
     @Override
     public void show() {
         Gdx.input.setInputProcessor(null);
     }
-    private void updateDifficulty() {
-        long elapsedTime = TimeUtils.timeSinceMillis(gameStartTime);
-        difficultyMultiplier = 1 + (elapsedTime / 60000f); // Increase difficulty every minute
+    private void updateDifficulty(float delta) {
+        if (difficultyIncreaseTimer >= DIFFICULTY_INCREASE_INTERVAL) {
+            difficultyMultiplier += 0.1f;
+            difficultyIncreaseTimer = 0;
+        }
     }
 
+    private void handleEnemySpawning() {
+        if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL / difficultyMultiplier) {
+            spawnEnemy();
+            enemySpawnTimer = 0;
+        }
+    }
+
+    private void handleSymbolSpawning() {
+        if (symbolSpawnTimer >= SYMBOL_SPAWN_INTERVAL) {
+            spawnSymbol();
+            symbolSpawnTimer = 0;
+        }
+    }
+    private void updateTimers(float delta) {
+        enemySpawnTimer += delta;
+        symbolSpawnTimer += delta;
+        difficultyIncreaseTimer += delta;
+    }
+    private void drawHearts(SpriteBatch batch){
+        for (int i = 0; i < player.getHealth()+1; i++){
+            batch.draw(heart, 40 * i, camera.viewportHeight/1.1f, 25, 25);
+        }
+    }
     @Override
     public void render(float delta) {
-        updateDifficulty();
-        updateDamageIndicators(delta);
+        if (!isPaused) {
+            updateTimers(delta);
+            updateDifficulty(delta);
+            handleEnemySpawning();
+            handleSymbolSpawning();
+            updateEnemies(delta);
+            updateSymbols(delta);
+            updateBullets(delta);
+            updateDamageIndicators(delta);
+
+            removeOffscreenObjects();
+            cleanupObjects();
+            updateParticles(delta);
+            handleStun(delta);
+
+            handleInput(delta);
+            player.update(delta);
+            handlePlayerFiring(delta);
+            checkCollisions();
+        }
+
         Gdx.gl.glClearColor(0, 0, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
-        checkCollisions();
-        removeOffscreenObjects();
-        cleanupObjects();
-        updateParticles(delta);
-        handleStun(delta);
-
-        handleInput(delta);
-        player.update(delta);
-        updateEnemies(delta);
-        updateSymbols(delta);
-        updateBullets(delta);
-        handlePlayerFiring(delta);
-
+        float controlZoneHeight = camera.viewportHeight / 8;
+        float halfWidth = camera.viewportWidth / 2;
+        batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
+        if (isInitialState) {
+            // Draw both left and right highlight areas
+            batch.draw(inputHighlight, 0, 0, halfWidth, controlZoneHeight);
+            batch.draw(inputHighlight, halfWidth, 0, halfWidth, controlZoneHeight);
+        } else if (!isTouchingLeft) {
+            // Draw only left highlight area
+            batch.draw(inputHighlight, 0, 0, halfWidth, controlZoneHeight);
+        } else if (!isTouchingRight) {
+            // Draw only right highlight area
+            batch.draw(inputHighlight, halfWidth, 0, halfWidth, controlZoneHeight);
+        }
+        player.draw(batch);
         for (BulletDamage indicator : damageIndicators) {
             indicator.draw(batch, font);
         }
-
-        player.draw(batch);
-
         font.setColor(Color.WHITE);
         font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
-
-        for (String stuff : powerUps) {
-            font.draw(batch, stuff, 30 * (powerUps.lastIndexOf(stuff) + 1), 200);
+        drawHearts(batch);
+        for (int i = 0; i < powerUps.size(); i++) {
+            font.draw(batch, powerUps.get(i), camera.viewportWidth/10 * i + 1, camera.viewportHeight/8);
         }
 
         for (BulletEnemy enemy : enemies) enemy.draw(batch);
         for (ChemicalSymbol symbol : symbols) symbol.draw(batch);
         for (Bullet bullet : bullets) bullet.draw(batch);
         for (ParticleEffect particle : activeParticles) particle.draw(batch);
-        if (isTouchingLeft) {
-            batch.setColor(1, 1, 1, 0.4f);  // Semi-transparent white
-            batch.draw(white, 0, 0, camera.viewportWidth / 2, camera.viewportHeight / 6);  // Left half at the bottom
+
+
+        // Draw pause button
+        batch.draw(pauseButtonTexture, pauseButtonPosition.x, pauseButtonPosition.y, PAUSE_BUTTON_SIZE, PAUSE_BUTTON_SIZE);
+        if (isPaused) {
+            batch.draw(transparent, 0, 0, camera.viewportWidth, camera.viewportHeight);
+
+            font.setColor(Color.WHITE);
+            font.draw(batch, "PAUSED", camera.viewportWidth / 2 - 50, camera.viewportHeight / 2 + 10);
+            font.draw(batch, "Tap anywhere to resume", camera.viewportWidth / 2 - 100, camera.viewportHeight / 2 - 20);
         }
 
-        if (isTouchingRight) {
-            batch.setColor(1, 1, 1, 0.4f);  // Semi-transparent white
-            batch.draw(white, camera.viewportWidth / 2, 0, camera.viewportWidth / 2, camera.viewportHeight / 6);  // Right half at the bottom
-        }
 
-        batch.setColor(Color.WHITE);
         batch.end();
         cleanupDamageIndicators();
 
-        if (TimeUtils.nanoTime() - lastEnemySpawnTime > 2000000000 / difficultyMultiplier) spawnEnemy();
-        if (TimeUtils.nanoTime() - lastSymbolSpawnTime > 2000000000) spawnSymbol();
+        // Handle pause button touch
+        if (Gdx.input.justTouched()) {
+            Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touchPos);
+
+            if (isPaused) {
+                isPaused = false;
+            } else if (touchPos.x >= pauseButtonPosition.x && touchPos.x <= pauseButtonPosition.x + PAUSE_BUTTON_SIZE &&
+                touchPos.y >= pauseButtonPosition.y && touchPos.y <= pauseButtonPosition.y + PAUSE_BUTTON_SIZE) {
+                isPaused = true;
+            }
+        }
+
+
     }
 
     private void updateParticles(float delta) {
@@ -259,20 +359,19 @@ public class BulletHellScreen implements Screen {
 
     private void spawnEnemy() {
         BulletEnemy enemy = enemyPool.obtain();
-        enemy.init(MathUtils.random(0, 480), 800, difficultyMultiplier); // Initialize with current values
+        enemy.init(MathUtils.random(40, 445), 775, difficultyMultiplier); // Initialize with current values
         enemies.add(enemy);
-        lastEnemySpawnTime = TimeUtils.nanoTime();
     }
 
     private void spawnSymbol() {
         float random = MathUtils.random(1f);
         String symbolType = "";
 
-        if (random <= 0.6f) {
+        if (random <= 0.4f) {
             symbolType = "H";
-        } else if (random <= 0.7f) {
+        } else if (random <= 0.6f) {
             symbolType = "Cl";
-        } else if (random <= 0.8f) {
+        } else if (random <= 0.72f) {
             symbolType = "O";
         } else if (random <= 0.9f) {
             symbolType = "Na";
@@ -280,10 +379,9 @@ public class BulletHellScreen implements Screen {
 
         if (!symbolType.isEmpty()) {
             ChemicalSymbol symbol = symbolPool.obtain();
-            symbol.init(MathUtils.random(25, 450), 775);
+            symbol.init(MathUtils.random(50, 445), 775);
             symbol.setSymbol(symbolType);
             symbols.add(symbol);
-            lastSymbolSpawnTime = TimeUtils.nanoTime();
         }
     }
 
@@ -317,12 +415,12 @@ public class BulletHellScreen implements Screen {
         for (Bullet bullet : bullets) {
             for (BulletEnemy enemy : enemies) {
                 if (bullet.getBounds().overlaps(enemy.getBounds())) {
-                    enemy.hit(bullet.getDamage());
+                    enemy.hit(player.getBulletDamage());
                     bulletsToRemove.add(bullet);
                     damageIndicators.add(new BulletDamage(
                         enemy.getX() + enemy.getWidth() / 2,
                         enemy.getY() + enemy.getHeight(),
-                        -(int)bullet.getDamage()
+                        -(int)player.getBulletDamage()
                     ));
                     if (enemy.getHealth() <= 0) {
                         spawnParticleEffect(enemy.getX(), enemy.getY());
@@ -352,14 +450,12 @@ public class BulletHellScreen implements Screen {
         activeParticles.add(particle);
     }
     private void checkCombination() {
-        if (collectedSymbols.length() >= 2) {
-
+        if (collectedSymbols.length() >= 2 && !collectedSymbols.toString().equals("Cl") && !collectedSymbols.toString().equals("Na")) {
             String combo = collectedSymbols.toString();
-            Gdx.app.log("#INFO", combo);
             boolean validCombo = false;
             switch (combo) {
                 case "HH":
-                    player.setFireRate(player.getFireRate() * 1.2f);
+                    player.setFireRate(player.getFireRate() / 1.1f);
                     powerUps.add("HH");
                     validCombo = true;
                     break;
@@ -390,7 +486,7 @@ public class BulletHellScreen implements Screen {
                 case "NaO":
                 case "ONa":
                     powerUps.add("NaO");
-                    player.setHealth(player.getHealth() + 50);
+                    player.setHealth(player.getHealth() + 1);
                     validCombo = true;
                     break;
             }
@@ -405,19 +501,19 @@ public class BulletHellScreen implements Screen {
     }
     private void removeOffscreenObjects() {
         for (BulletEnemy enemy : enemies) {
-            if (enemy.getY() + enemy.getHeight() < 125) {
+            if (enemy.getY() + enemy.getHeight() < 150) {
                 enemiesToRemove.add(enemy);
             }
         }
 
         for (ChemicalSymbol symbol : symbols) {
-            if (symbol.getY() + symbol.getHeight() < 125) {
+            if (symbol.getY() + symbol.getHeight() < 150) {
                 symbolsToRemove.add(symbol);
             }
         }
 
         for (Bullet bullet : bullets) {
-            if (bullet.getY() > 800) {
+            if (bullet.getY() > 775) {
                 bulletsToRemove.add(bullet);
             }
         }
@@ -442,14 +538,15 @@ public class BulletHellScreen implements Screen {
         bulletsToRemove.clear();
     }
     private void handleInput(float delta) {
-        isTouchingLeft = false;  // Reset touch state
+        isTouchingLeft = false;
         isTouchingRight = false;
+        isInitialState = false;  // Set to false as soon as we detect any touch
+
         if (Gdx.input.isTouched()) {
             Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(touchPos);  // Adjust input to the new camera coordinates
+            camera.unproject(touchPos);
 
-            // Bottom 15% for controls, more precise for portrait mode
-            float controlZoneHeight = camera.viewportHeight / 6;
+            float controlZoneHeight = camera.viewportHeight / 8;
             if (touchPos.y < controlZoneHeight) {
                 if (touchPos.x < camera.viewportWidth / 2) {
                     player.moveLeft(delta);
@@ -459,6 +556,8 @@ public class BulletHellScreen implements Screen {
                     isTouchingRight = true;
                 }
             }
+        } else {
+            isInitialState = true;  // Reset to initial state when not touching
         }
     }
     @Override
@@ -478,5 +577,6 @@ public class BulletHellScreen implements Screen {
         symbolPool.clear();
         powerUps.clear();
         bulletPool.clear();
+        inputHighlight.dispose();
     }
 }
