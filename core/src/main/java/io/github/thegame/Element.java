@@ -44,10 +44,10 @@ public class Element {
 
     public void spawnFruit() {
         ElementRectangle elementBox = new ElementRectangle();
-        elementBox.x = MathUtils.random(0, game.GAME_SCREEN_X - 64);
+        elementBox.x = MathUtils.random(0, game.GAME_SCREEN_X - ELEMENT_SIZE);
         elementBox.y = game.GAME_SCREEN_Y;
-        elementBox.width = 64;
-        elementBox.height = 64;
+        elementBox.width = ELEMENT_SIZE;
+        elementBox.height = ELEMENT_SIZE;
         generateFruitValue(elementBox);
         elements.add(elementBox);
         elementLastDropTime = TimeUtils.nanoTime();
@@ -62,7 +62,10 @@ public class Element {
     public void draw() {
         for (Rectangle fruit : elements) {
             ElementRectangle elementRect = (ElementRectangle) fruit;
-            game.batch.draw(elementTextures.get(elementRect.elementType), elementRect.x - 15, elementRect.y + 15);
+            Texture texture = elementTextures.get(elementRect.elementType);
+
+            // Draw the texture scaled to 64x64
+            game.batch.draw(texture, elementRect.x - ELEMENT_SIZE / 2, elementRect.y - ELEMENT_SIZE / 2, ELEMENT_SIZE, ELEMENT_SIZE);
         }
     }
 
@@ -153,7 +156,7 @@ public class Element {
     private BitmapFont font;
     private long elementLastDropTime;
     private Array<Rectangle> elements;
-    private static final int ELEMENT_SIZE = 64;
+    private static final int ELEMENT_SIZE = 64; // Size for displaying elements
     private static final int ELEMENT_SPEED = 250;
     private long spawnElementInterval = 500000000L;
 

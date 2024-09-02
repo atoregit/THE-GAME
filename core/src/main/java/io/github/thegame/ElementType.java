@@ -4,17 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ElementType {
-    HYDROGEN(20, "strawberry.png"),
-    OXYGEN(30, "banana.png"),
-    NITROGEN(100, "watermelon.png"),
-    CHLORINE(100, "watermelon.png"),
-    BROMINE(100, "watermelon.png"),
-    SODIUM(50, "orange.png"),
-    CALCIUM(60, "apple.png"),
-    LITHIUM(100, "watermelon.png"),
-    IRON(100, "watermelon.png"),
-    ALUMINIUM(100, "watermelon.png"),
-    COPPER(100, "watermelon.png");
+    HYDROGEN(20, "elements/1.png"),
+    OXYGEN(30, "elements/2.png"),
+    NITROGEN(100, "elements/3.png"),
+    CHLORINE(100, "elements/4.png"),
+    BROMINE(100, "elements/5.png"),
+    SODIUM(50, "elements/6.png"),
+    CALCIUM(60, "elements/7.png"),
+    LITHIUM(100, "elements/8.png"),
+    IRON(100, "elements/9.png"),
+    ALUMINIUM(100, "elements/10.png"),
+    COPPER(100, "elements/11.png");
 
     public final int value;
     public final String spritePath;
