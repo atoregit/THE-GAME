@@ -7,7 +7,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -21,7 +20,7 @@ public class GameScreen implements Screen {
     final Main game;
 
     private Player chara;
-    private Fruit fruit;
+    private Element element;
     private Bomb bomb;
     private GameEndScreen endScreen;
 
@@ -32,7 +31,7 @@ public class GameScreen implements Screen {
     public GameScreen(final Main game) {
         this.game = game;
         chara = new Player(this);
-        fruit = new Fruit(this);
+        element = new Element(this);
         bomb = new Bomb(this);
         initComponents();
         setupInputProcessor();
@@ -91,7 +90,7 @@ public class GameScreen implements Screen {
             batch.draw(playerImageIdle, player.x, player.y);
         }
 
-        fruit.draw();
+        element.draw();
         bomb.draw(batch);
 
         // Draw the exit button
@@ -110,15 +109,15 @@ public class GameScreen implements Screen {
         chara.render();
         chara.processSpeed();
         chara.move();
-        fruit.render();
-        fruit.move();
+        element.render();
+        element.move();
         bomb.render();
         bomb.move();
 
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
         batch.draw(scoresTexture, GAME_SCREEN_X     * 0.46f, GAME_SCREEN_Y - timerTexture.getHeight() - 18);
-        fruit.drawCollectedFruits();
+        element.drawCollectedFruits();
         batch.end();
 
         batch.begin();
@@ -169,7 +168,7 @@ public class GameScreen implements Screen {
         dropSound.dispose();
         gameMusic.dispose();
         font.dispose();
-        fruit.dispose();
+        element.dispose();
         bomb.dispose();
         timerTexture.dispose();
         fruitsCollectedTexture.dispose();
@@ -244,7 +243,7 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
 
         chara.createPlayer();
-        fruit.create();
+        element.create();
         bomb.create();
 
 
