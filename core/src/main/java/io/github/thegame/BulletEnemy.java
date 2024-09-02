@@ -21,7 +21,7 @@ public class BulletEnemy {
         texture = new Texture(pixmap);
         pixmap.dispose();
         bounds = new Rectangle((int)x, (int)y, texture.getWidth(), texture.getHeight());
-        speed = 125 * difficulty;
+        speed = 140 * difficulty;
         health = 50 * difficulty;
     }
     public void init(float x, float y, float difficultyMultiplier) {

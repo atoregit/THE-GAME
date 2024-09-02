@@ -27,6 +27,9 @@ public class MainMenuScreen implements Screen {
     private static final float VIRTUAL_WIDTH = 480;
     private static final float VIRTUAL_HEIGHT = 640;
     private static final float TRANSITION_DURATION = 2f;
+    private Texture mainMenuBackground; // Store background texture for disposal
+
+    private Image blackBlueBox;
     public MainMenuScreen(final Main game) {
         this.game = game;
 
@@ -49,51 +52,44 @@ public class MainMenuScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        // Background
-        Texture mainMenuBackground = new Texture(Gdx.files.internal("menubg.png"));
+        // Load background texture
+        mainMenuBackground = new Texture(Gdx.files.internal("menubg.png"));
+
+        // Set background image
         Image background = new Image(mainMenuBackground);
         background.setScaling(Scaling.stretch);
         background.setFillParent(true);
         root.addActor(background);
-
+        // Create other UI elements
         table = new Table();
         table.setFillParent(true);
         root.addActor(table);
 
+        blackBlueBox = new Image(new Texture(Gdx.files.internal("black_blue_box.png"))); // Load a texture or create a solid color
+        blackBlueBox.setSize(VIRTUAL_WIDTH, stage.getHeight() * 0.15f); // 15% of screen height
+        blackBlueBox.setPosition(0, 0); // Position it at the bottom of the screen
+        blackBlueBox.setColor(1, 1, 1, 0.5f); // Set alpha to 0.5f for 50% transparency
+        stage.addActor(blackBlueBox); // Add it to the stage so it's always visible
+
+
         Texture logoTexture = new Texture(Gdx.files.internal("logo.png"));
         Image logo = new Image(logoTexture);
 
-        Texture buttonBackground = new Texture(Gdx.files.internal("button2.png"));
-        ImageTextButton newGame = createButton("Play", buttonBackground, () -> {
-            transitionToScreen(new GameScreen(game));
-            clickSound.play();
-        });
 
-        ImageTextButton scores = createButton("Scores", buttonBackground, () -> {
-            game.setScreen(new ScoreScreen(game));
-            clickSound.play();
-        });
+        Texture leftArrow = new Texture(Gdx.files.internal("cheebi.png"));
 
-        ImageTextButton tutorial = createButton("Tutorial", buttonBackground, () -> {
-            transitionToScreen(new TutorialScreen(game));
-            clickSound.play();
-        });
-
-        ImageTextButton bullet = createButton("Bullet", buttonBackground, () -> {
+        ImageTextButton joo = createButton("Left", leftArrow, () -> {
             transitionToScreen(new BulletHellScreen(game));
             clickSound.play();
         });
 
+
+
         // Add elements to table
-        table.add(logo).width(Value.percentWidth(0.7f, table)).height(Value.percentWidth(0.3f, table)).padBottom(40);
+        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(120);
         table.row();
-        table.add(newGame).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(20);
+        table.add(joo).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(40);
         table.row();
-        table.add(scores).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(20);
-        table.row();
-        table.add(tutorial).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(20);
-        table.row();
-        table.add(bullet).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table));
     }
 
     private ImageTextButton createButton(String text, Texture background, Runnable action) {
@@ -116,10 +112,11 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1); // Clear screen with black color
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the color buffer
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
+        blackBlueBox.toFront();
 
         if (!isTransitioning) {
             stage.getViewport().apply();
@@ -156,6 +153,7 @@ public class MainMenuScreen implements Screen {
     public void hide() {
         // Method intentionally left empty
     }
+
     private void transitionToScreen(Screen newScreen) {
         if (isTransitioning) return;
         isTransitioning = true;
@@ -169,19 +167,16 @@ public class MainMenuScreen implements Screen {
             })
         ));
 
-        // Create a new table for the incoming screen
         Table incomingTable = new Table();
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        // Add a placeholder texture or color to represent the incoming screen
         Texture placeholder = new Texture(Gdx.files.internal("placeholder.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);
         incomingTable.add(placeholderImage);
 
-        // Animate the incoming table
         incomingTable.setPosition(stage.getWidth(), 0);
         incomingTable.addAction(Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine));
     }
@@ -192,5 +187,7 @@ public class MainMenuScreen implements Screen {
         menuMusic.dispose();
         clickSound.dispose();
         skin.dispose();
+        mainMenuBackground.dispose(); // Dispose background texture
+        blackBlueBox.remove();
     }
 }

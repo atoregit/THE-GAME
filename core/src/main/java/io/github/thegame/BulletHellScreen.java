@@ -2,6 +2,7 @@ package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,20 +10,28 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BulletHellScreen implements Screen {
     final Main game;
-
+    private Stage stage;
     private BulletPlayer player;
     private Pool<BulletEnemy> enemyPool;
     private Pool<ChemicalSymbol> symbolPool;
@@ -35,6 +44,8 @@ public class BulletHellScreen implements Screen {
     private List<String> powerUps = new ArrayList<String>();
     private OrthographicCamera camera;
     private SpriteBatch batch;
+
+
 
     private static final float ENEMY_SPAWN_INTERVAL = 3.5f; // Seconds between enemy spawns
     private static final float SYMBOL_SPAWN_INTERVAL = 7f; // Seconds between symbol spawns
@@ -75,6 +86,8 @@ public class BulletHellScreen implements Screen {
     private Texture inputHighlight;
     private boolean isInitialState = true;
     private Texture blackbg;
+    private Texture mainMenuBackground;
+    private float scaleX, scaleY;
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -91,7 +104,7 @@ public class BulletHellScreen implements Screen {
         pixmap.fillRectangle(0, 0, 25, 25);
         heart = new Texture(pixmap);
         pixmap.dispose();
-
+        stage = new Stage(new ExtendViewport(camera.viewportWidth, camera.viewportHeight));
         player = new BulletPlayer(240f, 150f);
         player.setFireRate(1.5f);
         enemies = new Array<BulletEnemy>();
@@ -154,7 +167,7 @@ public class BulletHellScreen implements Screen {
         highlightPixmap.dispose();
 
         Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pix.setColor(0, 0, 0.1f, 0.9f);
+        pix.setColor(37 / 255f, 40 / 255f, 48 / 255f, 0.8f);
         pix.fillRectangle(0, 0, 1, 1);
         blackbg = new Texture(pix);
         pix.dispose();
@@ -162,6 +175,19 @@ public class BulletHellScreen implements Screen {
         enemySpawnTimer = 0;
         symbolSpawnTimer = 0;
         difficultyIncreaseTimer = 0;
+        Table root = new Table();
+        root.setFillParent(true);
+        stage.addActor(root);
+
+        // Load background texture
+        mainMenuBackground = new Texture(Gdx.files.internal("menubg.png"), Pixmap.Format.RGBA8888, false);
+
+        // Set background image
+        Image background = new Image(mainMenuBackground);
+        background.setScaling(Scaling.stretch);
+        background.setFillParent(true);
+        root.addActor(background);
+
         pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
     }
 
@@ -222,12 +248,13 @@ public class BulletHellScreen implements Screen {
             checkCollisions();
         }
 
-        Gdx.gl.glClearColor(0, 0, 0.2f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        stage.draw();
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+        batch.draw(mainMenuBackground, 0, 0,  mainMenuBackground.getWidth(), mainMenuBackground.getHeight());
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
