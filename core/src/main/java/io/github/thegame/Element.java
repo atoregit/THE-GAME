@@ -62,7 +62,7 @@ public class Element {
     public void draw() {
         for (Rectangle fruit : elements) {
             ElementRectangle elementRect = (ElementRectangle) fruit;
-            game.batch.draw(elementTextures.get(elementRect.elementType), elementRect.x-15, elementRect.y+15);
+            game.batch.draw(elementTextures.get(elementRect.elementType), elementRect.x - 15, elementRect.y + 15);
         }
     }
 
@@ -72,14 +72,17 @@ public class Element {
             element.y -= ELEMENT_SPEED * Gdx.graphics.getDeltaTime();
             if (element.y + ELEMENT_SIZE < 0) iter.remove();
             if (element.overlaps(game.player)) {
-                ElementRectangle collidedFruit = (ElementRectangle) element;
-                collectLogic(collidedFruit.elementType);
+                ElementRectangle collidedElement = (ElementRectangle) element;
+                System.out.println("Collected element: " + collidedElement.elementType);
+                collectLogic(collidedElement.elementType);
                 iter.remove();
             }
         }
+
         if (Gdx.input.isKeyPressed(Input.Keys.X)) {
             collected[0] = null;
             collected[1] = null;
+            collectIndex = 0;
             clear.play();
         }
     }
@@ -104,24 +107,33 @@ public class Element {
     }
 
     public void collectLogic(ElementType collectedElement) {
-        if (collected[0] == null) {
-            collected[0] = collectedElement;
-            collect1.play();
-        } else if (collected[1] == null) {
-            collected[1] = collectedElement;
-            collect2.play();
+        collected[collectIndex] = collectedElement;
+        collectIndex = (collectIndex + 1) % 2; // Track only the last two elements
 
-            // Check if the two collected elements form a valid compound
+        if (collectIndex == 0) { // After two elements are collected
             if (ElementType.isCompound(collected[0], collected[1])) {
                 game.points++;
                 point.play();
+                System.out.println("Compound formed: " + collected[0] + " + " + collected[1]);
             } else {
+                game.points--;
                 wrong.play();
+                System.out.println("Invalid compound: " + collected[0] + " + " + collected[1]);
             }
 
-            // Reset collected elements after checking
+            // Reset the collected array after checking
             collected[0] = null;
             collected[1] = null;
+        } else {
+            // Play the collect sound
+            switch (collectIndex) {
+                case 1:
+                    collect1.play();
+                    break;
+                case 0:
+                    collect2.play();
+                    break;
+            }
         }
     }
 
@@ -136,6 +148,7 @@ public class Element {
         }
     }
 
+    private ElementType[] collected = new ElementType[2];
     private int collectIndex = 0;
     private BitmapFont font;
     private long elementLastDropTime;
@@ -150,8 +163,6 @@ public class Element {
     private Music point;
     private Music clear;
     private Music wrong;
-
-    public ElementType[] collected = new ElementType[2]; // Adjusted to store two elements
 
     private static class ElementRectangle extends Rectangle {
         int elementValue;
