@@ -45,6 +45,17 @@ music.mp3
 timer.png
 apple.png
 button2.png
+elements/8.png
+elements/9.png
+elements/11.png
+elements/10.png
+elements/4.png
+elements/5.png
+elements/7.png
+elements/6.png
+elements/2.png
+elements/3.png
+elements/1.png
 select.wav
 pause.png
 logo.png
