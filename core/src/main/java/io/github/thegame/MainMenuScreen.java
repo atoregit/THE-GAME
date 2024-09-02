@@ -76,9 +76,14 @@ public class MainMenuScreen implements Screen {
         Image logo = new Image(logoTexture);
 
 
-        Texture leftArrow = new Texture(Gdx.files.internal("cheebi.png"));
+        Texture leftArrow = new Texture(Gdx.files.internal("leftArrow.png"));
+        Texture rightArrow = new Texture(Gdx.files.internal("rightArrow.png"));
+        ImageTextButton left = createButton("", leftArrow, () -> {
+            transitionToScreen(new GameScreen(game));
+            clickSound.play();
+        });
 
-        ImageTextButton joo = createButton("Left", leftArrow, () -> {
+        ImageTextButton right = createButton("DSDSA", rightArrow, () -> {
             transitionToScreen(new BulletHellScreen(game));
             clickSound.play();
         });
@@ -86,9 +91,10 @@ public class MainMenuScreen implements Screen {
 
 
         // Add elements to table
-        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(120);
+        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(200);
         table.row();
-        table.add(joo).width(Value.percentWidth(0.6f, table)).height(Value.percentHeight(0.1f, table)).padBottom(40);
+        table.add(left).width(Value.percentWidth(0.1f, table)).height(Value.percentHeight(0.07f, table)).padBottom(40).padRight(60);
+        table.add(right).width(Value.percentWidth(0.1f, table)).height(Value.percentHeight(0.07f, table)).padBottom(40);
         table.row();
     }
 
