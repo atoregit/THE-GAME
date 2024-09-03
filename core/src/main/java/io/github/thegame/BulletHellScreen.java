@@ -12,13 +12,10 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -46,7 +43,7 @@ public class BulletHellScreen implements Screen {
     private List<String> powerUps = new ArrayList<String>();
     private OrthographicCamera camera;
     private SpriteBatch batch;
-
+    private static final float PARTICLE_DURATION = 0.2f;
 
 
     private static final float ENEMY_SPAWN_INTERVAL = 2.4f; // Seconds between enemy spawns
@@ -157,7 +154,7 @@ public class BulletHellScreen implements Screen {
             @Override
             protected ParticleEffect newObject() {
                 ParticleEffect effect = new ParticleEffect();
-                //effect.load(Gdx.files.internal("effects/explosion.p"), Gdx.files.internal("effects"));
+                effect.load(Gdx.files.internal("sfx/flamecool.p"), Gdx.files.internal("sfx"));
                 return effect;
             }
         };
@@ -328,11 +325,17 @@ public class BulletHellScreen implements Screen {
     }
 
     private void updateParticles(float delta) {
-        for (ParticleEffect particle : activeParticles) {
+        for (int i = activeParticles.size - 1; i >= 0; i--) {
+            ParticleEffect particle = activeParticles.get(i);
             particle.update(delta);
-            if (particle.isComplete()) {
-                activeParticles.removeValue(particle, true);
-                particlePool.free(particle); // Return the particle to the pool
+
+            // Check if the particle has been playing for more than PARTICLE_DURATION
+            if (particle.getEmitters().first().getDuration().getLowMax() > PARTICLE_DURATION) {
+                particle.allowCompletion(); // Allow the particle effect to complete
+                if (particle.isComplete()) {
+                    activeParticles.removeIndex(i);
+                    particlePool.free(particle); // Return the particle to the pool
+                }
             }
         }
     }
@@ -485,7 +488,8 @@ public class BulletHellScreen implements Screen {
     private void spawnParticleEffect(float x, float y) {
         ParticleEffect particle = particlePool.obtain();
         particle.setPosition(x, y);
-        particle.start();
+        particle.reset(); // Reset the particle effect
+        particle.start(); // Start the particle effect
         activeParticles.add(particle);
     }
     private void checkCombination() {

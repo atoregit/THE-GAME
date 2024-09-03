@@ -61,6 +61,7 @@ scorescreen.png
 select.wav
 sfx/click.wav
 sfx/explosion.wav
+sfx/flamecool.p
 sfx/fruitclear.wav
 sfx/fruitcollect1.wav
 sfx/fruitcollect2.wav
@@ -68,6 +69,7 @@ sfx/fruitcollect3.wav
 sfx/fruitwrong.wav
 sfx/gameover.wav
 sfx/hit.mp3
+sfx/particle.png
 sfx/point.wav
 sfx/press1.wav
 sfx/select.wav
