@@ -2,6 +2,7 @@ package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -47,8 +48,8 @@ public class BulletHellScreen implements Screen {
 
 
 
-    private static final float ENEMY_SPAWN_INTERVAL = 3.5f; // Seconds between enemy spawns
-    private static final float SYMBOL_SPAWN_INTERVAL = 7f; // Seconds between symbol spawns
+    private static final float ENEMY_SPAWN_INTERVAL = 2.4f; // Seconds between enemy spawns
+    private static final float SYMBOL_SPAWN_INTERVAL = 10f; // Seconds between symbol spawns
     private float enemySpawnTimer;
     private float symbolSpawnTimer;
 
@@ -88,6 +89,7 @@ public class BulletHellScreen implements Screen {
     private Texture blackbg;
     private Texture mainMenuBackground;
     private float scaleX, scaleY;
+    private float times;
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -95,9 +97,8 @@ public class BulletHellScreen implements Screen {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // Dynamically adjust camera
         batch = new SpriteBatch();
         Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
-        pixmap.setColor(1, 1, 1, 1);
         pixmap.fillRectangle(0, 0, 30, 30);
-        pixmap.setColor(1, 1, 1, 0.5f);
+        pixmap.setColor(1,1,1, 0.2f);
         pixmap.fill();
         transparent = new Texture(pixmap);
         pixmap.setColor(1, 0, 0, 1);
@@ -111,7 +112,13 @@ public class BulletHellScreen implements Screen {
         symbols = new Array<ChemicalSymbol>();
         bullets = new Array<Bullet>();
         activeParticles = new Array<ParticleEffect>();
-        font = new BitmapFont();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 35;
+        parameter.color = Color.WHITE;
+        font = generator.generateFont(parameter);
+        times = 0;
+        generator.dispose();
         collectedSymbols = new StringBuilder();
         stunTimer = 0;
         powerUps = new ArrayList<String>();
@@ -167,7 +174,7 @@ public class BulletHellScreen implements Screen {
         highlightPixmap.dispose();
 
         Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pix.setColor(37 / 255f, 40 / 255f, 48 / 255f, 0.8f);
+        pix.setColor(37 / 255f, 40 / 255f, 48 / 255f, 1f);
         pix.fillRectangle(0, 0, 1, 1);
         blackbg = new Texture(pix);
         pix.dispose();
@@ -180,13 +187,7 @@ public class BulletHellScreen implements Screen {
         stage.addActor(root);
 
         // Load background texture
-        mainMenuBackground = new Texture(Gdx.files.internal("menubg.png"), Pixmap.Format.RGBA8888, false);
 
-        // Set background image
-        Image background = new Image(mainMenuBackground);
-        background.setScaling(Scaling.stretch);
-        background.setFillParent(true);
-        root.addActor(background);
 
         pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
     }
@@ -219,10 +220,11 @@ public class BulletHellScreen implements Screen {
         enemySpawnTimer += delta;
         symbolSpawnTimer += delta;
         difficultyIncreaseTimer += delta;
+        times += delta;
     }
     private void drawHearts(SpriteBatch batch){
         for (int i = 0; i < player.getHealth()+1; i++){
-            batch.draw(heart, 40 * i, camera.viewportHeight/1.1f, 25, 25);
+            batch.draw(heart, 40 * i + 10, camera.viewportHeight - 40, 25, 25);
         }
     }
     @Override
@@ -248,13 +250,12 @@ public class BulletHellScreen implements Screen {
             checkCollisions();
         }
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(70/255f,130/255f,180/255f, 0.4f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(mainMenuBackground, 0, 0,  mainMenuBackground.getWidth(), mainMenuBackground.getHeight());
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
@@ -274,10 +275,11 @@ public class BulletHellScreen implements Screen {
             indicator.draw(batch, font);
         }
         font.setColor(Color.WHITE);
+        font.draw(batch, String.valueOf((int)times), camera.viewportWidth/2 - 15, camera.viewportHeight -20);
         font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
         drawHearts(batch);
         for (int i = 0; i < powerUps.size(); i++) {
-            font.draw(batch, powerUps.get(i), camera.viewportWidth/10 * i + 1, camera.viewportHeight/8);
+            font.draw(batch, powerUps.get(i), camera.viewportWidth/10 * (i + 1), camera.viewportHeight/6);
         }
 
         for (BulletEnemy enemy : enemies) enemy.draw(batch);
@@ -290,12 +292,18 @@ public class BulletHellScreen implements Screen {
         batch.draw(pauseButtonTexture, pauseButtonPosition.x, pauseButtonPosition.y, PAUSE_BUTTON_SIZE, PAUSE_BUTTON_SIZE);
         if (isPaused) {
             batch.draw(transparent, 0, 0, camera.viewportWidth, camera.viewportHeight);
-
             font.setColor(Color.WHITE);
-            font.draw(batch, "PAUSED", camera.viewportWidth / 2 - 50, camera.viewportHeight / 2 + 10);
-            font.draw(batch, "Tap anywhere to resume", camera.viewportWidth / 2 - 100, camera.viewportHeight / 2 - 20);
-        }
+            font.draw(batch, "PAUSED", camera.viewportWidth / 2 - 50, camera.viewportHeight/2 + 300);
+            font.draw(batch, "Tap anywhere to continue", camera.viewportWidth / 2 - 120, camera.viewportHeight/2 + 250);
+            font.draw(batch, "CHEMICAL CONCOCTIONS", camera.viewportWidth / 2 - 120, camera.viewportHeight / 2 + 100);
+            font.draw(batch, "H + H  = ++fireRate", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2  + 60);
+            font.draw(batch, "H + O  = --moveSpeed", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2  + 20);
+            font.draw(batch, "H + Cl = +damage", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 -20);
+            font.draw(batch, "Na + O = ++hp", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 60);
+            font.draw(batch, "Na + H = ++moveSpeed", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 100);
+            font.draw(batch, "Na + Cl = 2xdamage", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 140);
 
+        }
 
         batch.end();
         cleanupDamageIndicators();
@@ -394,7 +402,7 @@ public class BulletHellScreen implements Screen {
         float random = MathUtils.random(1f);
         String symbolType = "";
 
-        if (random <= 0.4f) {
+        if (random <= 0.5f) {
             symbolType = "H";
         } else if (random <= 0.6f) {
             symbolType = "Cl";
@@ -507,7 +515,7 @@ public class BulletHellScreen implements Screen {
                 case "NaCl":
                 case "ClNa":
                     powerUps.add("NaCl");
-                    player.setNumBullets(player.getNumBullets() + 1);
+                    player.setBulletDamage(player.getBulletDamage() * 2f);
                     validCombo = true;
                     break;
                 case "NaO":

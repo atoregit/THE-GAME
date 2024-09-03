@@ -182,7 +182,7 @@ public class BulletIntro implements Screen {
             Screen currentScreen = game.getScreen();
             game.setScreen(nextScreen);
             nextScreen = null;
-
+            blackBlueBox.toFront();
             if (currentScreen != null) {
                 currentScreen.dispose();
             }
@@ -242,7 +242,7 @@ public class BulletIntro implements Screen {
         nextScreen = newScreen;
         blackBlueBox.toFront();
         table.addAction(Actions.sequence(
-            Actions.moveBy(0, -stage.getHeight(), TRANSITION_DURATION, Interpolation.sine),
+            Actions.moveBy(0, stage.getHeight(), TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {
                 isTransitioning = false;
                 // The actual screen transition will happen in the render method
@@ -253,14 +253,14 @@ public class BulletIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);
         incomingTable.add(placeholderImage);
 
-        incomingTable.setPosition(0, stage.getHeight());
-        incomingTable.addAction(Actions.moveBy(0, -stage.getHeight(), TRANSITION_DURATION, Interpolation.sine));
+        incomingTable.setPosition(0, -stage.getHeight());
+        incomingTable.addAction(Actions.moveBy(0, stage.getHeight(), TRANSITION_DURATION, Interpolation.sine));
     }
 
     private void transitionToScreenLeft(Screen newScreen) {
@@ -280,7 +280,7 @@ public class BulletIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);
