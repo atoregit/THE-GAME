@@ -74,6 +74,7 @@ public class Element {
             Rectangle element = iter.next();
             element.y -= ELEMENT_SPEED * Gdx.graphics.getDeltaTime();
             if (element.y + ELEMENT_SIZE < 0) iter.remove();
+
             if (element.overlaps(game.player)) {
                 ElementRectangle collidedElement = (ElementRectangle) element;
                 System.out.println("Collected element: " + collidedElement.elementType);
@@ -157,8 +158,8 @@ public class Element {
     private long elementLastDropTime;
     private Array<Rectangle> elements;
     private static final int ELEMENT_SIZE = 64; // Size for displaying elements
-    private static final int ELEMENT_SPEED = 250;
-    private long spawnElementInterval = 500000000L;
+    public static int ELEMENT_SPEED = 100;
+    private long spawnElementInterval = 2000000000L;
 
     private Music collect1;
     private Music collect2;

@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameScreen implements Screen {
@@ -23,7 +23,6 @@ public class GameScreen implements Screen {
 
     private Player chara;
     private Element element;
-    private Bomb bomb;
     private GameEndScreen endScreen;
 
     private Texture exitButtonTexture;
@@ -34,7 +33,6 @@ public class GameScreen implements Screen {
         this.game = game;
         chara = new Player(this);
         element = new Element(this);
-        bomb = new Bomb(this);
         initComponents();
         setupInputProcessor();
     }
@@ -83,7 +81,7 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        batch.draw(texture, 0, margin, viewport.getWorldWidth(), viewport.getWorldHeight());
+        batch.draw(texture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !stunned) {
             batch.draw(playerImageLeft, player.x, player.y);
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !stunned) {
@@ -95,10 +93,11 @@ public class GameScreen implements Screen {
         }
 
         element.draw();
-        bomb.draw(batch);
 
         // Draw the exit button
         batch.draw(exitButtonTexture, exitButtonBounds.x, exitButtonBounds.y, exitButtonBounds.width, exitButtonBounds.height);
+
+        batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
 
         batch.end();
         String pointsText = "" + points;
@@ -115,8 +114,6 @@ public class GameScreen implements Screen {
         chara.move();
         element.render();
         element.move();
-        bomb.render();
-        bomb.move();
 
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
@@ -170,16 +167,15 @@ public class GameScreen implements Screen {
         playerImageLeft.dispose();
         playerImageRight.dispose();
         playerImageStun.dispose();
-        bombImage.dispose();
         dropSound.dispose();
         gameMusic.dispose();
         font.dispose();
         element.dispose();
-        bomb.dispose();
         timerTexture.dispose();
         fruitsCollectedTexture.dispose();
         exitButtonTexture.dispose();
         clockSound.dispose();
+        bottomSpriteTexture.dispose();
 
         if (batch != null) {
             batch.dispose();
@@ -206,6 +202,13 @@ public class GameScreen implements Screen {
 
         timer += deltaTime;
 
+        if (timer >= 40) {
+            element.ELEMENT_SPEED = 200;
+        }
+        if (timer >= 20) {
+            element.ELEMENT_SPEED = 150;
+        }
+
         if (timer >= 50) {
             if (!clockPlayed) {
                 clockSound.play();
@@ -221,7 +224,6 @@ public class GameScreen implements Screen {
 
     public void initComponents() {
         dropImage = new Texture(Gdx.files.internal("melon.png"));
-        bombImage = new Texture(Gdx.files.internal("bomb.png"));
         playerImageIdle = new Texture(Gdx.files.internal("idle.png"));
         playerImageRight = new Texture(Gdx.files.internal("runright.png"));
         playerImageLeft = new Texture(Gdx.files.internal("runleft.png"));
@@ -230,7 +232,8 @@ public class GameScreen implements Screen {
         fruitsCollectedTexture = new Texture(Gdx.files.internal("fruitscollected.png"));
         scoresTexture = new Texture(Gdx.files.internal("scores.png"));
         clickSound = Gdx.audio.newSound(Gdx.files.internal("sfx/click.wav"));
-
+        bottomSpriteTexture = new Texture(Gdx.files.internal("black_blue_box.png"));
+        bottomSpriteBounds = new Rectangle(0, 0, GAME_SCREEN_X, 50);
         dropSound = Gdx.audio.newSound(Gdx.files.internal("hit.wav"));
         clockSound = Gdx.audio.newSound(Gdx.files.internal("clock.wav"));
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
@@ -244,12 +247,11 @@ public class GameScreen implements Screen {
         font.getData().setScale(2f);
 
         camera = new OrthographicCamera();
-        viewport = new FitViewport(GAME_SCREEN_X, GAME_SCREEN_Y, camera); // Use FitViewport to handle aspect ratio
+        viewport = new StretchViewport(GAME_SCREEN_X, GAME_SCREEN_Y, camera); // Use StretchViewport to handle scaling
         batch = new SpriteBatch();
 
         chara.createPlayer();
         element.create();
-        bomb.create();
 
         exitButtonTexture = new Texture(Gdx.files.internal("exit.png"));
         float exitButtonSize = 32;
@@ -261,7 +263,7 @@ public class GameScreen implements Screen {
     }
 
     public OrthographicCamera camera;
-    public Viewport viewport; // Added viewport for handling resizing
+    public Viewport viewport; // Updated viewport for handling stretching
     public Texture dropImage;
     private Texture playerImageIdle;
     private Texture playerImageRight;
@@ -270,12 +272,12 @@ public class GameScreen implements Screen {
     private Texture timerTexture;
     private Texture fruitsCollectedTexture;
     private Texture scoresTexture;
-    public Texture bombImage;
     public Sound dropSound;
     public Sound clockSound;
     private Music gameMusic;
     public SpriteBatch batch;
-
+    private Texture bottomSpriteTexture;
+    private Rectangle bottomSpriteBounds = new Rectangle();
     public BitmapFont font;
     private Texture texture;
     public int points;

@@ -15,7 +15,7 @@ public class Player {
     public void createPlayer() {
         game.player = new Rectangle();
         game.player.x = 480 / 2f - PLAYER_SIZE / 2f; // center the player horizontally
-        game.player.y = 20; // bottom left corner of the player is 20 pixels above the bottom screen edge
+        game.player.y = Gdx.graphics.getHeight() * 0.055f; // bottom left corner of the player is 20 pixels above the bottom screen edge
         game.player.width = PLAYER_SIZE;
         game.player.height = PLAYER_SIZE;
     }
