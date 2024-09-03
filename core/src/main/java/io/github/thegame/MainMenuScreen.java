@@ -96,6 +96,7 @@ public class MainMenuScreen implements Screen {
         table.add(left).width(Value.percentWidth(0.1f, table)).height(Value.percentHeight(0.07f, table)).padBottom(40).padRight(60);
         table.add(right).width(Value.percentWidth(0.1f, table)).height(Value.percentHeight(0.07f, table)).padBottom(40);
         table.row();
+        stage.setDebugAll(true);
     }
 
     private ImageTextButton createButton(String text, Texture background, Runnable action) {
