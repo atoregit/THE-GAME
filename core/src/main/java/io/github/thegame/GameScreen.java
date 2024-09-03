@@ -15,8 +15,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameScreen implements Screen {
     final Main game;
@@ -38,7 +36,6 @@ public class GameScreen implements Screen {
         initComponents();
         setupInputProcessor();
     }
-
     private void setupInputProcessor() {
         gameInputProcessor = new InputAdapter() {
             @Override
@@ -68,7 +65,6 @@ public class GameScreen implements Screen {
             }
         };
     }
-
     @Override
     public void render(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -83,7 +79,7 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        batch.draw(texture, 0, margin, viewport.getWorldWidth(), viewport.getWorldHeight());
+        batch.draw(texture, 0, margin, GAME_SCREEN_X, GAME_SCREEN_Y);
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !stunned) {
             batch.draw(playerImageLeft, player.x, player.y);
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !stunned) {
@@ -120,7 +116,7 @@ public class GameScreen implements Screen {
 
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
-        batch.draw(scoresTexture, GAME_SCREEN_X * 0.46f, GAME_SCREEN_Y - timerTexture.getHeight() - 18);
+        batch.draw(scoresTexture, GAME_SCREEN_X     * 0.46f, GAME_SCREEN_Y - timerTexture.getHeight() - 18);
         element.drawCollectedFruits();
         batch.end();
 
@@ -128,6 +124,7 @@ public class GameScreen implements Screen {
         font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
         font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
         batch.end();
+
 
         if (Gdx.input.justTouched()) {
             float touchX = Gdx.input.getX();
@@ -141,10 +138,7 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-        exitButtonBounds.setPosition(GAME_SCREEN_X - exitButtonBounds.width - 10, GAME_SCREEN_Y - exitButtonBounds.height - 10);
-    }
+    public void resize(int width, int height) {}
 
     @Override
     public void show() {
@@ -198,7 +192,7 @@ public class GameScreen implements Screen {
 
         if (slowed) {
             slowTimer += deltaTime;
-            if (slowTimer >= chara.SLOW_DURATION) {
+            if (stunTimer >= chara.SLOW_DURATION) {
                 slowed = false;
                 slowTimer = 0;
             }
@@ -206,11 +200,12 @@ public class GameScreen implements Screen {
 
         timer += deltaTime;
 
-        if (timer >= 50) {
-            if (!clockPlayed) {
+        if(timer >= 50) {
+            if(!clockPlayed) {
                 clockSound.play();
                 clockPlayed = true;
             }
+
         }
 
         if (timer >= timerDuration) {
@@ -244,15 +239,16 @@ public class GameScreen implements Screen {
         font.getData().setScale(2f);
 
         camera = new OrthographicCamera();
-        viewport = new FitViewport(GAME_SCREEN_X, GAME_SCREEN_Y, camera); // Use FitViewport to handle aspect ratio
+        camera.setToOrtho(false, GAME_SCREEN_X, GAME_SCREEN_Y);
         batch = new SpriteBatch();
 
         chara.createPlayer();
         element.create();
         bomb.create();
 
+
         exitButtonTexture = new Texture(Gdx.files.internal("exit.png"));
-        float exitButtonSize = 32;
+        float exitButtonSize = 32; //
         exitButtonBounds = new Rectangle(GAME_SCREEN_X - exitButtonSize - 10, GAME_SCREEN_Y - exitButtonSize - 10, exitButtonSize, exitButtonSize);
     }
 
@@ -261,7 +257,6 @@ public class GameScreen implements Screen {
     }
 
     public OrthographicCamera camera;
-    public Viewport viewport; // Added viewport for handling resizing
     public Texture dropImage;
     private Texture playerImageIdle;
     private Texture playerImageRight;
