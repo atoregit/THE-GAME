@@ -145,7 +145,7 @@ public class GameIntro implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the color buffer
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-        blackBlueBox.toFront();
+
 
         if (!isTransitioning) {
             stage.getViewport().apply();
@@ -186,6 +186,7 @@ public class GameIntro implements Screen {
 
     private void transitionToScreenRight(Screen newScreen) {
         if (isTransitioning) return;
+        blackBlueBox.toFront();
         isTransitioning = true;
         nextScreen = newScreen;
         blackBlueBox.toFront();
@@ -200,7 +201,7 @@ public class GameIntro implements Screen {
         Table incomingTable = new Table();
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
-
+        blackBlueBox.toFront();
         Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
@@ -223,11 +224,11 @@ public class GameIntro implements Screen {
                 // The actual screen transition will happen in the render method
             })
         ));
-
+        blackBlueBox.toFront();
         Table incomingTable = new Table();
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
-
+        blackBlueBox.toFront();
         Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);

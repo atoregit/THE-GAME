@@ -2,6 +2,7 @@ package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.Color;
@@ -90,6 +91,8 @@ public class BulletHellScreen implements Screen {
     private Texture mainMenuBackground;
     private float scaleX, scaleY;
     private float times;
+
+    private Music hit;
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -188,7 +191,7 @@ public class BulletHellScreen implements Screen {
 
         // Load background texture
 
-
+        hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
         pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
     }
 
@@ -451,6 +454,7 @@ public class BulletHellScreen implements Screen {
             for (BulletEnemy enemy : enemies) {
                 if (bullet.getBounds().overlaps(enemy.getBounds())) {
                     enemy.hit(player.getBulletDamage());
+                    hit.play();
                     bulletsToRemove.add(bullet);
                     damageIndicators.add(new BulletDamage(
                         enemy.getX() + enemy.getWidth() / 2,
@@ -613,5 +617,11 @@ public class BulletHellScreen implements Screen {
         powerUps.clear();
         bulletPool.clear();
         inputHighlight.dispose();
+        hit.dispose();
+        blackbg.dispose();
+        transparent.dispose();
+        heart.dispose();
+        enemiesToRemove.clear();
+
     }
 }

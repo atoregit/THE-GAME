@@ -179,10 +179,11 @@ public class BulletIntro implements Screen {
         }
 
         if (!isTransitioning && nextScreen != null) {
+            blackBlueBox.toFront();
             Screen currentScreen = game.getScreen();
             game.setScreen(nextScreen);
             nextScreen = null;
-            blackBlueBox.toFront();
+
             if (currentScreen != null) {
                 currentScreen.dispose();
             }
@@ -226,7 +227,7 @@ public class BulletIntro implements Screen {
         Table incomingTable = new Table();
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
-
+        blackBlueBox.toFront();
         Texture placeholder = new Texture(Gdx.files.internal("background.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
@@ -252,7 +253,7 @@ public class BulletIntro implements Screen {
         Table incomingTable = new Table();
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
-
+        blackBlueBox.toFront();
         Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
@@ -279,7 +280,7 @@ public class BulletIntro implements Screen {
         Table incomingTable = new Table();
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
-
+        blackBlueBox.toFront();
         Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);

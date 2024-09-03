@@ -67,6 +67,7 @@ sfx/fruitcollect2.wav
 sfx/fruitcollect3.wav
 sfx/fruitwrong.wav
 sfx/gameover.wav
+sfx/hit.mp3
 sfx/point.wav
 sfx/press1.wav
 sfx/select.wav
