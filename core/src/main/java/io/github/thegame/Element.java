@@ -64,8 +64,8 @@ public class Element {
             ElementRectangle elementRect = (ElementRectangle) fruit;
             Texture texture = elementTextures.get(elementRect.elementType);
 
-            // Draw the texture scaled to 64x64
-            game.batch.draw(texture, elementRect.x - ELEMENT_SIZE / 2, elementRect.y - ELEMENT_SIZE / 2, ELEMENT_SIZE, ELEMENT_SIZE);
+            // Draw the texture at the correct position
+            game.batch.draw(texture, elementRect.x, elementRect.y, ELEMENT_SIZE, ELEMENT_SIZE);
         }
     }
 
@@ -83,12 +83,13 @@ public class Element {
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.X)) {
-            collected[0] = null;
-            collected[1] = null;
-            collectIndex = 0;
-            clear.play();
-        }
+    }
+
+    public void clear() {
+        collected[0] = null;
+        collected[1] = null;
+        collectIndex = 0;
+        clear.play();
     }
 
     public void dispose() {
@@ -111,6 +112,11 @@ public class Element {
     }
 
     public void collectLogic(ElementType collectedElement) {
+        if (collectIndex == 0 && collected[1] != null) {
+            // Reset the collected array after checking
+            collected[1] = null;
+        }
+
         collected[collectIndex] = collectedElement;
         collectIndex = (collectIndex + 1) % 2; // Track only the last two elements
 
@@ -124,32 +130,40 @@ public class Element {
                 wrong.play();
                 System.out.println("Invalid compound: " + collected[0] + " + " + collected[1]);
             }
-
-            // Reset the collected array after checking
-            collected[0] = null;
-            collected[1] = null;
         } else {
             // Play the collect sound
-            switch (collectIndex) {
-                case 1:
-                    collect1.play();
-                    break;
-                case 0:
-                    collect2.play();
-                    break;
-            }
+            collect1.play();
         }
     }
-
     public void drawCollectedFruits() {
-        float startX = 10;
-        float startY = game.GAME_SCREEN_Y - 100;
+        float startX = 150;
+        float startY = game.GAME_SCREEN_Y - 600;
+
         for (int i = 0; i < 2; i++) {
             ElementType type = collected[i];
             if (type != null) {
-                game.batch.draw(elementTextures.get(type), startX + i * 30, startY, 32, 32);
+                if (collectIndex == 0 && ElementType.isCompound(collected[0], collected[1])) {
+                    // Restore original color if the combination is correct
+                    game.batch.setColor(1f, 1f, 1f, 1f);  // Set color to normal
+                } else {
+                    // Apply monochrome effect by averaging RGB values
+                    game.batch.setColor(0.33f, 0.33f, 0.33f, 0.8f);  // Monochrome (grey)
+                }
+                game.batch.draw(elementTextures.get(type), startX + i * 100, startY, ELEMENT_SIZE * 1.3f, ELEMENT_SIZE);
             }
         }
+
+        // Reset the batch color to default after drawing
+        game.batch.setColor(1f, 1f, 1f, 1f);
+    }
+
+
+
+
+    private void resetCollected() {
+        collected[0] = null;
+        collected[1] = null;
+        collectIndex = 0;
     }
 
     private ElementType[] collected = new ElementType[2];
@@ -159,7 +173,7 @@ public class Element {
     private Array<Rectangle> elements;
     private static final int ELEMENT_SIZE = 64; // Size for displaying elements
     public static int ELEMENT_SPEED = 100;
-    private long spawnElementInterval = 2000000000L;
+    private long spawnElementInterval = 1500000000L;
 
     private Music collect1;
     private Music collect2;

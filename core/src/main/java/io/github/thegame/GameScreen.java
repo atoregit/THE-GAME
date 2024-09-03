@@ -25,10 +25,11 @@ public class GameScreen implements Screen {
     private Element element;
     private GameEndScreen endScreen;
 
-    private Texture exitButtonTexture;
-    private Rectangle exitButtonBounds;
+    private Texture trashButtonTexture;
+    private Rectangle trashButtonBounds;
 
     private InputProcessor gameInputProcessor;
+
     public GameScreen(final Main game) {
         this.game = game;
         chara = new Player(this);
@@ -40,26 +41,13 @@ public class GameScreen implements Screen {
     private void setupInputProcessor() {
         gameInputProcessor = new InputAdapter() {
             @Override
-            public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.ESCAPE) {
-                    game.setScreen(new PauseMenuScreen(game, GameScreen.this));
-                    clickSound.play();
-                    game.pause();
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 // Convert touch coordinates to our game world coordinates
                 Vector3 touchPos = new Vector3(screenX, screenY, 0);
                 camera.unproject(touchPos);
 
-                if (exitButtonBounds.contains(touchPos.x, touchPos.y)) {
-                    game.setScreen(new PauseMenuScreen(game, GameScreen.this));
-                    clickSound.play();
-                    game.pause();
+                if (trashButtonBounds.contains(touchPos.x, touchPos.y)) {
+                    element.clear();
                     return true;
                 }
                 return false;
@@ -82,6 +70,7 @@ public class GameScreen implements Screen {
 
         batch.begin();
         batch.draw(texture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !stunned) {
             batch.draw(playerImageLeft, player.x, player.y);
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !stunned) {
@@ -94,8 +83,8 @@ public class GameScreen implements Screen {
 
         element.draw();
 
-        // Draw the exit button
-        batch.draw(exitButtonTexture, exitButtonBounds.x, exitButtonBounds.y, exitButtonBounds.width, exitButtonBounds.height);
+        // Draw the trash button
+
 
         batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
 
@@ -124,23 +113,14 @@ public class GameScreen implements Screen {
         batch.begin();
         font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
         font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
+        batch.draw(trashButtonTexture, trashButtonBounds.x, trashButtonBounds.y, trashButtonBounds.width, trashButtonBounds.height);
         batch.end();
-
-        if (Gdx.input.justTouched()) {
-            float touchX = Gdx.input.getX();
-            float touchY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Convert y
-            if (exitButtonBounds.contains(touchX, touchY)) {
-                game.setScreen(new PauseMenuScreen(game, this));
-                clickSound.play();
-                game.pause();
-            }
-        }
     }
 
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
-        exitButtonBounds.setPosition(GAME_SCREEN_X - exitButtonBounds.width - 10, GAME_SCREEN_Y - exitButtonBounds.height - 10);
+        trashButtonBounds.setPosition(GAME_SCREEN_X - trashButtonBounds.width - 10, 10); // Position at bottom-right corner
     }
 
     @Override
@@ -173,7 +153,7 @@ public class GameScreen implements Screen {
         element.dispose();
         timerTexture.dispose();
         fruitsCollectedTexture.dispose();
-        exitButtonTexture.dispose();
+        trashButtonTexture.dispose(); // Dispose of the trash button texture
         clockSound.dispose();
         bottomSpriteTexture.dispose();
 
@@ -184,32 +164,19 @@ public class GameScreen implements Screen {
     }
 
     public void updateTimer(float deltaTime) {
-        if (stunned) {
-            stunTimer += deltaTime;
-            if (stunTimer >= chara.STUN_DURATION) {
-                stunned = false;
-                stunTimer = 0;
-            }
-        }
-
-        if (slowed) {
-            slowTimer += deltaTime;
-            if (slowTimer >= chara.SLOW_DURATION) {
-                slowed = false;
-                slowTimer = 0;
-            }
-        }
-
         timer += deltaTime;
 
+        if (timer >= 60) {
+            element.ELEMENT_SPEED = 300;
+        }
         if (timer >= 40) {
             element.ELEMENT_SPEED = 200;
         }
         if (timer >= 20) {
-            element.ELEMENT_SPEED = 150;
+            element.ELEMENT_SPEED = 120;
         }
 
-        if (timer >= 50) {
+        if (timer >= 80) {
             if (!clockPlayed) {
                 clockSound.play();
                 clockPlayed = true;
@@ -253,9 +220,14 @@ public class GameScreen implements Screen {
         chara.createPlayer();
         element.create();
 
-        exitButtonTexture = new Texture(Gdx.files.internal("exit.png"));
-        float exitButtonSize = 32;
-        exitButtonBounds = new Rectangle(GAME_SCREEN_X - exitButtonSize - 10, GAME_SCREEN_Y - exitButtonSize - 10, exitButtonSize, exitButtonSize);
+        trashButtonTexture = new Texture(Gdx.files.internal("cheebi.png")); // Load trash button texture
+        float trashButtonSize = 64;
+        trashButtonBounds = new Rectangle(
+            (GAME_SCREEN_X - trashButtonSize) / 2, // Center horizontally
+            10, // Adjust vertically as needed
+            trashButtonSize,
+            trashButtonSize
+        );
     }
 
     public void stunPlayer() {
@@ -296,7 +268,8 @@ public class GameScreen implements Screen {
     public boolean clockPlayed = false;
 
     private float timer = 0;
-    private float timerDuration = 60;
+    private float timerDuration = 90;
 
     Sound clickSound;
 }
+

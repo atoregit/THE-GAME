@@ -88,7 +88,7 @@ public class MainMenuScreen implements Screen {
             clickSound.play();
         });
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenLeft(new GameIntro(game));
+            transitionToScreenLeft(new GameScreen(game));
             clickSound.play();
         });
 
