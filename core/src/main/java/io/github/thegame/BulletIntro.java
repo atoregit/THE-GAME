@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.Scaling;
 
@@ -97,7 +98,7 @@ public class BulletIntro implements Screen {
         parameter.size = 40;
         parameter.color = Color.WHITE;
         BitmapFont font = generator.generateFont(parameter);
-        generator.dispose();
+
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
 
@@ -114,10 +115,37 @@ public class BulletIntro implements Screen {
 
         bottomTable.add(rightButton).width(35).height(75);
 
+        parameter.size = 80;
+        parameter.color = Color.WHITE;
+        BitmapFont fontz = generator.generateFont(parameter);
         table.add(bottomTable).padBottom(20);
         table.row();
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = fontz;
+        buttonStyle.fontColor = Color.WHITE;
 
 
+
+        // Create button
+        TextButton startButton = new TextButton("START GAME", buttonStyle);
+        startButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                clickSound.play();
+                transitionToScreenUp(new BulletHellScreen(game));
+            }
+        });
+
+        // Add button to a separate table for positioning
+        Table buttonTable = new Table();
+        buttonTable.setFillParent(true);
+        buttonTable.bottom();
+        buttonTable.add(startButton).width(VIRTUAL_WIDTH).height(VIRTUAL_HEIGHT * 0.15f).padBottom(40);
+
+        // Add button table to stage
+        stage.addActor(buttonTable);
+
+        generator.dispose();
 
     }
 
@@ -145,7 +173,6 @@ public class BulletIntro implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the color buffer
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
-        blackBlueBox.toFront();
 
         if (!isTransitioning) {
             stage.getViewport().apply();
@@ -187,7 +214,7 @@ public class BulletIntro implements Screen {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
-
+        blackBlueBox.toFront();
         table.addAction(Actions.sequence(
             Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {
@@ -209,12 +236,38 @@ public class BulletIntro implements Screen {
         incomingTable.setPosition(stage.getWidth(), 0);
         incomingTable.addAction(Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine));
     }
+    private void transitionToScreenUp(Screen newScreen) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        nextScreen = newScreen;
+        blackBlueBox.toFront();
+        table.addAction(Actions.sequence(
+            Actions.moveBy(0, -stage.getHeight(), TRANSITION_DURATION, Interpolation.sine),
+            Actions.run(() -> {
+                isTransitioning = false;
+                // The actual screen transition will happen in the render method
+            })
+        ));
+
+        Table incomingTable = new Table();
+        incomingTable.setFillParent(true);
+        stage.addActor(incomingTable);
+
+        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
+        Image placeholderImage = new Image(placeholder);
+        placeholderImage.setScaling(Scaling.stretch);
+        placeholderImage.setFillParent(true);
+        incomingTable.add(placeholderImage);
+
+        incomingTable.setPosition(0, stage.getHeight());
+        incomingTable.addAction(Actions.moveBy(0, -stage.getHeight(), TRANSITION_DURATION, Interpolation.sine));
+    }
 
     private void transitionToScreenLeft(Screen newScreen) {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
-
+        blackBlueBox.toFront();
         table.addAction(Actions.sequence(
             Actions.moveBy(stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {

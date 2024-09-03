@@ -146,7 +146,6 @@ public class MainMenuScreen implements Screen {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
         blackBlueBox.toFront();
-
         if (!isTransitioning) {
             stage.getViewport().apply();
         }
@@ -161,6 +160,7 @@ public class MainMenuScreen implements Screen {
             }
         }
     }
+
 
     @Override
     public void resize(int width, int height) {
@@ -187,7 +187,7 @@ public class MainMenuScreen implements Screen {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
-
+        blackBlueBox.toFront();
         table.addAction(Actions.sequence(
             Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {
@@ -214,7 +214,7 @@ public class MainMenuScreen implements Screen {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
-
+        blackBlueBox.toFront();
         table.addAction(Actions.sequence(
             Actions.moveBy(stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {
@@ -227,7 +227,7 @@ public class MainMenuScreen implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("background.png.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);

@@ -84,11 +84,11 @@ public class GameIntro implements Screen {
         Texture rightArrowTexture = new Texture(Gdx.files.internal("rightArrow.png"));
 
         ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
-            transitionToScreenRight(new BulletIntro(game));
+            transitionToScreenRight(new MainMenuScreen(game));
             clickSound.play();
         });
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenLeft(new MainMenuScreen(game));
+            transitionToScreenLeft(new BulletIntro(game));
             clickSound.play();
         });
 
@@ -152,6 +152,7 @@ public class GameIntro implements Screen {
         }
 
         if (!isTransitioning && nextScreen != null) {
+            blackBlueBox.toFront();
             Screen currentScreen = game.getScreen();
             game.setScreen(nextScreen);
             nextScreen = null;
@@ -187,7 +188,7 @@ public class GameIntro implements Screen {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
-
+        blackBlueBox.toFront();
         table.addAction(Actions.sequence(
             Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {
@@ -214,7 +215,7 @@ public class GameIntro implements Screen {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
-
+        blackBlueBox.toFront();
         table.addAction(Actions.sequence(
             Actions.moveBy(stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
             Actions.run(() -> {
@@ -227,7 +228,7 @@ public class GameIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("background.png "));
+        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);
