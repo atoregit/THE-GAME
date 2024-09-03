@@ -18,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.Scaling;
 
-public class MainMenuScreen implements Screen {
+public class BulletIntro implements Screen {
     final Main game;
     private final Stage stage;
     private Table table;
@@ -31,9 +31,9 @@ public class MainMenuScreen implements Screen {
     private static final float VIRTUAL_HEIGHT = 640;
     private static final float TRANSITION_DURATION = 0.5f;
     private Texture mainMenuBackground; // Store background texture for disposal
-    private Image bgcolor;
+
     private Image blackBlueBox;
-    public MainMenuScreen(final Main game) {
+    public BulletIntro(final Main game) {
         this.game = game;
 
         stage = new Stage(new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
@@ -75,20 +75,20 @@ public class MainMenuScreen implements Screen {
         stage.addActor(blackBlueBox); // Add it to the stage so it's always visible
 
 
-        Texture logoTexture = new Texture(Gdx.files.internal("logo.png"));
+        Texture logoTexture = new Texture(Gdx.files.internal("shootersLogo.png"));
         Image logo = new Image(logoTexture);
-        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(175);
+        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(200);
         table.row();
 
         Texture leftArrowTexture = new Texture(Gdx.files.internal("leftArrow.png"));
         Texture rightArrowTexture = new Texture(Gdx.files.internal("rightArrow.png"));
 
         ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
-            transitionToScreenRight(new BulletIntro(game));
+            transitionToScreenRight(new GameIntro(game));
             clickSound.play();
         });
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenLeft(new GameIntro(game));
+            transitionToScreenLeft(new MainMenuScreen(game));
             clickSound.play();
         });
 
@@ -106,9 +106,9 @@ public class MainMenuScreen implements Screen {
         bottomTable.add(leftButton).width(35).height(75);
 
         Table labelTable = new Table();
-        labelTable.add(new Label("tap the left or", labelStyle)).row();
-        labelTable.add(new Label("right arrow to", labelStyle)).row();
-        labelTable.add(new Label("start playing.", labelStyle));
+        labelTable.add(new Label("YOU: ", labelStyle)).row();
+        labelTable.add(new Label("YOU: ", labelStyle)).row();
+        labelTable.add(new Label("YOU: ", labelStyle));
 
         bottomTable.add(labelTable).padLeft(60).padRight(60);
 
@@ -141,7 +141,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(38/255f,40/255f,43/255f, 0.2f); // Clear screen with black color
+        Gdx.gl.glClearColor(38/255f,40/255f,43/255f, 0.4f);// Clear screen with black color
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the color buffer
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
@@ -227,7 +227,7 @@ public class MainMenuScreen implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("background.png.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);
