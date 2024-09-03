@@ -227,7 +227,7 @@ public class BulletIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("background.png.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);

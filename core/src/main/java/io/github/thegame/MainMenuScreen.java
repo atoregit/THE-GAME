@@ -4,8 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -26,7 +29,7 @@ public class MainMenuScreen implements Screen {
     private Screen nextScreen;
     private static final float VIRTUAL_WIDTH = 480;
     private static final float VIRTUAL_HEIGHT = 640;
-    private static final float TRANSITION_DURATION = 2f;
+    private static final float TRANSITION_DURATION = 0.5f;
     private Texture mainMenuBackground; // Store background texture for disposal
 
     private Image blackBlueBox;
@@ -68,34 +71,54 @@ public class MainMenuScreen implements Screen {
         blackBlueBox = new Image(new Texture(Gdx.files.internal("black_blue_box.png"))); // Load a texture or create a solid color
         blackBlueBox.setSize(VIRTUAL_WIDTH, stage.getHeight() * 0.15f); // 15% of screen height
         blackBlueBox.setPosition(0, 0); // Position it at the bottom of the screen
-        blackBlueBox.setColor(1, 1, 1, 0.5f); // Set alpha to 0.5f for 50% transparency
+        blackBlueBox.setColor(1, 1, 1, 0.8f); // Set alpha to 0.5f for 50% transparency
         stage.addActor(blackBlueBox); // Add it to the stage so it's always visible
 
 
         Texture logoTexture = new Texture(Gdx.files.internal("logo.png"));
         Image logo = new Image(logoTexture);
-
-
-        Texture leftArrow = new Texture(Gdx.files.internal("leftArrow.png"));
-        Texture rightArrow = new Texture(Gdx.files.internal("rightArrow.png"));
-        ImageTextButton left = createButton("", leftArrow, () -> {
-            transitionToScreen(new GameScreen(game));
-            clickSound.play();
-        });
-
-        ImageTextButton right = createButton("DSDSA", rightArrow, () -> {
-            transitionToScreen(new BulletHellScreen(game));
-            clickSound.play();
-        });
-
-
-
-        // Add elements to table
         table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(200);
         table.row();
-        table.add(left).width(Value.percentWidth(0.1f, table)).height(Value.percentHeight(0.07f, table)).padBottom(40).padRight(60);
-        table.add(right).width(Value.percentWidth(0.1f, table)).height(Value.percentHeight(0.07f, table)).padBottom(40);
+
+        Texture leftArrowTexture = new Texture(Gdx.files.internal("leftArrow.png"));
+        Texture rightArrowTexture = new Texture(Gdx.files.internal("rightArrow.png"));
+
+        ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
+            transitionToScreenRight(new BulletIntro(game));
+            clickSound.play();
+        });
+        ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
+            transitionToScreenLeft(new GameIntro(game));
+            clickSound.play();
+        });
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 40;
+        parameter.color = Color.WHITE;
+        BitmapFont font = generator.generateFont(parameter);
+        generator.dispose();
+
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
+
+        Table bottomTable = new Table();
+
+        bottomTable.add(leftButton).width(35).height(75);
+
+        Table labelTable = new Table();
+        labelTable.add(new Label("tap the left", labelStyle)).row();
+        labelTable.add(new Label("or right arrow to", labelStyle)).row();
+        labelTable.add(new Label("start playing. ", labelStyle));
+
+        bottomTable.add(labelTable).padLeft(60).padRight(60);
+
+        bottomTable.add(rightButton).width(35).height(75);
+
+        table.add(bottomTable).padBottom(20);
         table.row();
+
+
+
     }
 
     private ImageTextButton createButton(String text, Texture background, Runnable action) {
@@ -118,7 +141,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1); // Clear screen with black color
+        Gdx.gl.glClearColor(38/255f,40/255f,43/255f, 0.4f);// Clear screen with black color
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the color buffer
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
@@ -160,7 +183,7 @@ public class MainMenuScreen implements Screen {
         // Method intentionally left empty
     }
 
-    private void transitionToScreen(Screen newScreen) {
+    private void transitionToScreenRight(Screen newScreen) {
         if (isTransitioning) return;
         isTransitioning = true;
         nextScreen = newScreen;
@@ -177,7 +200,7 @@ public class MainMenuScreen implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
 
-        Texture placeholder = new Texture(Gdx.files.internal("placeholder.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);
@@ -185,6 +208,33 @@ public class MainMenuScreen implements Screen {
 
         incomingTable.setPosition(stage.getWidth(), 0);
         incomingTable.addAction(Actions.moveBy(-stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine));
+    }
+
+    private void transitionToScreenLeft(Screen newScreen) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        nextScreen = newScreen;
+
+        table.addAction(Actions.sequence(
+            Actions.moveBy(stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine),
+            Actions.run(() -> {
+                isTransitioning = false;
+                // The actual screen transition will happen in the render method
+            })
+        ));
+
+        Table incomingTable = new Table();
+        incomingTable.setFillParent(true);
+        stage.addActor(incomingTable);
+
+        Texture placeholder = new Texture(Gdx.files.internal("background.png.png"));
+        Image placeholderImage = new Image(placeholder);
+        placeholderImage.setScaling(Scaling.stretch);
+        placeholderImage.setFillParent(true);
+        incomingTable.add(placeholderImage);
+
+        incomingTable.setPosition(-stage.getWidth(), 0);
+        incomingTable.addAction(Actions.moveBy(stage.getWidth(), 0, TRANSITION_DURATION, Interpolation.sine));
     }
 
     @Override
