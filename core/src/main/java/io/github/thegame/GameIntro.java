@@ -24,7 +24,7 @@ public class GameIntro implements Screen {
     private final Stage stage;
     private Table table;
     private Skin skin;
-    private Music menuMusic;
+    private Music menuMusic, left, right, play;
     private Sound clickSound;
     private boolean isTransitioning = false;
     private Screen nextScreen;
@@ -44,7 +44,9 @@ public class GameIntro implements Screen {
         clickSound = Gdx.audio.newSound(Gdx.files.internal("sfx/click.wav"));
         menuMusic.setLooping(true);
         menuMusic.play();
-
+        left = Gdx.audio.newMusic(Gdx.files.internal("sfx/left.wav"));
+        right = Gdx.audio.newMusic(Gdx.files.internal("sfx/right.wav"));
+        play = Gdx.audio.newMusic(Gdx.files.internal("sfx/play.wav"));
         skin = new Skin(Gdx.files.internal("skin/terra-mother-ui.json"));
 
         createUI();
@@ -86,11 +88,11 @@ public class GameIntro implements Screen {
 
         ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
             transitionToScreenRight(new MainMenuScreen(game));
-            clickSound.play();
+            right.play();
         });
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
             transitionToScreenLeft(new BulletIntro(game));
-            clickSound.play();
+            left.play();
         });
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
@@ -131,7 +133,7 @@ public class GameIntro implements Screen {
         startButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                clickSound.play();
+                play.play();
                 transitionToScreenUp(new GameScreen(game));
             }
         });
@@ -155,7 +157,6 @@ public class GameIntro implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                clickSound.play();
                 action.run();
             }
         });
@@ -299,5 +300,8 @@ public class GameIntro implements Screen {
         skin.dispose();
         mainMenuBackground.dispose(); // Dispose background texture
         blackBlueBox.remove();
+        left.dispose();
+        right.dispose();
+        play.dispose();
     }
 }

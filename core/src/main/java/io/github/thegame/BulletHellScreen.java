@@ -88,13 +88,13 @@ public class BulletHellScreen implements Screen {
     private Texture mainMenuBackground;
     private float scaleX, scaleY;
     private float times;
-    private Texture timerTexture;
     private Music hit;
     private Music scout;
     private Music getChemical;
     private Music setChemical;
     private Music wrongChemical;
     private Music shoot;
+    private Music bgmusic;
     private static final String FLAME_PARTICLE = "flamecool.p";
     private static final String SCOUT_PARTICLE = "scout.p";
     public BulletHellScreen(final Main game) {
@@ -190,8 +190,7 @@ public class BulletHellScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        // Load background texture
-        timerTexture = new Texture(Gdx.files.internal("timer.png"));
+        // Load background
         hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
         scout = Gdx.audio.newMusic(Gdx.files.internal("sfx/scout.mp3"));
         getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
@@ -199,6 +198,11 @@ public class BulletHellScreen implements Screen {
         wrongChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
         shoot = Gdx.audio.newMusic(Gdx.files.internal("sfx/shoot.mp3"));
         pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
+        bgmusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/bulletbg.mp3"));
+        bgmusic.setLooping(true);
+        bgmusic.play();
+
+
     }
 
     @Override
@@ -233,7 +237,7 @@ public class BulletHellScreen implements Screen {
     }
     private void drawHearts(SpriteBatch batch){
         for (int i = 0; i < player.getHealth()+1; i++){
-            batch.draw(heart, 40 * i + 10, camera.viewportHeight - 40, 25, 25);
+            batch.draw(heart, 40 * (i%4) + 10, (camera.viewportHeight - 40) - (40 * ((int)i/4)) , 25, 25);
         }
     }
     @Override
@@ -284,7 +288,6 @@ public class BulletHellScreen implements Screen {
             indicator.draw(batch, font);
         }
         font.setColor(Color.WHITE);
-        batch.draw(timerTexture, camera.viewportWidth/2 - 15, camera.viewportHeight - 20, 150, 50);
         font.draw(batch, String.valueOf((int)times), camera.viewportWidth/2 - 15, camera.viewportHeight -20);
         font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
         drawHearts(batch);
@@ -553,11 +556,11 @@ public class BulletHellScreen implements Screen {
 
             if (!validCombo) {
                 wrongChemical.play();
-
                 player.setStunned(true);
                 stunTimer = STUN_DURATION;
+            }else{
+                setChemical.play();
             }
-            setChemical.play();
             collectedSymbols.setLength(0); // Reset collected symbols
         }else{
             getChemical.play();
@@ -653,6 +656,6 @@ public class BulletHellScreen implements Screen {
         setChemical.dispose();
         wrongChemical.dispose();
         shoot.dispose();
-        timerTexture.dispose();
+        bgmusic.dispose();
     }
 }

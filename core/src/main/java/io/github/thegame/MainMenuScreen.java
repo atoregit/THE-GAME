@@ -31,7 +31,7 @@ public class MainMenuScreen implements Screen {
     private static final float VIRTUAL_HEIGHT = 640;
     private static final float TRANSITION_DURATION = 0.5f;
     private Texture mainMenuBackground; // Store background texture for disposal
-
+    private Music left, right, play;
     private Image blackBlueBox;
     public MainMenuScreen(final Main game) {
         this.game = game;
@@ -45,7 +45,9 @@ public class MainMenuScreen implements Screen {
         menuMusic.play();
 
         skin = new Skin(Gdx.files.internal("skin/terra-mother-ui.json"));
-
+        left = Gdx.audio.newMusic(Gdx.files.internal("sfx/left.wav"));
+        right = Gdx.audio.newMusic(Gdx.files.internal("sfx/right.wav"));
+        play = Gdx.audio.newMusic(Gdx.files.internal("sfx/play.wav"));
         createUI();
     }
 
@@ -85,11 +87,11 @@ public class MainMenuScreen implements Screen {
 
         ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
             transitionToScreenRight(new BulletIntro(game));
-            clickSound.play();
+            right.play();
         });
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenLeft(new GameScreen(game));
-            clickSound.play();
+            transitionToScreenLeft(new GameIntro(game));
+            left.play();
         });
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
@@ -127,7 +129,7 @@ public class MainMenuScreen implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                clickSound.play();
+
                 action.run();
             }
         });
@@ -245,5 +247,9 @@ public class MainMenuScreen implements Screen {
         skin.dispose();
         mainMenuBackground.dispose(); // Dispose background texture
         blackBlueBox.remove();
+        play.dispose();
+        left.dispose();
+        right.dispose();
+
     }
 }

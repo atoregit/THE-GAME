@@ -60,6 +60,7 @@ scoresbgm.mp3
 scoresbgm.wav
 scorescreen.png
 select.wav
+sfx/bulletbg.mp3
 sfx/click.wav
 sfx/explosion.wav
 sfx/flamecool.p
@@ -70,9 +71,12 @@ sfx/fruitcollect3.wav
 sfx/fruitwrong.wav
 sfx/gameover.wav
 sfx/hit.mp3
+sfx/left.wav
 sfx/particle.png
+sfx/play.wav
 sfx/point.wav
 sfx/press1.wav
+sfx/right.wav
 sfx/scout.mp3
 sfx/scout.p
 sfx/select.wav

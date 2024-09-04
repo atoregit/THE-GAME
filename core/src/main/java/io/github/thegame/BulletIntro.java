@@ -32,7 +32,7 @@ public class BulletIntro implements Screen {
     private static final float VIRTUAL_HEIGHT = 640;
     private static final float TRANSITION_DURATION = 0.5f;
     private Texture mainMenuBackground; // Store background texture for disposal
-
+    private Music left, right, play;
     private Image blackBlueBox;
     public BulletIntro(final Main game) {
         this.game = game;
@@ -44,6 +44,9 @@ public class BulletIntro implements Screen {
         clickSound = Gdx.audio.newSound(Gdx.files.internal("sfx/click.wav"));
         menuMusic.setLooping(true);
         menuMusic.play();
+        left = Gdx.audio.newMusic(Gdx.files.internal("sfx/left.wav"));
+        right = Gdx.audio.newMusic(Gdx.files.internal("sfx/right.wav"));
+        play = Gdx.audio.newMusic(Gdx.files.internal("sfx/play.wav"));
 
         skin = new Skin(Gdx.files.internal("skin/terra-mother-ui.json"));
 
@@ -86,11 +89,11 @@ public class BulletIntro implements Screen {
 
         ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
             transitionToScreenRight(new GameIntro(game));
-            clickSound.play();
+            right.play();
         });
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
             transitionToScreenLeft(new MainMenuScreen(game));
-            clickSound.play();
+            left.play();
         });
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
@@ -131,7 +134,7 @@ public class BulletIntro implements Screen {
         startButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                clickSound.play();
+                play.play();
                 transitionToScreenUp(new BulletHellScreen(game));
             }
         });
@@ -155,7 +158,6 @@ public class BulletIntro implements Screen {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                clickSound.play();
                 action.run();
             }
         });
@@ -299,5 +301,8 @@ public class BulletIntro implements Screen {
         skin.dispose();
         mainMenuBackground.dispose(); // Dispose background texture
         blackBlueBox.remove();
+        left.dispose();
+        right.dispose();
+        play.dispose();
     }
 }

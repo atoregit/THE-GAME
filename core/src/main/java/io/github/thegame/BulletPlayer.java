@@ -32,7 +32,7 @@ public class BulletPlayer {
         fireRate = 0.1f;
         bulletDamage = 50;
         numBullets = 1;
-        health = 3;
+        health = 12;
         this.isStunned = false;
     }
 
