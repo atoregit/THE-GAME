@@ -1,5 +1,6 @@
 package io.github.thegame;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,12 +16,31 @@ public class BulletEnemy {
 
     public BulletEnemy(float x, float y, float difficulty) {
         position = new Vector2(x, y);
-        Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
-        pixmap.setColor(0, 0, 0, 1);
-        pixmap.fillRectangle(0, 0, 30, 30);
-        texture = new Texture(pixmap);
-        pixmap.dispose();
-        bounds = new Rectangle((int)x, (int)y, texture.getWidth(), texture.getHeight());
+
+        Texture originalTexture = new Texture(Gdx.files.internal("enemy.png"));
+
+        // Create a Pixmap from the original texture
+        Pixmap originalPixmap = new Pixmap(Gdx.files.internal("enemy.png"));
+
+        // Create a new Pixmap with the desired size (50x50)
+        Pixmap resizedPixmap = new Pixmap(50, 50, originalPixmap.getFormat());
+
+        // Scale the original pixmap to the new pixmap
+        resizedPixmap.drawPixmap(originalPixmap,
+            0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
+            0, 0, resizedPixmap.getWidth(), resizedPixmap.getHeight()
+        );
+
+        // Create a new texture from the resized pixmap
+        texture = new Texture(resizedPixmap);
+
+        // Set up the bounds
+        bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
+
+        // Dispose of the pixmaps and original texture as they're no longer needed
+        resizedPixmap.dispose();
+        originalPixmap.dispose();
+        originalTexture.dispose();
         speed = 140 * difficulty;
         health = 50 * difficulty;
     }

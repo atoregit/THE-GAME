@@ -131,7 +131,14 @@ public class Element {
 
         if (collectIndex == 0) { // After two elements are collected
             if (ElementType.isCompound(collected[0], collected[1])) {
-                game.points++;
+                if(game.boosted) {
+                    game.points+=2;
+                } else if (!game.boosted) {
+                    game.points++;
+                } else {
+                    game.points++;
+                }
+
                 point.play();
                 System.out.println("Compound formed: " + collected[0] + " + " + collected[1]);
 

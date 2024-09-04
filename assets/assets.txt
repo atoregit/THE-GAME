@@ -29,6 +29,7 @@ elements/Li.png
 elements/N.png
 elements/Na.png
 elements/O.png
+enemy.png
 exit.png
 figure.png
 fruitscollected.png
@@ -65,6 +66,7 @@ scorescreen.png
 select.wav
 sfx/bulletbg.mp3
 sfx/click.wav
+sfx/damage.wav
 sfx/explosion.wav
 sfx/flamecool.p
 sfx/fruitclear.wav

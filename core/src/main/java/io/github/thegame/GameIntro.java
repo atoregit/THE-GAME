@@ -229,7 +229,7 @@ public class GameIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
         blackBlueBox.toFront();
-        Texture placeholder = new Texture(Gdx.files.internal("background.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);

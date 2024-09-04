@@ -1,5 +1,6 @@
 package io.github.thegame;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,14 +19,15 @@ public class BulletPlayer {
     private int numBullets;
     private float health;
     private boolean isStunned;
+    private boolean invincible;
+    private boolean isGlowing;
+    private float glowDuration;
+    private static final float MAX_GLOW_DURATION = 10f;
 
     public BulletPlayer(float x, float y) {
         position = new Vector2(x, y);
-        Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
-        pixmap.setColor(0, 0, 0, 1);
-        pixmap.fillRectangle(0, 0, 30, 30);
-        texture = new Texture(pixmap);
-        pixmap.dispose();
+
+        texture = new Texture(Gdx.files.internal("playerShoot.png"));
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
         speed = 210;
         collectedSymbol = "";
@@ -34,6 +36,7 @@ public class BulletPlayer {
         numBullets = 1;
         health = 12;
         this.isStunned = false;
+        invincible = false;
     }
 
     public void update(float delta) {
@@ -74,7 +77,9 @@ public class BulletPlayer {
         return bounds;
     }
 
-
+    public void stopMoving() {
+       return;
+    }
     public float getX() {
         return bounds.getX();
     }
@@ -86,11 +91,34 @@ public class BulletPlayer {
     public float getWidth() {
         return bounds.getWidth();
     }
+    public void setInvincible(boolean tpy) {
+        invincible = tpy;
+    }
+    public boolean getInvincible() {
+        return invincible;
+    }
+    public void startGlowing() {
+        isGlowing = true;
+        glowDuration = MAX_GLOW_DURATION;
+    }
 
+    public void updateGlow(float delta) {
+        if (isGlowing) {
+            glowDuration -= delta;
+            if (glowDuration <= 0) {
+                isGlowing = false;
+            }
+        }
+    }
+
+    public boolean isGlowing() {
+        return isGlowing;
+    }
     public float getHeight() {
         return bounds.getHeight();
     }
     public void dispose() {
         texture.dispose();
     }
+
 }

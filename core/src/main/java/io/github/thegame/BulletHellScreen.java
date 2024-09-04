@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -27,7 +29,9 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Iterator;
 public class BulletHellScreen implements Screen {
     final Main game;
     private Stage stage;
@@ -95,8 +99,23 @@ public class BulletHellScreen implements Screen {
     private Music wrongChemical;
     private Music shoot;
     private Music bgmusic;
+    private Music dead;
+    private Music select;
     private static final String FLAME_PARTICLE = "flamecool.p";
     private static final String SCOUT_PARTICLE = "scout.p";
+
+    private static final float POWER_UP_DURATION = 30f; // Duration in seconds
+    private Map<String, Float> activePowerUps;
+    private BulletShake screenShake;
+    private ShapeRenderer shapeRenderer;
+    private static final float GLOW_RADIUS = 10f;
+    private Texture mainbg;
+    private boolean isMovingLeft = false;
+    private boolean isMovingRight = false;
+    private float movementSmoothing = 0f; // Adjust this value to change smoothing (0.0 to 1.0)
+    private float currentVelocity = 0f;
+    private Texture red;
+
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -144,7 +163,7 @@ public class BulletHellScreen implements Screen {
         symbolPool = new Pool<ChemicalSymbol>() {
             @Override
             protected ChemicalSymbol newObject() {
-                return new ChemicalSymbol("", MathUtils.random(25, 465), 775);
+                return new ChemicalSymbol("", MathUtils.random(25, 465), 725);
             }
         };
 
@@ -177,11 +196,9 @@ public class BulletHellScreen implements Screen {
         inputHighlight = new Texture(highlightPixmap);
         highlightPixmap.dispose();
 
-        Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pix.setColor(37 / 255f, 40 / 255f, 48 / 255f, 1f);
-        pix.fillRectangle(0, 0, 1, 1);
-        blackbg = new Texture(pix);
-        pix.dispose();
+
+        blackbg = new Texture(Gdx.files.internal("black_blue_box.png"));
+
 
         enemySpawnTimer = 0;
         symbolSpawnTimer = 0;
@@ -191,8 +208,10 @@ public class BulletHellScreen implements Screen {
         stage.addActor(root);
 
         // Load background
+        dead = Gdx.audio.newMusic(Gdx.files.internal("sfx/damage.wav"));
         hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
         scout = Gdx.audio.newMusic(Gdx.files.internal("sfx/scout.mp3"));
+        select = Gdx.audio.newMusic(Gdx.files.internal("sfx/select.mp3"));
         getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
         setChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect3.wav"));
         wrongChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
@@ -201,8 +220,21 @@ public class BulletHellScreen implements Screen {
         bgmusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/bulletbg.mp3"));
         bgmusic.setLooping(true);
         bgmusic.play();
+        mainbg =  new Texture(Gdx.files.internal("menubg.png"));
+        Image background = new Image(mainbg);
+        background.setScaling(Scaling.stretch);
+        background.setFillParent(true);
+        root.addActor(background);
+        // Create other UI elements
 
-
+        activePowerUps = new HashMap<>();
+        shapeRenderer = new ShapeRenderer();
+        screenShake = new BulletShake();
+        Pixmap sa= new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        sa.setColor(1, 0, 0, 0.4f);  // White with 30% opacity
+        sa.fill();
+        red = new Texture(sa);
+        sa.dispose();
     }
 
     @Override
@@ -224,10 +256,18 @@ public class BulletHellScreen implements Screen {
     }
 
     private void handleSymbolSpawning() {
-        if (symbolSpawnTimer >= SYMBOL_SPAWN_INTERVAL) {
-            spawnSymbol();
-            symbolSpawnTimer = 0;
+        if(difficultyMultiplier - 4 == 2){
+            if (symbolSpawnTimer >= SYMBOL_SPAWN_INTERVAL / (difficultyMultiplier -4) ) {
+                spawnSymbol();
+                symbolSpawnTimer = 0;
+            }
+        }else{
+            if (symbolSpawnTimer >= SYMBOL_SPAWN_INTERVAL) {
+                spawnSymbol();
+                symbolSpawnTimer = 0;
+            }
         }
+
     }
     private void updateTimers(float delta) {
         enemySpawnTimer += delta;
@@ -240,11 +280,25 @@ public class BulletHellScreen implements Screen {
             batch.draw(heart, 40 * (i%4) + 10, (camera.viewportHeight - 40) - (40 * ((int)i/4)) , 25, 25);
         }
     }
+    private void updatePowerUps(float delta) {
+        Iterator<Map.Entry<String, Float>> iterator = activePowerUps.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Float> entry = iterator.next();
+            float remainingTime = entry.getValue() - delta;
+            if (remainingTime <= 0) {
+                removePowerUp(entry.getKey());
+                iterator.remove();
+            } else {
+                entry.setValue(remainingTime);
+            }
+        }
+    }
     @Override
     public void render(float delta) {
         if (!isPaused) {
             updateTimers(delta);
             updateDifficulty(delta);
+            updatePowerUps(delta);
             handleEnemySpawning();
             handleSymbolSpawning();
             updateEnemies(delta);
@@ -262,16 +316,21 @@ public class BulletHellScreen implements Screen {
             handlePlayerFiring(delta);
             checkCollisions();
         }
-
+        player.updateGlow(delta);
         Gdx.gl.glClearColor(70/255f,130/255f,180/255f, 0.4f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
+        screenShake.update(delta, camera);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+
+
+
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
+
         if (isInitialState) {
             // Draw both left and right highlight areas
             batch.draw(inputHighlight, 0, 0, halfWidth, controlZoneHeight);
@@ -292,7 +351,9 @@ public class BulletHellScreen implements Screen {
         font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
         drawHearts(batch);
         for (int i = 0; i < powerUps.size(); i++) {
-            font.draw(batch, powerUps.get(i), camera.viewportWidth/10 * (i + 1), camera.viewportHeight/6);
+            String powerUp = powerUps.get(i);
+            float remainingTime = activePowerUps.get(powerUp);
+            font.draw(batch, powerUp + " (" + (int)remainingTime + "s)", camera.viewportWidth/10 * (i + 1), camera.viewportHeight/6);
         }
 
         for (BulletEnemy enemy : enemies) enemy.draw(batch);
@@ -318,6 +379,9 @@ public class BulletHellScreen implements Screen {
 
         }
 
+        if(screenShake.isShaking()){
+            batch.draw(red, 0, 0, camera.viewportWidth, camera.viewportHeight);
+        }
         batch.end();
         cleanupDamageIndicators();
 
@@ -328,15 +392,45 @@ public class BulletHellScreen implements Screen {
 
             if (isPaused) {
                 isPaused = false;
+                select.play();
             } else if (touchPos.x >= pauseButtonPosition.x && touchPos.x <= pauseButtonPosition.x + PAUSE_BUTTON_SIZE &&
                 touchPos.y >= pauseButtonPosition.y && touchPos.y <= pauseButtonPosition.y + PAUSE_BUTTON_SIZE) {
                 isPaused = true;
+                select.play();
             }
         }
 
 
     }
 
+    private void removePowerUp(String combo) {
+        switch (combo) {
+            case "HH":
+                player.setFireRate(player.getFireRate() * 2f);
+                break;
+            case "HCl":
+            case "ClH":
+                player.setBulletDamage(player.getBulletDamage() / 3f);
+                break;
+            case "HO":
+            case "OH":
+                player.setSpeed(player.getSpeed() / 1.5f);
+                break;
+            case "HNa":
+            case "NaH":
+                player.setSpeed(player.getSpeed() / 2f);
+                break;
+            case "NaCl":
+            case "ClNa":
+                player.setBulletDamage(player.getBulletDamage() / 5f);
+                break;
+            case "NaO":
+            case "ONa":
+                player.setInvincible(false);
+                break;
+        }
+        powerUps.remove(combo);
+    }
     private void updateParticles(float delta) {
         for (int i = activeParticles.size - 1; i >= 0; i--) {
             ParticleEffect particle = activeParticles.get(i);
@@ -414,7 +508,7 @@ public class BulletHellScreen implements Screen {
 
     private void spawnEnemy() {
         BulletEnemy enemy = enemyPool.obtain();
-        enemy.init(MathUtils.random(40, 445), 775, difficultyMultiplier); // Initialize with current values
+        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier); // Initialize with current values
         enemies.add(enemy);
     }
 
@@ -434,7 +528,7 @@ public class BulletHellScreen implements Screen {
 
         if (!symbolType.isEmpty()) {
             ChemicalSymbol symbol = symbolPool.obtain();
-            symbol.init(MathUtils.random(70, 405), 775);
+            symbol.init(MathUtils.random(70, 405), 725);
             symbol.setSymbol(symbolType);
             symbols.add(symbol);
         }
@@ -475,11 +569,7 @@ public class BulletHellScreen implements Screen {
 
                     spawnParticleEffect(enemy.getX(), enemy.getY(), SCOUT_PARTICLE);
                     bulletsToRemove.add(bullet);
-                    damageIndicators.add(new BulletDamage(
-                        enemy.getX() + enemy.getWidth() / 2,
-                        enemy.getY() + enemy.getHeight(),
-                        -(int)player.getBulletDamage()
-                    ));
+
                     if (enemy.getHealth() <= 0) {
                         hit.play();
                         spawnParticleEffect(enemy.getX(), enemy.getY(), FLAME_PARTICLE);
@@ -498,7 +588,13 @@ public class BulletHellScreen implements Screen {
                     dispose();
                     game.setScreen(new MainMenuScreen(game));
                 }
-                player.setHealth(player.getHealth() - 1);
+                if(player.getInvincible()){
+                    player.startGlowing();
+                }else{
+                    player.setHealth(player.getHealth() - 1);
+                    screenShake.shake(1f, 5f);
+                    dead.play();
+                }
 
                 return;
             }
@@ -512,69 +608,89 @@ public class BulletHellScreen implements Screen {
         particle.start();
         activeParticles.add(particle);
     }
+    private void applyPowerUp(String combo) {
+        switch (combo) {
+            case "HH":
+                player.setFireRate(player.getFireRate() / 2f); // Much faster fire rate
+                break;
+            case "HCl":
+            case "ClH":
+                player.setBulletDamage(player.getBulletDamage() * 3f); // Triple damage
+                break;
+            case "HO":
+            case "OH":
+                player.setSpeed(player.getSpeed() * 1.5f); // 50% speed increase
+                break;
+            case "HNa":
+            case "NaH":
+                player.setSpeed(player.getSpeed() * 2f); // Double speed
+                break;
+            case "NaCl":
+            case "ClNa":
+                player.setBulletDamage(player.getBulletDamage() * 5f); // 5x damage
+                break;
+            case "NaO":
+            case "ONa":
+                player.setInvincible(true); // Temporary invincibility
+                break;
+        }
+        activePowerUps.put(combo, POWER_UP_DURATION);
+        powerUps.add(combo);
+    }
     private void checkCombination() {
         if (collectedSymbols.length() >= 2 && !collectedSymbols.toString().equals("Cl") && !collectedSymbols.toString().equals("Na")) {
             String combo = collectedSymbols.toString();
             boolean validCombo = false;
-            switch (combo) {
-                case "HH":
-                    player.setFireRate(player.getFireRate() / 1.1f);
-                    powerUps.add("HH");
-                    validCombo = true;
-                    break;
-                case "HCl":
-                case "ClH":
-                    powerUps.add("HCl");
-                    player.setBulletDamage(player.getBulletDamage() * 1.5f);
-                    validCombo = true;
-                    break;
-                case "HO":
-                case "OH":
-                    powerUps.add("OH-");
-                    player.setSpeed(player.getSpeed() * 0.8f);
-                    validCombo = true;
-                    break;
-                case "HNa":
-                case "NaH":
-                    powerUps.add("NaH");
-                    player.setSpeed(player.getSpeed() * 1.2f);
-                    validCombo = true;
-                    break;
-                case "NaCl":
-                case "ClNa":
-                    powerUps.add("NaCl");
-                    player.setBulletDamage(player.getBulletDamage() * 2f);
-                    validCombo = true;
-                    break;
-                case "NaO":
-                case "ONa":
-                    powerUps.add("NaO");
-                    player.setHealth(player.getHealth() + 1);
-                    validCombo = true;
-                    break;
+
+            if (activePowerUps.containsKey(combo)) {
+                // Refresh the duration if the power-up is already active
+                activePowerUps.put(combo, POWER_UP_DURATION);
+                validCombo = true;
+            } else {
+                switch (combo) {
+                    case "HH":
+                    case "HCl":
+                    case "ClH":
+                    case "HO":
+                    case "OH":
+                    case "HNa":
+                    case "NaH":
+                    case "NaCl":
+                    case "ClNa":
+                    case "NaO":
+                    case "ONa":
+                        applyPowerUp(combo);
+                        validCombo = true;
+                        break;
+                }
             }
 
             if (!validCombo) {
                 wrongChemical.play();
                 player.setStunned(true);
                 stunTimer = STUN_DURATION;
-            }else{
+            } else {
+                damageIndicators.add(new BulletDamage(
+                    player.getX() + player.getWidth() / 2,
+                    player.getY() + player.getHeight(),
+                    -1
+                ));
                 setChemical.play();
             }
             collectedSymbols.setLength(0); // Reset collected symbols
-        }else{
+        } else {
             getChemical.play();
         }
     }
     private void removeOffscreenObjects() {
         for (BulletEnemy enemy : enemies) {
-            if (enemy.getY() + enemy.getHeight() < 150) {
+            if (enemy.getY() + enemy.getHeight() < 220) {
                 enemiesToRemove.add(enemy);
             }
         }
 
         for (ChemicalSymbol symbol : symbols) {
-            if (symbol.getY() + symbol.getHeight() < 150) {
+            if (symbol.getY() + symbol.getHeight() < 220) {
                 symbolsToRemove.add(symbol);
             }
         }
@@ -605,9 +721,9 @@ public class BulletHellScreen implements Screen {
         bulletsToRemove.clear();
     }
     private void handleInput(float delta) {
-        isTouchingLeft = false;
-        isTouchingRight = false;
-        isInitialState = false;  // Set to false as soon as we detect any touch
+        boolean isMovingLeft = false;
+        boolean isMovingRight = false;
+        isInitialState = false;
 
         if (Gdx.input.isTouched()) {
             Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -616,16 +732,30 @@ public class BulletHellScreen implements Screen {
             float controlZoneHeight = camera.viewportHeight / 8;
             if (touchPos.y < controlZoneHeight) {
                 if (touchPos.x < camera.viewportWidth / 2) {
-                    player.moveLeft(delta);
-                    isTouchingLeft = true;
+                    isMovingLeft = true;
                 } else {
-                    player.moveRight(delta);
-                    isTouchingRight = true;
+                    isMovingRight = true;
                 }
             }
         } else {
-            isInitialState = true;  // Reset to initial state when not touching
+            isInitialState = true;
         }
+
+        // Handle movement
+        if (isMovingLeft && !isMovingRight) {
+            player.moveLeft(delta);
+        } else if (isMovingRight && !isMovingLeft) {
+            player.moveRight(delta);
+        } else {
+            player.stopMoving();
+        }
+
+        // Update touch indicators
+        isTouchingLeft = isMovingLeft;
+        isTouchingRight = isMovingRight;
+
+        // Update player
+        player.update(delta);
     }
     @Override
     public void dispose() {
@@ -657,5 +787,10 @@ public class BulletHellScreen implements Screen {
         wrongChemical.dispose();
         shoot.dispose();
         bgmusic.dispose();
+        shapeRenderer.dispose();
+        mainbg.dispose();
+        screenShake.dispose();
+        dead.dispose();
+        select.dispose();
     }
 }
