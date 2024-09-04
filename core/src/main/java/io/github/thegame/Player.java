@@ -56,10 +56,10 @@ public class Player {
     }
 
     public void processSpeed() {
-        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && !game.stunned) {
-            speed = PLAYER_SPEED_BOOST;
-        } else if (game.stunned) {
-            speed = PLAYER_SPEED_STUNNED;
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && !game.boosted) {
+            speed = PLAYER_SPEED_DEFAULT;
+        } else if (game.boosted) {
+            speed = PLAYER_SPEED_DEFAULT;
         } else if (game.slowed) {
             speed = PLAYER_SPEED_SLOWED;
         } else {
