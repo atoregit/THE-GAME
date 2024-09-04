@@ -31,6 +31,8 @@ public enum ElementType {
         compounds.put("HYDROGEN_OXYGEN", "Water (H₂O)");
         compounds.put("OXYGEN_HYDROGEN", "Water (H₂O)");
 
+        compounds.put("HYDROGEN_HYRDOGEN", "Hydrogen (H2)");
+
         compounds.put("HYDROGEN_CHLORINE", "Hydrogen Chloride (HCl)");
         compounds.put("CHLORINE_HYDROGEN", "Hydrogen Chloride (HCl)");
 

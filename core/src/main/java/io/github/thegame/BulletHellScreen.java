@@ -88,7 +88,7 @@ public class BulletHellScreen implements Screen {
     private Texture mainMenuBackground;
     private float scaleX, scaleY;
     private float times;
-
+    private Texture timerTexture;
     private Music hit;
     private Music scout;
     private Music getChemical;
@@ -108,9 +108,7 @@ public class BulletHellScreen implements Screen {
         pixmap.setColor(1,1,1, 0.2f);
         pixmap.fill();
         transparent = new Texture(pixmap);
-        pixmap.setColor(1, 0, 0, 1);
-        pixmap.fillRectangle(0, 0, 25, 25);
-        heart = new Texture(pixmap);
+        heart = new Texture(Gdx.files.internal("heart.png"));
         pixmap.dispose();
         stage = new Stage(new ExtendViewport(camera.viewportWidth, camera.viewportHeight));
         player = new BulletPlayer(240f, 150f);
@@ -193,7 +191,7 @@ public class BulletHellScreen implements Screen {
         stage.addActor(root);
 
         // Load background texture
-
+        timerTexture = new Texture(Gdx.files.internal("timer.png"));
         hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
         scout = Gdx.audio.newMusic(Gdx.files.internal("sfx/scout.mp3"));
         getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
@@ -286,6 +284,7 @@ public class BulletHellScreen implements Screen {
             indicator.draw(batch, font);
         }
         font.setColor(Color.WHITE);
+        batch.draw(timerTexture, camera.viewportWidth/2 - 15, camera.viewportHeight - 20, 150, 50);
         font.draw(batch, String.valueOf((int)times), camera.viewportWidth/2 - 15, camera.viewportHeight -20);
         font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
         drawHearts(batch);
@@ -432,7 +431,7 @@ public class BulletHellScreen implements Screen {
 
         if (!symbolType.isEmpty()) {
             ChemicalSymbol symbol = symbolPool.obtain();
-            symbol.init(MathUtils.random(50, 445), 775);
+            symbol.init(MathUtils.random(70, 405), 775);
             symbol.setSymbol(symbolType);
             symbols.add(symbol);
         }
@@ -654,5 +653,6 @@ public class BulletHellScreen implements Screen {
         setChemical.dispose();
         wrongChemical.dispose();
         shoot.dispose();
+        timerTexture.dispose();
     }
 }

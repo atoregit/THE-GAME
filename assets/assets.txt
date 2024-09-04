@@ -33,6 +33,7 @@ exit.png
 figure.png
 fruitscollected.png
 harveybasket.png
+heart.png
 hit.wav
 idle.png
 leftArrow.png
