@@ -43,7 +43,7 @@ public class BulletHellScreen implements Screen {
     private List<String> powerUps = new ArrayList<String>();
     private OrthographicCamera camera;
     private SpriteBatch batch;
-    private static final float PARTICLE_DURATION = 0.2f;
+    private static final float PARTICLE_DURATION = 0.175f;
 
 
     private static final float ENEMY_SPAWN_INTERVAL = 2.4f; // Seconds between enemy spawns
@@ -90,6 +90,13 @@ public class BulletHellScreen implements Screen {
     private float times;
 
     private Music hit;
+    private Music scout;
+    private Music getChemical;
+    private Music setChemical;
+    private Music wrongChemical;
+    private Music shoot;
+    private static final String FLAME_PARTICLE = "flamecool.p";
+    private static final String SCOUT_PARTICLE = "scout.p";
     public BulletHellScreen(final Main game) {
         this.game = game;
         timeSinceLastShot = 0;
@@ -154,7 +161,6 @@ public class BulletHellScreen implements Screen {
             @Override
             protected ParticleEffect newObject() {
                 ParticleEffect effect = new ParticleEffect();
-                effect.load(Gdx.files.internal("sfx/flamecool.p"), Gdx.files.internal("sfx"));
                 return effect;
             }
         };
@@ -189,6 +195,11 @@ public class BulletHellScreen implements Screen {
         // Load background texture
 
         hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
+        scout = Gdx.audio.newMusic(Gdx.files.internal("sfx/scout.mp3"));
+        getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
+        setChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect3.wav"));
+        wrongChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
+        shoot = Gdx.audio.newMusic(Gdx.files.internal("sfx/shoot.mp3"));
         pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
     }
 
@@ -351,6 +362,7 @@ public class BulletHellScreen implements Screen {
         timeSinceLastShot += delta;
         if (timeSinceLastShot >= player.getFireRate()) {
             spawnPlayerBullet();
+            shoot.play();
             timeSinceLastShot = 0;
         }
     }
@@ -449,6 +461,7 @@ public class BulletHellScreen implements Screen {
             if (player.getBounds().overlaps(symbol.getBounds())) {
                 collectedSymbols.append(symbol.getSymbol());
                 checkCombination();
+
                 symbolsToRemove.add(symbol);
             }
         }
@@ -457,7 +470,8 @@ public class BulletHellScreen implements Screen {
             for (BulletEnemy enemy : enemies) {
                 if (bullet.getBounds().overlaps(enemy.getBounds())) {
                     enemy.hit(player.getBulletDamage());
-                    hit.play();
+
+                    spawnParticleEffect(enemy.getX(), enemy.getY(), SCOUT_PARTICLE);
                     bulletsToRemove.add(bullet);
                     damageIndicators.add(new BulletDamage(
                         enemy.getX() + enemy.getWidth() / 2,
@@ -465,8 +479,11 @@ public class BulletHellScreen implements Screen {
                         -(int)player.getBulletDamage()
                     ));
                     if (enemy.getHealth() <= 0) {
-                        spawnParticleEffect(enemy.getX(), enemy.getY());
+                        hit.play();
+                        spawnParticleEffect(enemy.getX(), enemy.getY(), FLAME_PARTICLE);
                         enemiesToRemove.add(enemy);
+                    }else{
+                        scout.play();
                     }
                     break;
                 }
@@ -485,11 +502,12 @@ public class BulletHellScreen implements Screen {
             }
         }
     }
-    private void spawnParticleEffect(float x, float y) {
+    private void spawnParticleEffect(float x, float y, String particleType) {
         ParticleEffect particle = particlePool.obtain();
+        particle.load(Gdx.files.internal("sfx/" + particleType), Gdx.files.internal("sfx"));
         particle.setPosition(x, y);
-        particle.reset(); // Reset the particle effect
-        particle.start(); // Start the particle effect
+        particle.reset();
+        particle.start();
         activeParticles.add(particle);
     }
     private void checkCombination() {
@@ -535,11 +553,15 @@ public class BulletHellScreen implements Screen {
             }
 
             if (!validCombo) {
+                wrongChemical.play();
+
                 player.setStunned(true);
                 stunTimer = STUN_DURATION;
             }
-
+            setChemical.play();
             collectedSymbols.setLength(0); // Reset collected symbols
+        }else{
+            getChemical.play();
         }
     }
     private void removeOffscreenObjects() {
@@ -626,6 +648,11 @@ public class BulletHellScreen implements Screen {
         transparent.dispose();
         heart.dispose();
         enemiesToRemove.clear();
-
+        scout.dispose();
+        hit.dispose();
+        getChemical.dispose();
+        setChemical.dispose();
+        wrongChemical.dispose();
+        shoot.dispose();
     }
 }

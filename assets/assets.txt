@@ -72,7 +72,10 @@ sfx/hit.mp3
 sfx/particle.png
 sfx/point.wav
 sfx/press1.wav
+sfx/scout.mp3
+sfx/scout.p
 sfx/select.wav
+sfx/shoot.mp3
 shootersLogo.png
 skin/199x-export.fnt
 skin/figure.png

@@ -1,5 +1,6 @@
 package io.github.thegame;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,11 +18,7 @@ public class ChemicalSymbol {
     public ChemicalSymbol(String symbol, float x, float y) {
         this.symbol = symbol;
         position = new Vector2(x, y);
-        Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
-        pixmap.setColor(4, 120, 200, 1);  // Set the color to white
-        pixmap.fillRectangle(0, 0, 50, 50);
-        texture = new Texture(pixmap);
-        pixmap.dispose();
+        texture = new Texture(Gdx.files.internal("elements/Al.png"));
         bounds = new Rectangle((int)x, (int)y, texture.getWidth(), texture.getHeight());
         speed = 65;
     }
@@ -40,17 +37,9 @@ public class ChemicalSymbol {
     }
     public void setSymbol(String symbol) {
         this.symbol = symbol;
-        Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
+          // 50x50 white square
         this.texture.dispose();  // Dispose old texture
-        if(symbol.equals("H")){  pixmap.setColor(40, 12, 200, 1);}
-        else if(symbol.equals("Cl")){   pixmap.setColor(12, 40, 200, 1);}
-        else if(symbol.equals("O")){    pixmap.setColor(12, 12, 10, 1);}
-        else if(symbol.equals("Na")) {  pixmap.setColor(40, 12, 100, 1);}
-        else {   pixmap.setColor(0, 0, 0, 1);}
-
-        pixmap.fillRectangle(0, 0, 50, 50);
-        this.texture = new Texture(pixmap);
-        pixmap.dispose();
+        this.texture = new Texture(Gdx.files.internal("elements/"+symbol+".png"));
     }
 
     public String getSymbol() {
