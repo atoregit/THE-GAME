@@ -51,6 +51,9 @@ pause.png
 pixel.fnt
 pixel.png
 placeholder.png
+playerCatch.png
+playerCatchLeft.png
+playerCatchRight.png
 rightArrow.png
 runleft.png
 runright.png

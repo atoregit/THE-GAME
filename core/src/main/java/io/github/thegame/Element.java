@@ -28,8 +28,11 @@ public class Element {
 
     public void create() {
         elementLastDropTime = TimeUtils.nanoTime();
-        font = new BitmapFont();
-        font.getData().setScale(2f);
+
+        // Load the pixel font
+        font = new BitmapFont(Gdx.files.internal("pixel.fnt"));
+        font.getData().setScale(1.5f);
+
         elements = new Array<>();
 
         collect1 = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
@@ -41,6 +44,7 @@ public class Element {
 
         spawnFruit();
     }
+
 
     public void spawnFruit() {
         ElementRectangle elementBox = new ElementRectangle();
@@ -111,7 +115,12 @@ public class Element {
         element.elementValue = type.value;
     }
 
+    private String lastCompoundName = null;  // Store the last valid compound name
+
     public void collectLogic(ElementType collectedElement) {
+        // Clear the compound name when a new element is collected
+        lastCompoundName = null;
+
         if (collectIndex == 0 && collected[1] != null) {
             // Reset the collected array after checking
             collected[1] = null;
@@ -125,8 +134,10 @@ public class Element {
                 game.points++;
                 point.play();
                 System.out.println("Compound formed: " + collected[0] + " + " + collected[1]);
+
+                // Store the compound name
+                lastCompoundName = ElementType.compounds.get(collected[0].name() + "_" + collected[1].name());
             } else {
-                game.points--;
                 wrong.play();
                 System.out.println("Invalid compound: " + collected[0] + " + " + collected[1]);
             }
@@ -135,9 +146,11 @@ public class Element {
             collect1.play();
         }
     }
+
+
     public void drawCollectedFruits() {
         float startX = 150;
-        float startY = game.GAME_SCREEN_Y - 600;
+        float startY = game.GAME_SCREEN_Y - 580;
 
         for (int i = 0; i < 2; i++) {
             ElementType type = collected[i];
@@ -155,8 +168,22 @@ public class Element {
 
         // Reset the batch color to default after drawing
         game.batch.setColor(1f, 1f, 1f, 1f);
+
+        // Draw the compound name below the collected elements if a valid compound was formed
+        drawCompoundName();
     }
 
+
+    public void drawCompoundName() {
+        if (lastCompoundName != null) {
+            // Set the position where the compound name will be drawn
+            float nameX = 100;  // Align with collected elements
+            float nameY = game.GAME_SCREEN_Y - 600;  // Position below collected elements
+
+            // Use the pixel font to draw the compound name
+            font.draw(game.batch, lastCompoundName, nameX, nameY);
+        }
+    }
 
 
 
