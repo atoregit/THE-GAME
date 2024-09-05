@@ -73,29 +73,39 @@ public class GameScreen implements Screen {
 
         batch.begin();
         batch.draw(texture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        boolean isMovingLeft = false;
+        boolean isMovingRight = false;
 
         if (boosted) {
-            // If boosted, always display the boosted sprite
             batch.draw(playerImageBoosted, player.x, player.y, 64, 64);
         } else {
-            // Get the touch position and handle movement
             if (Gdx.input.isTouched()) {
-                Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-                camera.unproject(touchPos);
+                if (touchStartX == -1) {
+                    // Record the initial touch position
+                    touchStartX = Gdx.input.getX();
+                }
 
-                if (touchPos.x < player.x) {
-                    // Move left
-                    batch.draw(playerImageLeft, player.x, player.y, 64, 64);
-                } else if (touchPos.x > player.x + player.width) {
-                    // Move right
-                    batch.draw(playerImageRight, player.x, player.y, 64, 64);
-                } else {
-                    // Player is idle
-                    batch.draw(playerImageIdle, player.x, player.y, 64, 64);
+                // Track the current touch position
+                touchCurrentX = Gdx.input.getX();
+
+                // Detect if touch movement is left or right
+                if (touchCurrentX < touchStartX - 10) { // Swipe left
+                    isMovingLeft = true;
+                } else if (touchCurrentX > touchStartX + 10) { // Swipe right
+                    isMovingRight = true;
                 }
             } else {
-                // No touch, player is idle
-                batch.draw(playerImageIdle, player.x, player.y, 64, 64);
+                // Reset touch tracking when the screen is no longer touched
+                touchStartX = -1;
+            }
+
+            // Draw the appropriate sprite based on movement
+            if (isMovingLeft) {
+                batch.draw(playerImageLeft, player.x, player.y, 64, 64); // Moving left
+            } else if (isMovingRight) {
+                batch.draw(playerImageRight, player.x, player.y, 64, 64); // Moving right
+            } else {
+                batch.draw(playerImageIdle, player.x, player.y, 64, 64); // Idle
             }
         }
 
@@ -302,6 +312,8 @@ public class GameScreen implements Screen {
     public BitmapFont font;
     private Texture texture;
     public int points;
+    private float touchStartX = -1;
+    private float touchCurrentX = -1;
 
     public final int GAME_SCREEN_X = 480;
     public final int GAME_SCREEN_Y = 640;
