@@ -234,7 +234,7 @@ public class GameScreen implements Screen {
 
         if (timer >= timerDuration) {
             gameMusic.stop();
-            game.setScreen(new GameEndScreen(game, points));
+            game.setScreen(new GameEndScreen(game));
         }
     }
 
