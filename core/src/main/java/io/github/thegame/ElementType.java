@@ -27,14 +27,13 @@ public enum ElementType {
     public static final Map<String, String> compounds = new HashMap<>();
 
     static {
-        // Populate valid compound pairs (both directions)
-        compounds.put("HYDROGEN_OXYGEN", "Water (H2O)");
-        compounds.put("OXYGEN_HYDROGEN", "Water (H2O)");
+        compounds.put("HYDROGEN_OXYGEN", "Water (H₂O)");
+        compounds.put("OXYGEN_HYDROGEN", "Water (H₂O)");
 
-        compounds.put("HYDROGEN_HYRDOGEN", "Hydrogen (H2)");
+        compounds.put("HYDROGEN_HYDROGEN", "Hydrogen (H₂)");
 
-        compounds.put("HYDROGEN_CHLORINE", "Hydrogen Chloride (HCl)");
-        compounds.put("CHLORINE_HYDROGEN", "Hydrogen Chloride (HCl)");
+        compounds.put("HYDROGEN_CHLORINE", "Hydrochloric Acid (HCl)");
+        compounds.put("CHLORINE_HYDROGEN", "Hydrochloric Acid (HCl)");
 
         compounds.put("SODIUM_CHLORINE", "Sodium Chloride (NaCl)");
         compounds.put("CHLORINE_SODIUM", "Sodium Chloride (NaCl)");
@@ -45,44 +44,49 @@ public enum ElementType {
         compounds.put("HYDROGEN_BROMINE", "Hydrogen Bromide (HBr)");
         compounds.put("BROMINE_HYDROGEN", "Hydrogen Bromide (HBr)");
 
-        compounds.put("LITHIUM_OXYGEN", "Lithium Oxide (Li2O)");
-        compounds.put("OXYGEN_LITHIUM", "Lithium Oxide (Li2O)");
+        compounds.put("LITHIUM_OXYGEN", "Lithium Oxide (Li₂O)");
+        compounds.put("OXYGEN_LITHIUM", "Lithium Oxide (Li₂O)");
 
-        compounds.put("IRON_OXYGEN", "Iron Oxide (Fe2O3)");
-        compounds.put("OXYGEN_IRON", "Iron Oxide (Fe2O3)");
+        compounds.put("IRON_OXYGEN", "Iron Oxide (Fe₂O₃)");
+        compounds.put("OXYGEN_IRON", "Iron Oxide (Fe₂O₃)");
 
-        compounds.put("ALUMINIUM_OXYGEN", "Aluminium Oxide (Al2O3)");
-        compounds.put("OXYGEN_ALUMINIUM", "Aluminium Oxide (Al2O3)");
+        compounds.put("ALUMINUM_OXYGEN", "Aluminum Oxide (Al₂O₃)");
+        compounds.put("OXYGEN_ALUMINUM", "Aluminum Oxide (Al₂O₃)");
 
         compounds.put("COPPER_OXYGEN", "Copper Oxide (CuO)");
         compounds.put("OXYGEN_COPPER", "Copper Oxide (CuO)");
 
-        compounds.put("SODIUM_OXYGEN", "Sodium Oxide (Na2O)");
-        compounds.put("OXYGEN_SODIUM", "Sodium Oxide (Na2O)");
+        compounds.put("SODIUM_OXYGEN", "Sodium Oxide (Na₂O)");
+        compounds.put("OXYGEN_SODIUM", "Sodium Oxide (Na₂O)");
 
-        compounds.put("CALCIUM_CHLORINE", "Calcium Chloride (CaCl2)");
-        compounds.put("CHLORINE_CALCIUM", "Calcium Chloride (CaCl2)");
+        compounds.put("CALCIUM_CHLORINE", "Calcium Chloride (CaCl₂)");
+        compounds.put("CHLORINE_CALCIUM", "Calcium Chloride (CaCl₂)");
 
         compounds.put("LITHIUM_BROMINE", "Lithium Bromide (LiBr)");
         compounds.put("BROMINE_LITHIUM", "Lithium Bromide (LiBr)");
 
-        compounds.put("ALUMINIUM_CHLORINE", "Aluminium Chloride (AlCl2)");
-        compounds.put("CHLORINE_ALUMINIUM", "Aluminium Chloride (AlCl2)");
+        compounds.put("ALUMINUM_CHLORINE", "Aluminum Chloride (AlCl₃)");
+        compounds.put("CHLORINE_ALUMINUM", "Aluminum Chloride (AlCl₃)");
 
-        compounds.put("COPPER_CHLORINE", "Copper(II) Chloride (CuCl2)");
-        compounds.put("CHLORINE_COPPER", "Copper(II) Chloride (CuCl2)");
+        compounds.put("COPPER_CHLORINE", "Copper(II) Chloride (CuCl₂)");
+        compounds.put("CHLORINE_COPPER", "Copper(II) Chloride (CuCl₂)");
 
-        compounds.put("IRON_CHLORINE", "Iron(III) Chloride (FeCl3)");
-        compounds.put("CHLORINE_IRON", "Iron(III) Chloride (FeCl3)");
+        compounds.put("IRON_CHLORINE", "Iron(III) Chloride (FeCl₃)");
+        compounds.put("CHLORINE_IRON", "Iron(III) Chloride (FeCl₃)");
 
         compounds.put("SODIUM_BROMINE", "Sodium Bromide (NaBr)");
         compounds.put("BROMINE_SODIUM", "Sodium Bromide (NaBr)");
 
-        compounds.put("CALCIUM_BROMINE", "Calcium Bromide (CaBr3)");
-        compounds.put("BROMINE_CALCIUM", "Calcium Bromide (CaBr3)");
+        compounds.put("CALCIUM_BROMINE", "Calcium Bromide (CaBr₂)");
+        compounds.put("BROMINE_CALCIUM", "Calcium Bromide (CaBr₂)");
 
-        compounds.put("BROMINE_BROMINE", "Bromine Gas (Br2)"); // Diatomic Bromine
-        compounds.put("NITROGEN_NITROGEN", "Nitrogen Gas (N2)"); // Diatomic Nitrogen
+        compounds.put("BROMINE_BROMINE", "Bromine Gas (Br₂)");
+
+        compounds.put("NITROGEN_NITROGEN", "Nitrogen Gas (N₂)");
+
+        compounds.put("NITROGEN_HYDROGEN", "Ammonia (NH₃)");
+
+
     }
 
     public static boolean isCompound(ElementType first, ElementType second) {

@@ -67,6 +67,8 @@ public class GameScreen implements Screen {
             return;
         }
 
+        element.update(delta);
+
         ScreenUtils.clear(1, 1, 1, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -162,6 +164,10 @@ public class GameScreen implements Screen {
         font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
         font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
         batch.draw(trashButtonTexture, trashButtonBounds.x, trashButtonBounds.y, trashButtonBounds.width, trashButtonBounds.height);
+        batch.end();
+
+        batch.begin();
+        element.drawSplash(batch);
         batch.end();
     }
 
@@ -314,6 +320,7 @@ public class GameScreen implements Screen {
     public int points;
     private float touchStartX = -1;
     private float touchCurrentX = -1;
+
 
     public final int GAME_SCREEN_X = 480;
     public final int GAME_SCREEN_Y = 640;

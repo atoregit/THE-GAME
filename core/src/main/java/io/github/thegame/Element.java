@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -24,6 +25,10 @@ public class Element {
         for (ElementType type : ElementType.values()) {
             elementTextures.put(type, new Texture(Gdx.files.internal(type.spritePath)));
         }
+        splashTexture = new Texture(Gdx.files.internal("bucket.png")); // Load the splash texture
+        showSplash = false;
+        splashTime = 0;
+
     }
 
     public void create() {
@@ -108,6 +113,44 @@ public class Element {
         wrong.dispose();
     }
 
+    public void drawSplash(SpriteBatch batch) {
+        if (showSplash) {
+            float splashX = game.GAME_SCREEN_X / 2 - splashTexture.getWidth() / 2;
+            float splashY = game.GAME_SCREEN_Y / 2 - splashTexture.getHeight() / 2;
+
+            // Define animation parameters
+            float animationDuration = 2f; // Total duration for splash
+            float hoverDuration = 1f; // Duration before exit
+            float exitDuration = 1f; // Duration of exit animation
+            float elapsedTime = splashTime;
+
+            // Hover animation (First second)
+            if (elapsedTime <= hoverDuration) {
+                float hoverOffset = (float) Math.sin((elapsedTime / hoverDuration) * Math.PI) * 20; // Simple hover effect
+                batch.draw(splashTexture, splashX, splashY + hoverOffset, splashTexture.getWidth(), splashTexture.getHeight());
+            } else if (elapsedTime <= animationDuration) {
+                // Exit animation (Last second)
+                float exitElapsed = elapsedTime - hoverDuration;
+                float exitOffset = (exitElapsed / exitDuration) * (game.GAME_SCREEN_Y / 2); // Move upwards
+                batch.draw(splashTexture, splashX, splashY - exitOffset, splashTexture.getWidth(), splashTexture.getHeight());
+            } else {
+                // End of splash animation
+                showSplash = false; // Stop showing splash
+            }
+        }
+    }
+
+
+    public void update(float delta) {
+        if (showSplash) {
+            splashTime += delta;
+            if (splashTime > 2) { // Splash duration of 2 seconds
+                showSplash = false;
+                splashTime = 0;
+            }
+        }
+    }
+
     public void generateFruitValue(ElementRectangle element) {
         ElementType[] types = ElementType.values();
         ElementType type = types[MathUtils.random(types.length - 1)];
@@ -131,10 +174,8 @@ public class Element {
 
         if (collectIndex == 0) { // After two elements are collected
             if (ElementType.isCompound(collected[0], collected[1])) {
-                if(game.boosted) {
-                    game.points+=2;
-                } else if (!game.boosted) {
-                    game.points++;
+                if (game.boosted) {
+                    game.points += 2;
                 } else {
                     game.points++;
                 }
@@ -142,16 +183,20 @@ public class Element {
                 point.play();
                 System.out.println("Compound formed: " + collected[0] + " + " + collected[1]);
 
-                // Store the compound name
+                // Store the compound name and show splash screen
                 lastCompoundName = ElementType.compounds.get(collected[0].name() + "_" + collected[1].name());
+                if (lastCompoundName != null) {
+                    showSplash = true;
+                    currentCompound = lastCompoundName;
+                }
             } else {
                 wrong.play();
                 System.out.println("Invalid compound: " + collected[0] + " + " + collected[1]);
             }
         } else {
-            // Play the collect sound
             collect1.play();
         }
+
     }
 
 
@@ -215,6 +260,11 @@ public class Element {
     private Music point;
     private Music clear;
     private Music wrong;
+
+    private Texture splashTexture;
+    private boolean showSplash;
+    private float splashTime;
+    private String currentCompound;
 
     private static class ElementRectangle extends Rectangle {
         int elementValue;
