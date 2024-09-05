@@ -1,6 +1,7 @@
 package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,6 +14,8 @@ public class BulletEnemy {
     private Rectangle bounds;
     private float speed;
     private float health;
+    private float maxHealth;
+    private Color tint;
 
     public BulletEnemy(float x, float y, float difficulty) {
         position = new Vector2(x, y);
@@ -41,27 +44,48 @@ public class BulletEnemy {
         resizedPixmap.dispose();
         originalPixmap.dispose();
         originalTexture.dispose();
+
         speed = 140 * difficulty;
-        health = 50 * difficulty;
+        maxHealth = 50 * difficulty;
+        health = maxHealth;
+        tint = new Color(Color.WHITE);
     }
+
     public void init(float x, float y, float difficultyMultiplier) {
         this.position.set(x, y);
         this.bounds.setPosition(position);
-        this.health = 100 * difficultyMultiplier; // Adjust as needed
+        this.maxHealth = 100 * difficultyMultiplier;
+        this.health = this.maxHealth;
+        this.tint.set(Color.WHITE);
         // Reset any other necessary fields
     }
+
     public void update(float delta) {
         position.y -= speed * delta;
         bounds.setPosition(position);
+        updateTint();
+    }
+
+    private void updateTint() {
+        float healthPercentage = health / maxHealth;
+        float redIntensity = 1f - healthPercentage;
+        tint.set(1f, 1f - redIntensity, 1f - redIntensity, 0.2f);
     }
 
     public void draw(SpriteBatch batch) {
+        Color originalColor = batch.getColor();
+        batch.setColor(tint);
         batch.draw(texture, position.x, position.y);
+        batch.setColor(originalColor);
     }
 
     public void hit(float damage) {
         health -= damage;
+        if (health < 0) health = 0;
+        updateTint();
     }
+
+
 
     public float getHealth() {
         return health;

@@ -330,7 +330,7 @@ public class BulletHellScreen implements Screen {
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
-
+        for (BulletEnemy enemy : enemies) enemy.draw(batch);
         if (isInitialState) {
             // Draw both left and right highlight areas
             batch.draw(inputHighlight, 0, 0, halfWidth, controlZoneHeight);
@@ -363,7 +363,7 @@ public class BulletHellScreen implements Screen {
             font.draw(batch, powerUp + " (" + (int)remainingTime + "s)", camera.viewportWidth/10 * (i + 1), camera.viewportHeight/6);
         }
 
-        for (BulletEnemy enemy : enemies) enemy.draw(batch);
+
         for (ChemicalSymbol symbol : symbols) symbol.draw(batch);
         for (Bullet bullet : bullets) bullet.draw(batch);
         for (ParticleEffect particle : activeParticles) particle.draw(batch);
