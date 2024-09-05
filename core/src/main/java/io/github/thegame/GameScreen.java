@@ -74,14 +74,29 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(texture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !boosted) {
-            batch.draw(playerImageLeft, player.x, player.y);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !boosted) {
-            batch.draw(playerImageRight, player.x, player.y);
-        } else if (boosted) {
-            batch.draw(playerImageBoosted, player.x, player.y);
+        if (boosted) {
+            // If boosted, always display the boosted sprite
+            batch.draw(playerImageBoosted, player.x, player.y, 64, 64);
         } else {
-            batch.draw(playerImageIdle, player.x, player.y);
+            // Get the touch position and handle movement
+            if (Gdx.input.isTouched()) {
+                Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                camera.unproject(touchPos);
+
+                if (touchPos.x < player.x) {
+                    // Move left
+                    batch.draw(playerImageLeft, player.x, player.y, 64, 64);
+                } else if (touchPos.x > player.x + player.width) {
+                    // Move right
+                    batch.draw(playerImageRight, player.x, player.y, 64, 64);
+                } else {
+                    // Player is idle
+                    batch.draw(playerImageIdle, player.x, player.y, 64, 64);
+                }
+            } else {
+                // No touch, player is idle
+                batch.draw(playerImageIdle, player.x, player.y, 64, 64);
+            }
         }
 
         element.draw();
@@ -105,6 +120,15 @@ public class GameScreen implements Screen {
         float pointsX = (scoresTextureWidth - pointsWidth) / 2 + GAME_SCREEN_X * 0.46f;
 
         batch.begin();
+        boost.render();
+        boost.move();
+        timeAdd.render();
+        timeAdd.move();
+        batch.end();
+        boost.draw(batch);
+        timeAdd.draw(batch);
+
+        batch.begin();
         batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
         batch.end();
 
@@ -114,14 +138,8 @@ public class GameScreen implements Screen {
         element.render();
         element.move();
 
-        batch.begin();
-        boost.render();
-        boost.move();
-        timeAdd.render();
-        timeAdd.move();
-        batch.end();
-        boost.draw(batch);
-        timeAdd.draw(batch);
+
+
 
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
@@ -211,13 +229,12 @@ public class GameScreen implements Screen {
     }
 
     public void initComponents() {
-        dropImage = new Texture(Gdx.files.internal("melon.png"));
-        playerImageIdle = new Texture(Gdx.files.internal("idle.png"));
-        boostImage = new Texture(Gdx.files.internal("bomb.png"));
-        timerExtensionImage = new Texture(Gdx.files.internal("bucket.png"));
-        playerImageRight = new Texture(Gdx.files.internal("runright.png"));
-        playerImageLeft = new Texture(Gdx.files.internal("runleft.png"));
-        playerImageBoosted = new Texture(Gdx.files.internal("stun.png"));
+        playerImageIdle = new Texture(Gdx.files.internal("playerCatch.png"));
+        boostImage = new Texture(Gdx.files.internal("boost2x.png"));
+        timerExtensionImage = new Texture(Gdx.files.internal("boostTime.png"));
+        playerImageRight = new Texture(Gdx.files.internal("playerCatchRight.png"));
+        playerImageLeft = new Texture(Gdx.files.internal("playerCatchLeft.png"));
+        playerImageBoosted = new Texture(Gdx.files.internal("playerCatchBoosted.png"));
         timerTexture = new Texture(Gdx.files.internal("timer.png"));
         fruitsCollectedTexture = new Texture(Gdx.files.internal("fruitscollected.png"));
         scoresTexture = new Texture(Gdx.files.internal("scores.png"));
@@ -245,7 +262,7 @@ public class GameScreen implements Screen {
         boost.create();
         timeAdd.create();
 
-        trashButtonTexture = new Texture(Gdx.files.internal("cheebi.png")); // Load trash button texture
+        trashButtonTexture = new Texture(Gdx.files.internal("discard.png")); // Load trash button texture
         float trashButtonSize = 64;
         trashButtonBounds = new Rectangle(
             (GAME_SCREEN_X - trashButtonSize) / 2, // Center horizontally
