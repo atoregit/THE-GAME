@@ -211,7 +211,7 @@ public class BulletHellScreen implements Screen {
         dead = Gdx.audio.newMusic(Gdx.files.internal("sfx/damage.wav"));
         hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
         scout = Gdx.audio.newMusic(Gdx.files.internal("sfx/scout.mp3"));
-        select = Gdx.audio.newMusic(Gdx.files.internal("sfx/select.mp3"));
+        select = Gdx.audio.newMusic(Gdx.files.internal("sfx/select.wav"));
         getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
         setChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect3.wav"));
         wrongChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
@@ -342,7 +342,14 @@ public class BulletHellScreen implements Screen {
             // Draw only right highlight area
             batch.draw(inputHighlight, halfWidth, 0, halfWidth, controlZoneHeight);
         }
-        player.draw(batch);
+        if(isTouchingRight){
+
+            player.draw(batch, 3);
+        }else if(isTouchingLeft){
+            player.draw(batch,2);
+        }else{
+            player.draw(batch, 1);
+        }
         for (BulletDamage indicator : damageIndicators) {
             indicator.draw(batch, font);
         }

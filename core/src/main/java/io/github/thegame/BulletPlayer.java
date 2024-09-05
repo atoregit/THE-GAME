@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class BulletPlayer {
     private Vector2 position;
-    private Texture texture;
+    private Texture texture1, texture2, texture3;
     private Rectangle bounds;
     private float speed;
     private String collectedSymbol;
@@ -27,8 +27,36 @@ public class BulletPlayer {
     public BulletPlayer(float x, float y) {
         position = new Vector2(x, y);
 
-        texture = new Texture(Gdx.files.internal("playerShoot.png"));
-        bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
+        Texture originalTexture = new Texture(Gdx.files.internal("playerShoot.png"));
+
+        // Create a Pixmap from the original texture
+        Pixmap originalPixmap = new Pixmap(Gdx.files.internal("playerShoot.png"));
+        Pixmap originLeft = new Pixmap(Gdx.files.internal("playerShootLeft.png"));
+        Pixmap originRight = new Pixmap(Gdx.files.internal("playerShootRight.png"));
+
+        // Create a new Pixmap with the desired size (50x50)
+        Pixmap resizedPixmap1 = new Pixmap(50, 60, originalPixmap.getFormat());
+        Pixmap resizedPixmap2 = new Pixmap(50, 60, originLeft .getFormat());
+        Pixmap resizedPixmap3 = new Pixmap(50, 60, originRight.getFormat());
+        // Scale the original pixmap to the new pixmap
+        resizedPixmap1.drawPixmap(originalPixmap,
+            0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
+            0, 0, resizedPixmap1.getWidth(), resizedPixmap1.getHeight()
+        );
+        resizedPixmap2.drawPixmap(originalPixmap,
+            0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
+            0, 0, resizedPixmap2.getWidth(), resizedPixmap2.getHeight()
+        );
+        resizedPixmap3.drawPixmap(originalPixmap,
+            0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
+            0, 0, resizedPixmap3.getWidth(), resizedPixmap3.getHeight()
+        );
+
+        // Create a new texture from the resized pixmap
+        texture1 = new Texture(resizedPixmap1);
+        texture2 = new Texture(resizedPixmap2);
+        texture3 = new Texture(resizedPixmap3);
+        bounds = new Rectangle(x, y, texture1.getWidth(), texture1.getHeight());
         speed = 210;
         collectedSymbol = "";
         fireRate = 0.1f;
@@ -47,16 +75,22 @@ public class BulletPlayer {
 
     public void moveLeft(float delta) {
         position.x -= speed * delta;
-        position.x = MathUtils.clamp(position.x, 0, 480 - texture.getWidth());
+        position.x = MathUtils.clamp(position.x, 0, 480 - texture1.getWidth());
     }
 
     public void moveRight(float delta) {
         position.x += speed * delta;
-        position.x = MathUtils.clamp(position.x, 0, 480 - texture.getWidth());
+        position.x = MathUtils.clamp(position.x, 0, 480 - texture1.getWidth());
     }
 
-    public void draw(SpriteBatch batch) {
-        batch.draw(texture, position.x, position.y);
+    public void draw(SpriteBatch batch, int state) {
+        if(state == 1){
+            batch.draw(texture1, position.x, position.y);
+        }else if(state == 2){
+            batch.draw(texture2, position.x, position.y);
+        }else if(state == 3){
+            batch.draw(texture3, position.x, position.y);
+        }
     }
 
 
