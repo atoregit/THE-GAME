@@ -152,7 +152,9 @@ public class BulletPlayer {
         return bounds.getHeight();
     }
     public void dispose() {
-        texture.dispose();
+        texture1.dispose();
+        texture2.dispose();
+        texture3.dispose();
     }
 
 }
