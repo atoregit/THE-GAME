@@ -35,19 +35,19 @@ public class BulletPlayer {
         Pixmap originRight = new Pixmap(Gdx.files.internal("playerShootRight.png"));
 
         // Create a new Pixmap with the desired size (50x50)
-        Pixmap resizedPixmap1 = new Pixmap(50, 60, originalPixmap.getFormat());
-        Pixmap resizedPixmap2 = new Pixmap(50, 60, originLeft .getFormat());
-        Pixmap resizedPixmap3 = new Pixmap(50, 60, originRight.getFormat());
+        Pixmap resizedPixmap1 = new Pixmap(70, 80, originalPixmap.getFormat());
+        Pixmap resizedPixmap2 = new Pixmap(70, 80, originLeft.getFormat());
+        Pixmap resizedPixmap3 = new Pixmap(70, 80, originRight.getFormat());
         // Scale the original pixmap to the new pixmap
         resizedPixmap1.drawPixmap(originalPixmap,
             0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
             0, 0, resizedPixmap1.getWidth(), resizedPixmap1.getHeight()
         );
-        resizedPixmap2.drawPixmap(originalPixmap,
+        resizedPixmap2.drawPixmap(originLeft,
             0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
             0, 0, resizedPixmap2.getWidth(), resizedPixmap2.getHeight()
         );
-        resizedPixmap3.drawPixmap(originalPixmap,
+        resizedPixmap3.drawPixmap(originRight,
             0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
             0, 0, resizedPixmap3.getWidth(), resizedPixmap3.getHeight()
         );
@@ -85,11 +85,11 @@ public class BulletPlayer {
 
     public void draw(SpriteBatch batch, int state) {
         if(state == 1){
-            batch.draw(texture1, position.x, position.y);
+            batch.draw(texture1, position.x, position.y + 10);
         }else if(state == 2){
-            batch.draw(texture2, position.x, position.y);
+            batch.draw(texture2, position.x, position.y + 10);
         }else if(state == 3){
-            batch.draw(texture3, position.x, position.y);
+            batch.draw(texture3, position.x, position.y+ 10);
         }
     }
 

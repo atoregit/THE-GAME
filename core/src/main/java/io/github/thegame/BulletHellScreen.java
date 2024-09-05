@@ -599,7 +599,7 @@ public class BulletHellScreen implements Screen {
                     player.startGlowing();
                 }else{
                     player.setHealth(player.getHealth() - 1);
-                    screenShake.shake(1f, 5f);
+                    screenShake.shake(0.5f, 5f);
                     dead.play();
                 }
 
