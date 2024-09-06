@@ -95,8 +95,8 @@ public class GameScreen implements Screen {
         batch.draw(playerImage, player.x, player.y, 72, 64);
 
         // Update playerImageBoostedX and playerImageIdleX with a smaller delay
-        playerImageBoostedX += (player.x - 120 - playerImageBoostedX) * 0.4f;
-        playerImageIdleX += (player.x - 120 - playerImageIdleX) * 0.4f;
+        playerImageBoostedX += (player.x - 120 - playerImageBoostedX) * 0.45f;
+        playerImageIdleX += (player.x - 120 - playerImageIdleX) * 0.45f;
 
         batch.draw(playerImage, player.x, player.y, 72, 64);
 
@@ -143,7 +143,7 @@ public class GameScreen implements Screen {
         batch.end();
 
         batch.begin();
-        element.drawSplash(batch);
+
         batch.end();
         batch.begin();
 
@@ -157,6 +157,7 @@ public class GameScreen implements Screen {
         font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
         font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
         batch.draw(trashButtonTexture, trashButtonBounds.x, trashButtonBounds.y, trashButtonBounds.width, trashButtonBounds.height);
+        element.drawSplash(batch);
         batch.end();
 
 

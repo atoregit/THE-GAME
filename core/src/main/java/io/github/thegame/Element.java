@@ -119,7 +119,7 @@ public class Element {
             float splashY = game.GAME_SCREEN_Y / 2 - splashTextureHeight/ 2;
 
             // Define animation parameters
-            float animationDuration = 2f; // Total duration for splash
+            float animationDuration = 4f; // Total duration for splash (increased by 1 second)
             float hoverDuration = 1f; // Duration before exit
             float exitDuration = 1f; // Duration of exit animation
             float fadeDuration = 0.5f; // Duration for fade in
@@ -127,7 +127,7 @@ public class Element {
             float elapsedTime = splashTime;
 
             // Fade-in effect for the background rectangle
-            float fadeInAlpha = MathUtils.clamp(elapsedTime / fadeDuration, 0f, 0.5f);
+            float fadeInAlpha = MathUtils.clamp(elapsedTime / fadeDuration, 0f, 0.5f); // Fade in to 50% opacity
 
             // Fade-out effect for the background rectangle at the same time as exit animation
             float fadeOutAlpha = 1f;
@@ -151,12 +151,16 @@ public class Element {
                 // Exit animation (Last part of splash)
                 float exitElapsed = elapsedTime - hoverDuration;
                 float exitOffset = (exitElapsed / exitDuration) * (game.GAME_SCREEN_Y / 2); // Move upwards
+                float exitAlpha = MathUtils.clamp(1 - (exitElapsed / exitDuration), 0f, 1f); // Fade out during exit
+                batch.setColor(1f, 1f, 1f, exitAlpha);
                 batch.draw(splashTexture, splashX, splashY - exitOffset, splashTextureWidth, splashTextureHeight);
-
             } else {
                 // End of splash animation
                 showSplash = false; // Stop showing splash
             }
+
+            // Increment splash time
+            splashTime += Gdx.graphics.getDeltaTime();
 
             // Reset color for further drawing
             batch.setColor(1f, 1f, 1f, 1f);
@@ -224,29 +228,27 @@ public class Element {
         String spriteName = "";
         String[] elements = compoundKey.split("_");
         if (elements.length == 2) {
-            if (elements[0].equals("OXYGEN") && elements[1].equals("HYDROGEN")) { // Water (H₂O)
+            if ((elements[0].equals("OXYGEN") && elements[1].equals("HYDROGEN")) || (elements[0].equals("HYDROGEN") && elements[1].equals("OXYGEN"))) { // Water (H₂O)
                 spriteName = "water";
             } else if (elements[0].equals("HYDROGEN") && elements[1].equals("HYDROGEN")) { // Hydrogen (H₂)
                 spriteName = "fuelCell";
-            } else if (elements[0].equals("HYDROGEN") && elements[1].equals("CHLORINE")) { // Hydrochloric Acid (HCl)
+            } else if ((elements[0].equals("HYDROGEN") && elements[1].equals("CHLORINE")) || (elements[0].equals("CHLORINE") && elements[1].equals("HYDROGEN"))) { // Hydrochloric Acid (HCl)
                 spriteName = "cleaningAgent";
-            } else if (elements[0].equals("SODIUM") && elements[1].equals("CHLORINE")) { // Sodium Chloride (NaCl)
+            } else if ((elements[0].equals("SODIUM") && elements[1].equals("CHLORINE")) || (elements[0].equals("CHLORINE") && elements[1].equals("SODIUM"))) { // Sodium Chloride (NaCl)
                 spriteName = "salt";
-            } else if (elements[0].equals("CALCIUM") && elements[1].equals("OXYGEN")) { // Calcium Oxide (CaO)
+            } else if ((elements[0].equals("CALCIUM") && elements[1].equals("OXYGEN")) || (elements[0].equals("OXYGEN") && elements[1].equals("CALCIUM"))) { // Calcium Oxide (CaO)
                 spriteName = "cement";
-            } else if (elements[0].equals("LITHIUM") && elements[1].equals("OXYGEN")) { // Lithium Oxide (Li₂O)
+            } else if ((elements[0].equals("LITHIUM") && elements[1].equals("OXYGEN")) || (elements[0].equals("OXYGEN") && elements[1].equals("LITHIUM"))) { // Lithium Oxide (Li₂O)
                 spriteName = "battery";
-            } else if (elements[0].equals("ALUMINUM") && elements[1].equals("OXYGEN")) { // Aluminum Oxide (Al₂O₃)
+            } else if ((elements[0].equals("ALUMINUM") && elements[1].equals("OXYGEN")) || (elements[0].equals("OXYGEN") && elements[1].equals("ALUMINUM"))) { // Aluminum Oxide (Al₂O₃)
                 spriteName = "cement";
-            } else if (elements[0].equals("SODIUM") && elements[1].equals("BROMINE")) { // Sodium Bromide (NaBr)
+            } else if ((elements[0].equals("SODIUM") && elements[1].equals("BROMINE")) || (elements[0].equals("BROMINE") && elements[1].equals("SODIUM"))) { // Sodium Bromide (NaBr)
                 spriteName = "sedative";
             } else if (elements[0].equals("NITROGEN") && elements[1].equals("NITROGEN")) { // Nitrogen Gas (N₂)
                 spriteName = "balloons";
-            } else if (elements[0].equals("OXYGEN") && elements[1].equals("OXYGEN")) { // Oxygen
-                spriteName = "oxygen";
             } else if (elements[0].equals("BROMINE") && elements[1].equals("BROMINE")) { // Bromine Gas (Br₂)
                 spriteName = "fireExtinguisher";
-            } else if (elements[0].equals("NITROGEN") && elements[1].equals("HYDROGEN")) { // Ammonia (NH₃)
+            } else if ((elements[0].equals("NITROGEN") && elements[1].equals("HYDROGEN")) || (elements[0].equals("HYDROGEN") && elements[1].equals("NITROGEN"))) { // Ammonia (NH₃)
                 spriteName = "fertilizer";
             } else {
                 return false;
