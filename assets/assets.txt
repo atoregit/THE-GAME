@@ -2,6 +2,7 @@ auto.jar
 auto.zip
 back.png
 background.png
+backgroundCatchers.png
 bg.png
 black_blue_box.png
 bomb.png
@@ -9,6 +10,7 @@ boom.gif
 boom.png
 boost2x.png
 boostTime.png
+bottomBoxCatchers.png
 bucket.png
 button2.png
 calico.png
@@ -33,6 +35,7 @@ elements/O.png
 enemy.png
 exit.png
 figure.png
+flaskWater.png
 fruitscollected.png
 harveybasket.png
 heart.png
@@ -59,6 +62,8 @@ playerShoot.png
 playerShootLeft.png
 playerShootRight.png
 rightArrow.png
+scientist.png
+scientistBoosted.png
 scores.png
 scores.txt
 scoresbgm.mp3

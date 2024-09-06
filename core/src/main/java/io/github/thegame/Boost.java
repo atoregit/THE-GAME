@@ -146,5 +146,5 @@ public class Boost {
     private Array<Rectangle> boosts;
     public final int BOMB_SIZE = 64;
     private static final int BOOST_SPEED = 250;
-    private long spawnBoostInterval = 10000000000L;
+    private long spawnBoostInterval = 15000000000L;
 }

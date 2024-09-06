@@ -75,46 +75,18 @@ public class GameScreen implements Screen {
 
         batch.begin();
         batch.draw(texture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        boolean isMovingLeft = false;
-        boolean isMovingRight = false;
 
-        if (boosted) {
-            batch.draw(playerImageBoosted, player.x, player.y, 64, 64);
-        } else {
-            if (Gdx.input.isTouched()) {
-                if (touchStartX == -1) {
-                    // Record the initial touch position
-                    touchStartX = Gdx.input.getX();
-                }
 
-                // Track the current touch position
-                touchCurrentX = Gdx.input.getX();
-
-                // Detect if touch movement is left or right
-                if (touchCurrentX < touchStartX - 10) { // Swipe left
-                    isMovingLeft = true;
-                } else if (touchCurrentX > touchStartX + 10) { // Swipe right
-                    isMovingRight = true;
-                }
-            } else {
-                // Reset touch tracking when the screen is no longer touched
-                touchStartX = -1;
-            }
-
-            // Draw the appropriate sprite based on movement
-            if (isMovingLeft) {
-                batch.draw(playerImageLeft, player.x, player.y, 64, 64); // Moving left
-            } else if (isMovingRight) {
-                batch.draw(playerImageRight, player.x, player.y, 64, 64); // Moving right
-            } else {
-                batch.draw(playerImageIdle, player.x, player.y, 64, 64); // Idle
-            }
-        }
 
         element.draw();
-
-
         boost.update(delta);
+        if (boosted) {
+            batch.draw(playerImageBoosted, player.x-100, player.y, 150, 150);
+        } else {
+            batch.draw(playerImageIdle, player.x-100, player.y, 150, 150);
+        }
+
+        batch.draw(playerImage, player.x, player.y, 64, 64);
 
 
         batch.end();
@@ -204,7 +176,6 @@ public class GameScreen implements Screen {
         dropImage.dispose();
         playerImageIdle.dispose();
         playerImageLeft.dispose();
-        playerImageRight.dispose();
         playerImageBoosted.dispose();
         dropSound.dispose();
         gameMusic.dispose();
@@ -250,23 +221,22 @@ public class GameScreen implements Screen {
     }
 
     public void initComponents() {
-        playerImageIdle = new Texture(Gdx.files.internal("playerCatch.png"));
+        playerImageIdle = new Texture(Gdx.files.internal("scientist.png"));
         boostImage = new Texture(Gdx.files.internal("boost2x.png"));
         timerExtensionImage = new Texture(Gdx.files.internal("boostTime.png"));
-        playerImageRight = new Texture(Gdx.files.internal("playerCatchRight.png"));
-        playerImageLeft = new Texture(Gdx.files.internal("playerCatchLeft.png"));
-        playerImageBoosted = new Texture(Gdx.files.internal("playerCatchBoosted.png"));
+        playerImage= new Texture(Gdx.files.internal("flaskWater.png"));
+        playerImageBoosted = new Texture(Gdx.files.internal("scientistBoosted.png"));
         timerTexture = new Texture(Gdx.files.internal("timer.png"));
         fruitsCollectedTexture = new Texture(Gdx.files.internal("fruitscollected.png"));
         scoresTexture = new Texture(Gdx.files.internal("scores.png"));
         clickSound = Gdx.audio.newSound(Gdx.files.internal("sfx/click.wav"));
-        bottomSpriteTexture = new Texture(Gdx.files.internal("black_blue_box.png"));
+        bottomSpriteTexture = new Texture(Gdx.files.internal("bottomBoxCatchers.png"));
         bottomSpriteBounds = new Rectangle(0, 0, GAME_SCREEN_X, 50);
         dropSound = Gdx.audio.newSound(Gdx.files.internal("hit.wav"));
         clockSound = Gdx.audio.newSound(Gdx.files.internal("clock.wav"));
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
 
-        texture = new Texture(Gdx.files.internal("maingamebg.png"));
+        texture = new Texture(Gdx.files.internal("backgroundCatchers.png"));
 
         gameMusic.setLooping(true);
         gameMusic.play();
@@ -307,7 +277,7 @@ public class GameScreen implements Screen {
     public Viewport viewport; // Updated viewport for handling stretching
     public Texture dropImage;
     private Texture playerImageIdle;
-    private Texture playerImageRight;
+    private Texture playerImage;
     private Texture playerImageLeft;
     private Texture playerImageBoosted;
     public Texture timerExtensionImage;

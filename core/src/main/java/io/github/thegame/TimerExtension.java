@@ -117,6 +117,6 @@ public class TimerExtension {
     private Array<Rectangle> extensions;
     public final int EXTENSION_SIZE = 64;
     private static final int EXTENSION_SPEED = 250;
-    private long spawnExtensionInterval = 20000000000L;
+    private long spawnExtensionInterval = 40000000000L;
     private Music extensionSound;
 }
