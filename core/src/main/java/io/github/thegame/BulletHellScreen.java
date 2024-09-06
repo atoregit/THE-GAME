@@ -641,7 +641,7 @@ public class BulletHellScreen implements Screen {
 
                 if (player.getHealth() <= 0) {
                     dispose();
-                    game.setScreen(new GameEndScreen(game, (int)times));
+                    game.setScreen(new GameEndScreen(game));
                     return; // Exit the method to prevent further processing
                 }
             }

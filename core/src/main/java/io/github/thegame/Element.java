@@ -25,7 +25,6 @@ public class Element {
         for (ElementType type : ElementType.values()) {
             elementTextures.put(type, new Texture(Gdx.files.internal(type.spritePath)));
         }
-        splashTexture = new Texture(Gdx.files.internal("bucket.png"));
         splashRectangleTexture = new Texture(Gdx.files.internal("bg.png"));
         showSplash = false;
         splashTime = 0;
@@ -116,8 +115,8 @@ public class Element {
 
     public void drawSplash(SpriteBatch batch) {
         if (showSplash) {
-            float splashX = game.GAME_SCREEN_X / 2 - splashTexture.getWidth() / 2;
-            float splashY = game.GAME_SCREEN_Y / 2 - splashTexture.getHeight() / 2;
+            float splashX = game.GAME_SCREEN_X / 2 - splashTextureWidth/ 2;
+            float splashY = game.GAME_SCREEN_Y / 2 - splashTextureHeight/ 2;
 
             // Define animation parameters
             float animationDuration = 2f; // Total duration for splash
@@ -147,12 +146,12 @@ public class Element {
             // Hover animation (First part of splash)
             if (elapsedTime <= hoverDuration) {
                 float hoverOffset = (float) Math.sin((elapsedTime / hoverDuration) * Math.PI) * 20; // Simple hover effect
-                batch.draw(splashTexture, splashX, splashY + hoverOffset, splashTexture.getWidth(), splashTexture.getHeight());
+                batch.draw(splashTexture, splashX, splashY + hoverOffset, splashTextureWidth, splashTextureHeight);
             } else if (elapsedTime <= animationDuration) {
                 // Exit animation (Last part of splash)
                 float exitElapsed = elapsedTime - hoverDuration;
                 float exitOffset = (exitElapsed / exitDuration) * (game.GAME_SCREEN_Y / 2); // Move upwards
-                batch.draw(splashTexture, splashX, splashY - exitOffset, splashTexture.getWidth(), splashTexture.getHeight());
+                batch.draw(splashTexture, splashX, splashY - exitOffset, splashTextureWidth, splashTextureHeight);
 
             } else {
                 // End of splash animation
@@ -221,28 +220,43 @@ public class Element {
         }
     }
 
-    // Add a helper method to check if the compound is eligible for points
     private boolean isEligibleForSplash(String compoundKey) {
-        return compoundKey.equals("HYDROGEN_OXYGEN") ||  // Water (H₂O)
-            compoundKey.equals("OXYGEN_HYDROGEN") ||  // Water (H₂O)
-            compoundKey.equals("HYDROGEN_HYDROGEN") ||  // Hydrogen (H₂)
-            compoundKey.equals("HYDROGEN_CHLORINE") ||  // Hydrochloric Acid (HCl)
-            compoundKey.equals("CHLORINE_HYDROGEN") ||  // Hydrochloric Acid (HCl)
-            compoundKey.equals("SODIUM_CHLORINE") ||  // Sodium Chloride (NaCl)
-            compoundKey.equals("CHLORINE_SODIUM") ||  // Sodium Chloride (NaCl)
-            compoundKey.equals("CALCIUM_OXYGEN") ||  // Calcium Oxide (CaO)
-            compoundKey.equals("OXYGEN_CALCIUM") ||  // Calcium Oxide (CaO)
-            compoundKey.equals("LITHIUM_OXYGEN") ||  // Lithium Oxide (Li₂O)
-            compoundKey.equals("OXYGEN_LITHIUM") ||  // Lithium Oxide (Li₂O)
-            compoundKey.equals("ALUMINUM_OXYGEN") ||  // Aluminum Oxide (Al₂O₃)
-            compoundKey.equals("OXYGEN_ALUMINUM") ||  // Aluminum Oxide (Al₂O₃)
-            compoundKey.equals("SODIUM_BROMINE") ||  // Sodium Bromide (NaBr)
-            compoundKey.equals("BROMINE_SODIUM") ||  // Sodium Bromide (NaBr)
-            compoundKey.equals("NITROGEN_NITROGEN") ||  // Nitrogen Gas (N₂)
-            compoundKey.equals("OXYGEN_OXYGEN") ||  // Oxygen
-            compoundKey.equals("BROMINE_BROMINE") ||  // Bromine Gas (Br₂)
-            compoundKey.equals("NITROGEN_HYDROGEN") ||  // Ammonia (NH₃)
-            compoundKey.equals("HYDROGEN_NITROGEN");  // Ammonia (NH₃)
+        String spriteName = "";
+        String[] elements = compoundKey.split("_");
+        if (elements.length == 2) {
+            if (elements[0].equals("OXYGEN") && elements[1].equals("HYDROGEN")) { // Water (H₂O)
+                spriteName = "water";
+            } else if (elements[0].equals("HYDROGEN") && elements[1].equals("HYDROGEN")) { // Hydrogen (H₂)
+                spriteName = "fuelCell";
+            } else if (elements[0].equals("HYDROGEN") && elements[1].equals("CHLORINE")) { // Hydrochloric Acid (HCl)
+                spriteName = "cleaningAgent";
+            } else if (elements[0].equals("SODIUM") && elements[1].equals("CHLORINE")) { // Sodium Chloride (NaCl)
+                spriteName = "salt";
+            } else if (elements[0].equals("CALCIUM") && elements[1].equals("OXYGEN")) { // Calcium Oxide (CaO)
+                spriteName = "cement";
+            } else if (elements[0].equals("LITHIUM") && elements[1].equals("OXYGEN")) { // Lithium Oxide (Li₂O)
+                spriteName = "battery";
+            } else if (elements[0].equals("ALUMINUM") && elements[1].equals("OXYGEN")) { // Aluminum Oxide (Al₂O₃)
+                spriteName = "cement";
+            } else if (elements[0].equals("SODIUM") && elements[1].equals("BROMINE")) { // Sodium Bromide (NaBr)
+                spriteName = "sedative";
+            } else if (elements[0].equals("NITROGEN") && elements[1].equals("NITROGEN")) { // Nitrogen Gas (N₂)
+                spriteName = "balloons";
+            } else if (elements[0].equals("OXYGEN") && elements[1].equals("OXYGEN")) { // Oxygen
+                spriteName = "oxygen";
+            } else if (elements[0].equals("BROMINE") && elements[1].equals("BROMINE")) { // Bromine Gas (Br₂)
+                spriteName = "fireExtinguisher";
+            } else if (elements[0].equals("NITROGEN") && elements[1].equals("HYDROGEN")) { // Ammonia (NH₃)
+                spriteName = "fertilizer";
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        splashTexture = new Texture(Gdx.files.internal("splash/" + spriteName + ".png"));
+        return true;
     }
 
 
@@ -309,6 +323,9 @@ public class Element {
     private Music point;
     private Music clear;
     private Music wrong;
+
+    private float splashTextureWidth = 400;
+    private float splashTextureHeight = 200;
 
 
     private Texture splashTexture;

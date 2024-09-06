@@ -53,6 +53,11 @@ public class GameScreen implements Screen {
                     element.clear();
                     return true;
                 }
+                if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
+                    game.setScreen(new GameEndScreen(game));
+                }
+
+
                 return false;
             }
         };
@@ -80,18 +85,27 @@ public class GameScreen implements Screen {
 
         element.draw();
         boost.update(delta);
+
         if (boosted) {
-            batch.draw(playerImageBoosted, player.x-100, player.y, 150, 150);
+            batch.draw(playerImageBoosted, playerImageBoostedX, player.y, 150, 100);
         } else {
-            batch.draw(playerImageIdle, player.x-100, player.y, 150, 150);
+            batch.draw(playerImageIdle, playerImageIdleX, player.y, 150, 100);
         }
 
-        batch.draw(playerImage, player.x, player.y, 64, 64);
+        batch.draw(playerImage, player.x, player.y, 72, 64);
+
+        // Update playerImageBoostedX and playerImageIdleX with a smaller delay
+        playerImageBoostedX += (player.x - 120 - playerImageBoostedX) * 0.4f;
+        playerImageIdleX += (player.x - 120 - playerImageIdleX) * 0.4f;
+
+        batch.draw(playerImage, player.x, player.y, 72, 64);
 
 
         batch.end();
 
-
+        batch.begin();
+        batch.draw(backTexture, backButtonBounds.x, backButtonBounds.y, backButtonBounds.width, backButtonBounds.height);
+        batch.end();
 
 
         String pointsText = "" + points;
@@ -173,24 +187,51 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        dropImage.dispose();
-        playerImageIdle.dispose();
-        playerImageLeft.dispose();
-        playerImageBoosted.dispose();
-        dropSound.dispose();
-        gameMusic.dispose();
-        font.dispose();
-        element.dispose();
-        timerTexture.dispose();
-        fruitsCollectedTexture.dispose();
-        trashButtonTexture.dispose(); // Dispose of the trash button texture
-        clockSound.dispose();
-        bottomSpriteTexture.dispose();
-        boost.dispose();
-        timeAdd.dispose();
+        if (playerImageIdle != null) {
+            playerImageIdle.dispose();
+        }
+        if (playerImageBoosted != null) {
+            playerImageBoosted.dispose();
+        }
+        if (timerTexture != null) {
+            timerTexture.dispose();
+        }
+        if (fruitsCollectedTexture != null) {
+            fruitsCollectedTexture.dispose();
+        }
+        if (trashButtonTexture != null) {
+            trashButtonTexture.dispose(); // Dispose of the trash button texture
+        }
+        if (clockSound != null) {
+            clockSound.dispose();
+        }
+        if (bottomSpriteTexture != null) {
+            bottomSpriteTexture.dispose();
+        }
+        if (boost != null) {
+            boost.dispose();
+        }
+        if (timeAdd != null) {
+            timeAdd.dispose();
+        }
         if (batch != null) {
             batch.dispose();
             batch = null;
+        }
+        if (clickSound != null) {
+            clickSound.dispose();
+        }
+        if (backTexture != null) {
+            backTexture.dispose();
+        }
+        if (dropSound != null) {
+            dropSound.dispose();
+        }
+        if (gameMusic != null) {
+            gameMusic.dispose();
+        }
+        if (font != null) {
+            font.dispose();
         }
     }
 
@@ -235,6 +276,7 @@ public class GameScreen implements Screen {
         dropSound = Gdx.audio.newSound(Gdx.files.internal("hit.wav"));
         clockSound = Gdx.audio.newSound(Gdx.files.internal("clock.wav"));
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+        backTexture = new Texture(Gdx.files.internal("back.png"));
 
         texture = new Texture(Gdx.files.internal("backgroundCatchers.png"));
 
@@ -253,6 +295,10 @@ public class GameScreen implements Screen {
         boost.create();
         timeAdd.create();
 
+        backTexture = new Texture(Gdx.files.internal("exit.png"));
+        float backButtonSize = 64;
+        backButtonBounds = new Rectangle(GAME_SCREEN_X - backButtonSize - 10, GAME_SCREEN_Y - backButtonSize - 10, backButtonSize, backButtonSize);
+
         trashButtonTexture = new Texture(Gdx.files.internal("discard.png")); // Load trash button texture
         float trashButtonSize = 64;
         trashButtonBounds = new Rectangle(
@@ -261,6 +307,9 @@ public class GameScreen implements Screen {
             trashButtonSize,
             trashButtonSize
         );
+
+        playerImageBoostedX = player.x - 120;
+        playerImageIdleX = player.x - 120;
     }
 
     public void boostPlayer() {
@@ -271,11 +320,14 @@ public class GameScreen implements Screen {
         timerDuration += seconds;
     }
 
+    public void parallaxMovement() {
+
+    }
+
 
     public Texture boostImage;
     public OrthographicCamera camera;
     public Viewport viewport; // Updated viewport for handling stretching
-    public Texture dropImage;
     private Texture playerImageIdle;
     private Texture playerImage;
     private Texture playerImageLeft;
@@ -307,12 +359,14 @@ public class GameScreen implements Screen {
     public float slowTimer = 0;
     public boolean boosted = false;
     public boolean slowed = false;
-
+    private Texture backTexture;
+    private Rectangle backButtonBounds;
     public boolean clockPlayed = false;
 
     private float timer = 0;
     private float timerDuration = 90;
-
+    private float playerImageBoostedX;
+    private float playerImageIdleX;
     Sound clickSound;
 }
 

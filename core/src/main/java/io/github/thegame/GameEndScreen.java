@@ -5,7 +5,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -21,6 +24,8 @@ public class GameEndScreen implements Screen {
     private OrthographicCamera camera;
     private Sound gameOverSound;
     private Label gameOverLabel;
+    private Texture scientist;
+    private SpriteBatch batch;
 
     public GameEndScreen(final Main game) {
         this.game = game;
@@ -29,20 +34,22 @@ public class GameEndScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sfx/gameover.wav"));
+        gameOverSound.play();
+        scientist = new Texture("playerCatch.png");
+        batch = new SpriteBatch();
 
         // Setup the game over screen
         setupGameOverScreen();
     }
 
     private void setupGameOverScreen() {
-        gameOverSound.play();
 
         Skin skin = new Skin(Gdx.files.internal("skin/terra-mother-ui.json"));
         BitmapFont font = skin.getFont("font");
-        font.getData().setScale(2.0f); // Increase the font size for "GAME OVER"
+        font.getData().setScale(6.0f); // Increase the font size for "GAME OVER"
 
         gameOverLabel = new Label("GAME OVER", skin);
-        gameOverLabel.setFontScale(3.0f); // Make the text larger
+        gameOverLabel.setFontScale(6.0f); // Make the text larger
 
         Table table = new Table();
         table.setFillParent(true);
@@ -50,7 +57,6 @@ public class GameEndScreen implements Screen {
 
         stage.addActor(table);
 
-        gameOverSound.play();
 
         // Schedule a transition to the MainMenuScreen after 10 seconds
         Timer.schedule(new Timer.Task() {
@@ -68,6 +74,11 @@ public class GameEndScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
+
+        batch.begin();
+        batch.draw(scientist, Gdx.graphics.getWidth()/2 , 0, 500, 500);
+        batch.end();
+
     }
 
     @Override
