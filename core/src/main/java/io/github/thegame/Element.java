@@ -25,7 +25,8 @@ public class Element {
         for (ElementType type : ElementType.values()) {
             elementTextures.put(type, new Texture(Gdx.files.internal(type.spritePath)));
         }
-        splashTexture = new Texture(Gdx.files.internal("bucket.png")); // Load the splash texture
+        splashTexture = new Texture(Gdx.files.internal("bucket.png"));
+        splashRectangleTexture = new Texture(Gdx.files.internal("bg.png"));
         showSplash = false;
         splashTime = 0;
 
@@ -122,23 +123,48 @@ public class Element {
             float animationDuration = 2f; // Total duration for splash
             float hoverDuration = 1f; // Duration before exit
             float exitDuration = 1f; // Duration of exit animation
+            float fadeDuration = 0.5f; // Duration for fade in
+            float fadeOutDuration = exitDuration; // Duration for fade out, same as exit animation
             float elapsedTime = splashTime;
 
-            // Hover animation (First second)
+            // Fade-in effect for the background rectangle
+            float fadeInAlpha = MathUtils.clamp(elapsedTime / fadeDuration, 0f, 0.5f);
+
+            // Fade-out effect for the background rectangle at the same time as exit animation
+            float fadeOutAlpha = 1f;
+            if (elapsedTime > hoverDuration) {
+                float exitElapsed = elapsedTime - hoverDuration;
+                fadeOutAlpha = MathUtils.clamp(1 - (exitElapsed / exitDuration), 0f, 1f);
+            }
+
+            // Draw the background rectangle with fade-in and fade-out effects
+            batch.setColor(0f, 0f, 0f, fadeInAlpha * fadeOutAlpha);
+            batch.draw(splashRectangleTexture, 0, 0, game.GAME_SCREEN_X, game.GAME_SCREEN_Y);
+
+            // Reset color for splash texture drawing
+            batch.setColor(1f, 1f, 1f, 1f);
+
+            // Hover animation (First part of splash)
             if (elapsedTime <= hoverDuration) {
                 float hoverOffset = (float) Math.sin((elapsedTime / hoverDuration) * Math.PI) * 20; // Simple hover effect
                 batch.draw(splashTexture, splashX, splashY + hoverOffset, splashTexture.getWidth(), splashTexture.getHeight());
             } else if (elapsedTime <= animationDuration) {
-                // Exit animation (Last second)
+                // Exit animation (Last part of splash)
                 float exitElapsed = elapsedTime - hoverDuration;
                 float exitOffset = (exitElapsed / exitDuration) * (game.GAME_SCREEN_Y / 2); // Move upwards
                 batch.draw(splashTexture, splashX, splashY - exitOffset, splashTexture.getWidth(), splashTexture.getHeight());
+
             } else {
                 // End of splash animation
                 showSplash = false; // Stop showing splash
             }
+
+            // Reset color for further drawing
+            batch.setColor(1f, 1f, 1f, 1f);
         }
     }
+
+
 
 
     public void update(float delta) {
@@ -165,7 +191,6 @@ public class Element {
         lastCompoundName = null;
 
         if (collectIndex == 0 && collected[1] != null) {
-            // Reset the collected array after checking
             collected[1] = null;
         }
 
@@ -173,19 +198,17 @@ public class Element {
         collectIndex = (collectIndex + 1) % 2; // Track only the last two elements
 
         if (collectIndex == 0) { // After two elements are collected
+            String compoundKey = collected[0].name() + "_" + collected[1].name();
             if (ElementType.isCompound(collected[0], collected[1])) {
-                if (game.boosted) {
-                    game.points += 2;
-                } else {
-                    game.points++;
-                }
+                int points = isEligibleForSplash(compoundKey) ? 2 : 1;
+                game.points += game.boosted ? points * 2 : points;
 
                 point.play();
                 System.out.println("Compound formed: " + collected[0] + " + " + collected[1]);
 
-                // Store the compound name and show splash screen
-                lastCompoundName = ElementType.compounds.get(collected[0].name() + "_" + collected[1].name());
-                if (lastCompoundName != null) {
+                // Store the compound name and show splash screen for eligible compounds
+                lastCompoundName = ElementType.compounds.get(compoundKey);
+                if (lastCompoundName != null && isEligibleForSplash(compoundKey)) {
                     showSplash = true;
                     currentCompound = lastCompoundName;
                 }
@@ -196,8 +219,34 @@ public class Element {
         } else {
             collect1.play();
         }
-
     }
+
+    // Add a helper method to check if the compound is eligible for points
+    private boolean isEligibleForSplash(String compoundKey) {
+        return compoundKey.equals("HYDROGEN_OXYGEN") ||  // Water (H₂O)
+            compoundKey.equals("OXYGEN_HYDROGEN") ||  // Water (H₂O)
+            compoundKey.equals("HYDROGEN_HYDROGEN") ||  // Hydrogen (H₂)
+            compoundKey.equals("HYDROGEN_CHLORINE") ||  // Hydrochloric Acid (HCl)
+            compoundKey.equals("CHLORINE_HYDROGEN") ||  // Hydrochloric Acid (HCl)
+            compoundKey.equals("SODIUM_CHLORINE") ||  // Sodium Chloride (NaCl)
+            compoundKey.equals("CHLORINE_SODIUM") ||  // Sodium Chloride (NaCl)
+            compoundKey.equals("CALCIUM_OXYGEN") ||  // Calcium Oxide (CaO)
+            compoundKey.equals("OXYGEN_CALCIUM") ||  // Calcium Oxide (CaO)
+            compoundKey.equals("LITHIUM_OXYGEN") ||  // Lithium Oxide (Li₂O)
+            compoundKey.equals("OXYGEN_LITHIUM") ||  // Lithium Oxide (Li₂O)
+            compoundKey.equals("ALUMINUM_OXYGEN") ||  // Aluminum Oxide (Al₂O₃)
+            compoundKey.equals("OXYGEN_ALUMINUM") ||  // Aluminum Oxide (Al₂O₃)
+            compoundKey.equals("SODIUM_BROMINE") ||  // Sodium Bromide (NaBr)
+            compoundKey.equals("BROMINE_SODIUM") ||  // Sodium Bromide (NaBr)
+            compoundKey.equals("NITROGEN_NITROGEN") ||  // Nitrogen Gas (N₂)
+            compoundKey.equals("OXYGEN_OXYGEN") ||  // Oxygen
+            compoundKey.equals("BROMINE_BROMINE") ||  // Bromine Gas (Br₂)
+            compoundKey.equals("NITROGEN_HYDROGEN") ||  // Ammonia (NH₃)
+            compoundKey.equals("HYDROGEN_NITROGEN");  // Ammonia (NH₃)
+    }
+
+
+// Help
 
 
     public void drawCollectedFruits() {
@@ -252,7 +301,7 @@ public class Element {
     private Array<Rectangle> elements;
     private static final int ELEMENT_SIZE = 64; // Size for displaying elements
     public static int ELEMENT_SPEED = 100;
-    private long spawnElementInterval = 1500000000L;
+    private long spawnElementInterval = 1300000000L;
 
     private Music collect1;
     private Music collect2;
@@ -261,7 +310,9 @@ public class Element {
     private Music clear;
     private Music wrong;
 
+
     private Texture splashTexture;
+    private Texture splashRectangleTexture;
     private boolean showSplash;
     private float splashTime;
     private String currentCompound;

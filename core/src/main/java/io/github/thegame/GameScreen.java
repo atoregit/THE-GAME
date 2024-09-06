@@ -140,9 +140,7 @@ public class GameScreen implements Screen {
         boost.draw(batch);
         timeAdd.draw(batch);
 
-        batch.begin();
-        batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
-        batch.end();
+
 
         chara.render();
         chara.processSpeed();
@@ -156,19 +154,26 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
         batch.draw(scoresTexture, GAME_SCREEN_X * 0.46f, GAME_SCREEN_Y - timerTexture.getHeight() - 18);
-        element.drawCollectedFruits();
-        batch.end();
-
-
-        batch.begin();
-        font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
-        font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
-        batch.draw(trashButtonTexture, trashButtonBounds.x, trashButtonBounds.y, trashButtonBounds.width, trashButtonBounds.height);
         batch.end();
 
         batch.begin();
         element.drawSplash(batch);
         batch.end();
+        batch.begin();
+
+        batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
+        batch.end();
+
+
+
+        batch.begin();
+        element.drawCollectedFruits();
+        font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
+        font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
+        batch.draw(trashButtonTexture, trashButtonBounds.x, trashButtonBounds.y, trashButtonBounds.width, trashButtonBounds.height);
+        batch.end();
+
+
     }
 
     @Override
