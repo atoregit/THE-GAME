@@ -19,8 +19,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Scaling;
@@ -32,6 +30,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.Random;
+
 public class BulletHellScreen implements Screen {
     final Main game;
     private Stage stage;
@@ -115,8 +115,14 @@ public class BulletHellScreen implements Screen {
     private float movementSmoothing = 0f; // Adjust this value to change smoothing (0.0 to 1.0)
     private float currentVelocity = 0f;
     private Texture red;
+    private int healTimer;
+    private Array<EnemyBullet> enemyBullets;
+    private Array<EnemyBullet> enemyBulletsToRemove;
+    private Pool<EnemyBullet> enemyBulletPool;
 
     public BulletHellScreen(final Main game) {
+        Random random = new Random();
+
         this.game = game;
         timeSinceLastShot = 0;
         camera = new OrthographicCamera();
@@ -152,11 +158,21 @@ public class BulletHellScreen implements Screen {
         gameStartTime = TimeUtils.millis();
         damageIndicators = new Array<BulletDamage>();
         indicatorsToRemove = new Array<BulletDamage>();
+        enemyBullets = new Array<EnemyBullet>();
+        enemyBulletsToRemove = new Array<EnemyBullet>();
+
+
         // Initialize object pools for reuse
+        enemyBulletPool = new Pool<EnemyBullet>() {
+            @Override
+            protected EnemyBullet newObject() {
+                return new EnemyBullet(0, 0);
+            }
+        };
         enemyPool = new Pool<BulletEnemy>() {
             @Override
             protected BulletEnemy newObject() {
-                return new BulletEnemy(MathUtils.random(0, 480), 800, difficultyMultiplier);
+                return new BulletEnemy(MathUtils.random(0, 480), 800, difficultyMultiplier, 1);
             }
         };
 
@@ -195,7 +211,7 @@ public class BulletHellScreen implements Screen {
         highlightPixmap.fill();
         inputHighlight = new Texture(highlightPixmap);
         highlightPixmap.dispose();
-
+        healTimer = 100 + random.nextInt(101);
 
         blackbg = new Texture(Gdx.files.internal("black_blue_box.png"));
 
@@ -305,7 +321,7 @@ public class BulletHellScreen implements Screen {
             updateSymbols(delta);
             updateBullets(delta);
             updateDamageIndicators(delta);
-
+            updateEnemyBullets(delta);
             removeOffscreenObjects();
             cleanupObjects();
             updateParticles(delta);
@@ -366,6 +382,9 @@ public class BulletHellScreen implements Screen {
 
         for (ChemicalSymbol symbol : symbols) symbol.draw(batch);
         for (Bullet bullet : bullets) bullet.draw(batch);
+        for (EnemyBullet bullet : enemyBullets) {
+            bullet.draw(batch);
+        }
         for (ParticleEffect particle : activeParticles) particle.draw(batch);
 
 
@@ -388,6 +407,9 @@ public class BulletHellScreen implements Screen {
 
         if(screenShake.isShaking()){
             batch.draw(red, 0, 0, camera.viewportWidth, camera.viewportHeight);
+        }
+        if(times % healTimer == 0){
+            player.heal();
         }
         batch.end();
         cleanupDamageIndicators();
@@ -453,6 +475,22 @@ public class BulletHellScreen implements Screen {
             }
         }
     }
+    private void updateEnemyBullets(float delta) {
+        for (EnemyBullet bullet : enemyBullets) {
+            bullet.update(delta);
+            if (bullet.getY() < 0) {
+                enemyBulletsToRemove.add(bullet);
+            }
+        }
+
+        for (BulletEnemy enemy : enemies) {
+            if (enemy.canShoot()) {
+                EnemyBullet bullet = enemyBulletPool.obtain();
+                bullet.init(enemy.getX() + enemy.getWidth() / 2, enemy.getY());
+                enemyBullets.add(bullet);
+            }
+        }
+    }
     private void handleStun(float delta) {
         if (stunTimer > 0) {
             stunTimer -= delta;
@@ -515,7 +553,7 @@ public class BulletHellScreen implements Screen {
 
     private void spawnEnemy() {
         BulletEnemy enemy = enemyPool.obtain();
-        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier); // Initialize with current values
+        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier, 5); // Initialize with current values
         enemies.add(enemy);
     }
 
@@ -588,6 +626,29 @@ public class BulletHellScreen implements Screen {
                 }
             }
         }
+        enemyBulletsToRemove.clear(); // Clear the removal list before checking collisions
+
+        for (EnemyBullet bullet : enemyBullets) {
+            if (player.getBounds().overlaps(bullet.getBounds())) {
+                if (!player.getInvincible()) {
+                    player.setHealth(player.getHealth() - 1);
+                    screenShake.shake(0.5f, 5f);
+                    dead.play();
+                } else {
+                    player.startGlowing();
+                }
+                enemyBulletsToRemove.add(bullet);
+
+                if (player.getHealth() <= 0) {
+                    dispose();
+                    game.setScreen(new GameEndScreen(game, (int)times));
+                    return; // Exit the method to prevent further processing
+                }
+            }
+        }
+
+
+        enemyBullets.removeAll(enemyBulletsToRemove, true);
         for (BulletEnemy enemy : enemies){
             if(player.getBounds().overlaps(enemy.getBounds())){
                 enemiesToRemove.add(enemy);
@@ -606,6 +667,7 @@ public class BulletHellScreen implements Screen {
                 return;
             }
         }
+
     }
     private void spawnParticleEffect(float x, float y, String particleType) {
         ParticleEffect particle = particlePool.obtain();
@@ -707,6 +769,11 @@ public class BulletHellScreen implements Screen {
                 bulletsToRemove.add(bullet);
             }
         }
+        for (EnemyBullet bullet : enemyBullets){
+            if (bullet.getY() > 775) {
+                enemyBulletsToRemove.add(bullet);
+            }
+        }
     }
     private void cleanupObjects() {
         for (BulletEnemy enemy : enemiesToRemove) {
@@ -726,6 +793,7 @@ public class BulletHellScreen implements Screen {
             bulletPool.free(bullet);
         }
         bulletsToRemove.clear();
+        enemyBulletsToRemove.clear();
     }
     private void handleInput(float delta) {
         boolean isMovingLeft = false;
@@ -799,5 +867,9 @@ public class BulletHellScreen implements Screen {
         screenShake.dispose();
         dead.dispose();
         select.dispose();
+        enemyBulletPool.clear();
+        for (EnemyBullet bullet : enemyBullets) {
+            bullet.dispose(); // Make sure to implement a dispose method in EnemyBullet if needed
+        }
     }
 }

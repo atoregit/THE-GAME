@@ -36,10 +36,10 @@ figure.png
 fruitscollected.png
 harveybasket.png
 heart.png
+help.png
 hit.wav
 idle.png
 leftArrow.png
-lesson.png
 lib/AbsoluteLayout.jar
 libgdx.png
 logo.png
@@ -102,4 +102,5 @@ stun.png
 text.ttf
 timer.png
 tutorial.png
+upArrow.png
 watermelon.png

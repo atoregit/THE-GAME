@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.Scaling;
@@ -24,7 +25,7 @@ public class BulletIntro implements Screen {
     private final Stage stage;
     private Table table;
     private Skin skin;
-    private Music menuMusic;
+    private Music menuMusic, left, right, play;
     private Sound clickSound;
     private boolean isTransitioning = false;
     private Screen nextScreen;
@@ -32,7 +33,8 @@ public class BulletIntro implements Screen {
     private static final float VIRTUAL_HEIGHT = 640;
     private static final float TRANSITION_DURATION = 0.5f;
     private Texture mainMenuBackground; // Store background texture for disposal
-    private Music left, right, play;
+
+
     private Image blackBlueBox;
     public BulletIntro(final Main game) {
         this.game = game;
@@ -47,7 +49,6 @@ public class BulletIntro implements Screen {
         left = Gdx.audio.newMusic(Gdx.files.internal("sfx/left.wav"));
         right = Gdx.audio.newMusic(Gdx.files.internal("sfx/right.wav"));
         play = Gdx.audio.newMusic(Gdx.files.internal("sfx/play.wav"));
-
         skin = new Skin(Gdx.files.internal("skin/terra-mother-ui.json"));
 
         createUI();
@@ -86,16 +87,38 @@ public class BulletIntro implements Screen {
 
         Texture leftArrowTexture = new Texture(Gdx.files.internal("leftArrow.png"));
         Texture rightArrowTexture = new Texture(Gdx.files.internal("rightArrow.png"));
+        Texture help = new Texture(Gdx.files.internal("help.png"));
+        Drawable leftDraw = new TextureRegionDrawable(leftArrowTexture);
+        Drawable rightDraw = new TextureRegionDrawable(rightArrowTexture);
+        Drawable helpDraw =  new TextureRegionDrawable(help);
+        ImageButton leftButton =new ImageButton(leftDraw);
+        ImageButton rightButton = new ImageButton(rightDraw);
+        ImageButton helpButton = new ImageButton(helpDraw);
 
-        ImageTextButton rightButton = createButton("", rightArrowTexture, () -> {
-            transitionToScreenRight(new GameIntro(game));
-            right.play();
+        rightButton.setSize(40, 120);
+        leftButton.setSize(40, 120);
+        helpButton.setSize(60, 120);
+        leftButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                left.play();
+                transitionToScreenLeft(new MainMenuScreen(game));
+            }
         });
-        ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenLeft(new MainMenuScreen(game));
-            left.play();
+        rightButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                right.play();
+                transitionToScreenRight(new GameIntro(game));
+            }
         });
-
+        helpButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                left.play();
+                transitionToScreenDown(new BulletTutorial(game));
+            }
+        });
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 40;
@@ -107,21 +130,23 @@ public class BulletIntro implements Screen {
 
         Table bottomTable = new Table();
 
-        bottomTable.add(leftButton).width(35).height(75);
+        bottomTable.add(leftButton);
 
         Table labelTable = new Table();
         labelTable.add(new Label("YOU: ", labelStyle)).row();
         labelTable.add(new Label("YOU: ", labelStyle)).row();
         labelTable.add(new Label("YOU: ", labelStyle));
 
-        bottomTable.add(labelTable).padLeft(60).padRight(60);
+        bottomTable.add(labelTable).padLeft(70).padRight(70);
 
-        bottomTable.add(rightButton).width(35).height(75);
+        bottomTable.add(rightButton);
 
         parameter.size = 80;
         parameter.color = Color.WHITE;
         BitmapFont fontz = generator.generateFont(parameter);
-        table.add(bottomTable).padBottom(20);
+        table.add(bottomTable).padBottom(100);
+        table.row();
+        table.add(helpButton).center().padTop(10);
         table.row();
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = fontz;
@@ -152,17 +177,7 @@ public class BulletIntro implements Screen {
 
     }
 
-    private ImageTextButton createButton(String text, Texture background, Runnable action) {
-        ImageTextButton button = new ImageTextButton(text, skin);
-        button.getStyle().up = new Image(background).getDrawable();
-        button.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                action.run();
-            }
-        });
-        return button;
-    }
+
 
     @Override
     public void show() {
@@ -265,7 +280,32 @@ public class BulletIntro implements Screen {
         incomingTable.setPosition(0, -stage.getHeight());
         incomingTable.addAction(Actions.moveBy(0, stage.getHeight(), TRANSITION_DURATION, Interpolation.sine));
     }
+    private void transitionToScreenDown(Screen newScreen) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        nextScreen = newScreen;
+        blackBlueBox.toFront();
+        table.addAction(Actions.sequence(
+            Actions.moveBy(0, -stage.getHeight(), TRANSITION_DURATION, Interpolation.sine),
+            Actions.run(() -> {
+                isTransitioning = false;
+                // The actual screen transition will happen in the render method
+            })
+        ));
 
+        Table incomingTable = new Table();
+        incomingTable.setFillParent(true);
+        stage.addActor(incomingTable);
+        blackBlueBox.toFront();
+        Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
+        Image placeholderImage = new Image(placeholder);
+        placeholderImage.setScaling(Scaling.stretch);
+        placeholderImage.setFillParent(true);
+        incomingTable.add(placeholderImage);
+
+        incomingTable.setPosition(0, stage.getHeight());
+        incomingTable.addAction(Actions.moveBy(0, -stage.getHeight(), TRANSITION_DURATION, Interpolation.sine));
+    }
     private void transitionToScreenLeft(Screen newScreen) {
         if (isTransitioning) return;
         isTransitioning = true;
