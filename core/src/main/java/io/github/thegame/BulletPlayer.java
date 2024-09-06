@@ -27,8 +27,6 @@ public class BulletPlayer {
     public BulletPlayer(float x, float y) {
         position = new Vector2(x, y);
 
-        Texture originalTexture = new Texture(Gdx.files.internal("playerShoot.png"));
-
         // Create a Pixmap from the original texture
         Pixmap originalPixmap = new Pixmap(Gdx.files.internal("playerShoot.png"));
         Pixmap originLeft = new Pixmap(Gdx.files.internal("playerShootLeft.png"));
@@ -56,13 +54,19 @@ public class BulletPlayer {
         texture1 = new Texture(resizedPixmap1);
         texture2 = new Texture(resizedPixmap2);
         texture3 = new Texture(resizedPixmap3);
+        originalPixmap.dispose();
+        originLeft.dispose();
+        originRight.dispose();
+        resizedPixmap1.dispose();
+        resizedPixmap2.dispose();
+        resizedPixmap3.dispose();
         bounds = new Rectangle(x, y, texture1.getWidth(), texture1.getHeight());
         speed = 210;
         collectedSymbol = "";
         fireRate = 0.1f;
         bulletDamage = 50;
         numBullets = 1;
-        health = 12;
+        health = 3;
         this.isStunned = false;
         invincible = false;
     }
@@ -106,7 +110,9 @@ public class BulletPlayer {
     public void setHealth(float health) { this.health = health; }
     public boolean isStunned() { return isStunned; }
     public void setStunned(boolean stunned) { isStunned = stunned; }
-
+    public void heal(){
+        health+=1;
+    }
     public Rectangle getBounds() {
         return bounds;
     }
