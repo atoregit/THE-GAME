@@ -67,6 +67,8 @@ public class GameScreen implements Screen {
             return;
         }
 
+        element.update(delta);
+
         ScreenUtils.clear(1, 1, 1, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -138,9 +140,7 @@ public class GameScreen implements Screen {
         boost.draw(batch);
         timeAdd.draw(batch);
 
-        batch.begin();
-        batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
-        batch.end();
+
 
         chara.render();
         chara.processSpeed();
@@ -154,15 +154,26 @@ public class GameScreen implements Screen {
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
         batch.draw(scoresTexture, GAME_SCREEN_X * 0.46f, GAME_SCREEN_Y - timerTexture.getHeight() - 18);
-        element.drawCollectedFruits();
+        batch.end();
+
+        batch.begin();
+        element.drawSplash(batch);
+        batch.end();
+        batch.begin();
+
+        batch.draw(bottomSpriteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.055f);
         batch.end();
 
 
+
         batch.begin();
+        element.drawCollectedFruits();
         font.draw(batch, pointsText, pointsX, GAME_SCREEN_Y * 0.95f);
         font.draw(batch, "" + (int) remainingTime, GAME_SCREEN_X * 0.13f, GAME_SCREEN_Y * 0.96f);
         batch.draw(trashButtonTexture, trashButtonBounds.x, trashButtonBounds.y, trashButtonBounds.width, trashButtonBounds.height);
         batch.end();
+
+
     }
 
     @Override
@@ -234,7 +245,7 @@ public class GameScreen implements Screen {
 
         if (timer >= timerDuration) {
             gameMusic.stop();
-            game.setScreen(new GameEndScreen(game, points));
+            game.setScreen(new GameEndScreen(game));
         }
     }
 
@@ -314,6 +325,7 @@ public class GameScreen implements Screen {
     public int points;
     private float touchStartX = -1;
     private float touchCurrentX = -1;
+
 
     public final int GAME_SCREEN_X = 480;
     public final int GAME_SCREEN_Y = 640;

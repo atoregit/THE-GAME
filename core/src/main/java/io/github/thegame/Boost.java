@@ -23,13 +23,14 @@ public class Boost {
     private final long endMessageDuration = 3000L; // 3 seconds
     private BitmapFont font;
     private BitmapFont endFont;
+    private Music boom;
 
     public Boost(final GameScreen game) {
         this.game = game;
         font = new BitmapFont(Gdx.files.internal("pixel.fnt"));
-        font.getData().setScale(2f);
+        font.getData().setScale(2.5f);
         endFont = new BitmapFont(Gdx.files.internal("pixel.fnt"));
-        endFont.getData().setScale(2f);
+        endFont.getData().setScale(2.5f);
     }
 
     public void create() {
@@ -43,14 +44,15 @@ public class Boost {
         boom = Gdx.audio.newMusic(Gdx.files.internal("sfx/explosion.wav"));
 
         boosts = new Array<>();
+        // Initialize with an initial spawn to ensure at least one boost is present
         spawnBoost();
     }
 
     public void spawnBoost() {
-        // 50/50 chance to spawn the bomb
-        if (MathUtils.randomBoolean()) {
+        // Only spawn a new boost if no boost is currently active
+        if (!game.boosted && MathUtils.randomBoolean()) {
             Rectangle bombBox = new Rectangle();
-            bombBox.x = MathUtils.random(0, game.GAME_SCREEN_X - 64);
+            bombBox.x = MathUtils.random(0, game.GAME_SCREEN_X - BOMB_SIZE);
             bombBox.y = game.GAME_SCREEN_Y;
             bombBox.width = BOMB_SIZE;
             bombBox.height = BOMB_SIZE;
@@ -75,7 +77,7 @@ public class Boost {
         if (game.boosted) {
             long elapsedTime = TimeUtils.nanoTime() - boostStartTime;
             if (elapsedTime < notifyDuration * 1000000L) {
-                font.setColor(Color.YELLOW);
+                font.setColor(new Color(0.98f, 0.69f, 0.2f, 1));
                 font.draw(batch, "Points Doubled!", game.GAME_SCREEN_X / 2 - 100, game.GAME_SCREEN_Y / 2);
             }
         }
@@ -84,7 +86,7 @@ public class Boost {
         if (boostEnded) {
             long elapsedTime = TimeUtils.nanoTime() - boostEndTime;
             if (elapsedTime < endMessageDuration * 1000000L) {
-                endFont.setColor(Color.RED);
+                endFont.setColor(new Color(0.7f, 0.1f, 0.1f, 1));
                 endFont.draw(batch, "Boost Ended!", game.GAME_SCREEN_X / 2 - 100, game.GAME_SCREEN_Y / 2 - 50);
             } else {
                 boostEnded = false; // Reset flag when message duration is over
@@ -144,6 +146,5 @@ public class Boost {
     private Array<Rectangle> boosts;
     public final int BOMB_SIZE = 64;
     private static final int BOOST_SPEED = 250;
-    private long spawnBoostInterval = 8000000000L;
-    private Music boom;
+    private long spawnBoostInterval = 10000000000L;
 }

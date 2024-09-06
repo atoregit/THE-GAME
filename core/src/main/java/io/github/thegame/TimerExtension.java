@@ -25,7 +25,7 @@ public class TimerExtension {
     public TimerExtension(final GameScreen game) {
         this.game = game;
         font = new BitmapFont(Gdx.files.internal("pixel.fnt"));
-        font.getData().setScale(2f);
+        font.getData().setScale(2.5f);
     }
 
     public void create() {
@@ -54,7 +54,6 @@ public class TimerExtension {
         }
     }
 
-
     public void render() {
         if (TimeUtils.nanoTime() - extensionLastDropTime > spawnExtensionInterval) {
             spawnExtension();
@@ -71,7 +70,7 @@ public class TimerExtension {
         if (extended) {
             long elapsedTime = TimeUtils.nanoTime() - extensionStartTime;
             if (elapsedTime < notifyDuration * 1000000L) {
-                font.setColor(Color.GREEN);
+                font.setColor(new Color(0.3f, 0.8f, 0.3f, 1)); // Softer green
                 font.draw(batch, "Time Extended!", game.GAME_SCREEN_X / 2 - 100, game.GAME_SCREEN_Y / 2);
             }
         }
@@ -85,19 +84,18 @@ public class TimerExtension {
             if (extension.y + EXTENSION_SIZE < 0) iter.remove();
             if (extension.overlaps(game.player)) {
                 game.dropSound.play();
-                if (!extended) { // Only apply time extension if not already extended
-                    startTimer();
-                    game.addTime(10); // Add 10 seconds to the game timer
-                    extensionSound.play();
-                }
+                startTimer(); // Always update the start time regardless of the current state
+                game.addTime(10); // Add 10 seconds to the game timer
+                extensionSound.play();
                 iter.remove();
             }
         }
     }
 
     public void startTimer() {
-        extended = true;
+        // Update the start time to extend the time regardless of the `extended` state
         extensionStartTime = TimeUtils.nanoTime();
+        extended = true; // Set the `extended` flag to true, but keep extending
     }
 
     public void update(float delta) {
@@ -119,6 +117,6 @@ public class TimerExtension {
     private Array<Rectangle> extensions;
     public final int EXTENSION_SIZE = 64;
     private static final int EXTENSION_SPEED = 250;
-    private long spawnExtensionInterval = 15000000000L;
+    private long spawnExtensionInterval = 20000000000L;
     private Music extensionSound;
 }

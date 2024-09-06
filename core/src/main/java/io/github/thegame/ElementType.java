@@ -1,6 +1,8 @@
 package io.github.thegame;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum ElementType {
@@ -27,14 +29,13 @@ public enum ElementType {
     public static final Map<String, String> compounds = new HashMap<>();
 
     static {
-        // Populate valid compound pairs (both directions)
         compounds.put("HYDROGEN_OXYGEN", "Water (H2O)");
         compounds.put("OXYGEN_HYDROGEN", "Water (H2O)");
 
-        compounds.put("HYDROGEN_HYRDOGEN", "Hydrogen (H2)");
+        compounds.put("HYDROGEN_HYDROGEN", "Hydrogen (H2)");
 
-        compounds.put("HYDROGEN_CHLORINE", "Hydrogen Chloride (HCl)");
-        compounds.put("CHLORINE_HYDROGEN", "Hydrogen Chloride (HCl)");
+        compounds.put("HYDROGEN_CHLORINE", "Hydrochloric Acid (HCl)");
+        compounds.put("CHLORINE_HYDROGEN", "Hydrochloric Acid (HCl)");
 
         compounds.put("SODIUM_CHLORINE", "Sodium Chloride (NaCl)");
         compounds.put("CHLORINE_SODIUM", "Sodium Chloride (NaCl)");
@@ -51,8 +52,8 @@ public enum ElementType {
         compounds.put("IRON_OXYGEN", "Iron Oxide (Fe2O3)");
         compounds.put("OXYGEN_IRON", "Iron Oxide (Fe2O3)");
 
-        compounds.put("ALUMINIUM_OXYGEN", "Aluminium Oxide (Al2O3)");
-        compounds.put("OXYGEN_ALUMINIUM", "Aluminium Oxide (Al2O3)");
+        compounds.put("ALUMINUM_OXYGEN", "Aluminum Oxide (Al2O3)");
+        compounds.put("OXYGEN_ALUMINUM", "Aluminum Oxide (Al2O3)");
 
         compounds.put("COPPER_OXYGEN", "Copper Oxide (CuO)");
         compounds.put("OXYGEN_COPPER", "Copper Oxide (CuO)");
@@ -66,8 +67,8 @@ public enum ElementType {
         compounds.put("LITHIUM_BROMINE", "Lithium Bromide (LiBr)");
         compounds.put("BROMINE_LITHIUM", "Lithium Bromide (LiBr)");
 
-        compounds.put("ALUMINIUM_CHLORINE", "Aluminium Chloride (AlCl2)");
-        compounds.put("CHLORINE_ALUMINIUM", "Aluminium Chloride (AlCl2)");
+        compounds.put("ALUMINUM_CHLORINE", "Aluminum Chloride (AlCl3)");
+        compounds.put("CHLORINE_ALUMINUM", "Aluminum Chloride (AlCl3)");
 
         compounds.put("COPPER_CHLORINE", "Copper(II) Chloride (CuCl2)");
         compounds.put("CHLORINE_COPPER", "Copper(II) Chloride (CuCl2)");
@@ -78,12 +79,21 @@ public enum ElementType {
         compounds.put("SODIUM_BROMINE", "Sodium Bromide (NaBr)");
         compounds.put("BROMINE_SODIUM", "Sodium Bromide (NaBr)");
 
-        compounds.put("CALCIUM_BROMINE", "Calcium Bromide (CaBr3)");
-        compounds.put("BROMINE_CALCIUM", "Calcium Bromide (CaBr3)");
+        compounds.put("CALCIUM_BROMINE", "Calcium Bromide (CaBr2)");
+        compounds.put("BROMINE_CALCIUM", "Calcium Bromide (CaBr2)");
 
-        compounds.put("BROMINE_BROMINE", "Bromine Gas (Br2)"); // Diatomic Bromine
-        compounds.put("NITROGEN_NITROGEN", "Nitrogen Gas (N2)"); // Diatomic Nitrogen
+        compounds.put("BROMINE_BROMINE", "Bromine Gas (Br2)");
+
+        compounds.put("NITROGEN_NITROGEN", "Nitrogen Gas (N2)");
+
+        compounds.put("NITROGEN_HYDROGEN", "Ammonia (NH3)");
+        compounds.put("HYDROGEN_NITROGEN", "Ammonia (NH3)");
+
+        compounds.put("OXYGEN_OXYGEN", "Oxygen (O2)");
+
     }
+
+
 
     public static boolean isCompound(ElementType first, ElementType second) {
         return compounds.containsKey(first.name() + "_" + second.name());
