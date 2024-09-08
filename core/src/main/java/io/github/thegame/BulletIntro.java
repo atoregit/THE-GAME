@@ -82,7 +82,7 @@ public class BulletIntro implements Screen {
 
         Texture logoTexture = new Texture(Gdx.files.internal("shootersLogo.png"));
         Image logo = new Image(logoTexture);
-        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(200);
+        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(100);
         table.row();
 
         Texture leftArrowTexture = new Texture(Gdx.files.internal("leftArrow.png"));
