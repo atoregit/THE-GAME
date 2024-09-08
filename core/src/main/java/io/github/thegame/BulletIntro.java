@@ -50,8 +50,9 @@ public class BulletIntro implements Screen {
         stage = new Stage(new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
-        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("menumusic.mp3"));
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/shootersMenu.wav"));
         clickSound = Gdx.audio.newSound(Gdx.files.internal("sfx/click.wav"));
+        menuMusic.setVolume(0.6f);
         menuMusic.setLooping(true);
         menuMusic.play();
         left = Gdx.audio.newMusic(Gdx.files.internal("sfx/left.wav"));

@@ -58,6 +58,7 @@ bulletPlayerWhite.png
 bulletTextile.png
 button2.png
 calico.png
+catchersBg.wav
 catchersLogo.png
 cheebi.png
 clock.wav
@@ -126,6 +127,7 @@ sfx/boostEnd.wav
 sfx/boost_collect.wav
 sfx/boss.wav
 sfx/bulletbg.mp3
+sfx/catchersMenu.wav
 sfx/click.wav
 sfx/collect.wav
 sfx/compound.wav
@@ -151,6 +153,7 @@ sfx/scout.mp3
 sfx/scout.p
 sfx/select.wav
 sfx/shoot.mp3
+sfx/shootersMenu.wav
 sfx/single.wav
 sfx/time.wav
 sfx/timeEx.wav

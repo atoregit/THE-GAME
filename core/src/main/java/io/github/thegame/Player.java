@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 public class Player {
     final GameScreen game;
 
-    private static final int PLAYER_SIZE = 32;
+    private static final int PLAYER_SIZE = 50;
     private static final int PLAYER_SPEED_BOOST = 800;
     private static final int PLAYER_SPEED_DEFAULT = 500;
     public final int STUN_DURATION = 3;

@@ -41,8 +41,13 @@ public class GameScreen implements Screen {
         setupInputProcessor();
     }
 
-    private void endGame() {
+    public void endGame() {
+        gameMusic.stop();
         game.setScreen(new GameEndScreen(game, points, specialPoints));
+    }
+
+    private void pauseGame() {
+        game.setScreen(new PauseMenuScreen(game, this));
     }
 
     private void setupInputProcessor() {
@@ -57,9 +62,10 @@ public class GameScreen implements Screen {
                     element.clear();
                     return true;
                 }
-                if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                    gameMusic.stop();
-                    endGame();
+
+                if (helpButtonBounds.contains(touchPos.x, touchPos.y)) {
+                    game.pause();
+                    pauseGame();
                 }
 
 
@@ -102,7 +108,7 @@ public class GameScreen implements Screen {
         batch.end();
 
         batch.begin();
-        batch.draw(backTexture, backButtonBounds.x, backButtonBounds.y, backButtonBounds.width, backButtonBounds.height);
+        batch.draw(helpTexture, helpButtonBounds.x, helpButtonBounds.y, helpButtonBounds.width, helpButtonBounds.height);
         batch.end();
 
 
@@ -220,9 +226,6 @@ public class GameScreen implements Screen {
         if (clickSound != null) {
             clickSound.dispose();
         }
-        if (backTexture != null) {
-            backTexture.dispose();
-        }
         if (dropSound != null) {
             dropSound.dispose();
         }
@@ -274,8 +277,8 @@ public class GameScreen implements Screen {
         bottomSpriteBounds = new Rectangle(0, 0, GAME_SCREEN_X, 50);
         dropSound = Gdx.audio.newSound(Gdx.files.internal("hit.wav"));
         clockSound = Gdx.audio.newSound(Gdx.files.internal("clock.wav"));
-        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
-        backTexture = new Texture(Gdx.files.internal("back.png"));
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("catchersBg.wav"));
+        gameMusic.setVolume(0.6f);
 
         texture = new Texture(Gdx.files.internal("backgroundCatchers.png"));
 
@@ -294,11 +297,13 @@ public class GameScreen implements Screen {
         boost.create();
         timeAdd.create();
 
-        backTexture = new Texture(Gdx.files.internal("exit.png"));
-        float backButtonWidth = 50;
-        float backButtonHeight = 32;
-        backButtonBounds = new Rectangle(GAME_SCREEN_X - backButtonWidth- 10, GAME_SCREEN_Y - backButtonHeight- 10, backButtonWidth, backButtonHeight);
+
+
         helpTexture = new Texture(Gdx.files.internal("help.png"));
+        float helpButtonWidth = 45; // Increase the width
+        float helpButtonHeight = 32; // Increase the height
+        helpButtonBounds = new Rectangle(GAME_SCREEN_X - helpButtonWidth - 10, GAME_SCREEN_Y - helpButtonHeight - 10, helpButtonWidth, helpButtonHeight);
+
         trashButtonTexture = new Texture(Gdx.files.internal("discard.png")); // Load trash button texture
         float trashButtonSize = 64;
         trashButtonBounds = new Rectangle(
@@ -363,7 +368,7 @@ public class GameScreen implements Screen {
     private Texture backTexture;
     private Rectangle backButtonBounds;
     public boolean clockPlayed = false;
-
+    private Rectangle helpButtonBounds;
     private float timer = 0;
     private float timerDuration = 90;
     private float playerImageBoostedX;

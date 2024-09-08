@@ -48,8 +48,9 @@ public class GameIntro implements Screen {
         stage = new Stage(new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
-        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("menumusic.mp3"));
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/catchersMenu.wav"));
         clickSound = Gdx.audio.newSound(Gdx.files.internal("sfx/click.wav"));
+
         menuMusic.setLooping(true);
         menuMusic.play();
         left = Gdx.audio.newMusic(Gdx.files.internal("sfx/left.wav"));
@@ -172,6 +173,7 @@ public class GameIntro implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 play.play();
+                menuMusic.stop();
                 transitionToScreenUp(new GameScreen(game));
             }
         });
