@@ -5,7 +5,7 @@
   <application
       android:allowBackup="true"
       android:fullBackupContent="true"
-      android:icon="@drawable/ic_launcher"
+      android:icon="@drawable/atomix"
       android:isGame="true"
       android:appCategory="game"
       android:label="Atomix"
