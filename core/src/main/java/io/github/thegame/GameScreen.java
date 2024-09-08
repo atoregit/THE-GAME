@@ -247,7 +247,7 @@ public class GameScreen implements Screen {
             element.ELEMENT_SPEED = 120;
         }
 
-        if (timer >= 80) {
+        if (timerDuration-timer == 10) {
             if (!clockPlayed) {
                 clockSound.play();
                 clockPlayed = true;
@@ -298,7 +298,7 @@ public class GameScreen implements Screen {
         float backButtonWidth = 50;
         float backButtonHeight = 32;
         backButtonBounds = new Rectangle(GAME_SCREEN_X - backButtonWidth- 10, GAME_SCREEN_Y - backButtonHeight- 10, backButtonWidth, backButtonHeight);
-
+        helpTexture = new Texture(Gdx.files.internal("help.png"));
         trashButtonTexture = new Texture(Gdx.files.internal("discard.png")); // Load trash button texture
         float trashButtonSize = 64;
         trashButtonBounds = new Rectangle(
@@ -349,7 +349,7 @@ public class GameScreen implements Screen {
     private float touchStartX = -1;
     private float touchCurrentX = -1;
     public float displayPoints;
-
+    public Texture helpTexture;
     public final int GAME_SCREEN_X = 480;
     public final int GAME_SCREEN_Y = 640;
 

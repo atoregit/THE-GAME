@@ -46,7 +46,7 @@ public class Element {
         point = Gdx.audio.newMusic(Gdx.files.internal("sfx/point.wav"));
         clear = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitclear.wav"));
         wrong = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
-
+        special = Gdx.audio.newMusic(Gdx.files.internal("sfx/compound.wav"));
         spawnFruit();
     }
 
@@ -213,6 +213,7 @@ public class Element {
                 lastCompoundName = ElementType.compounds.get(compoundKey);
                 if (lastCompoundName != null && isEligibleForSplash(compoundKey)) {
                     showSplash = true;
+                    special.play();
                     game.specialPoints++;
                     currentCompound = lastCompoundName;
                 }
@@ -326,7 +327,7 @@ public class Element {
     private Music point;
     private Music clear;
     private Music wrong;
-
+    private Music special;
     private float splashTextureWidth = 400;
     private float splashTextureHeight = 200;
 
