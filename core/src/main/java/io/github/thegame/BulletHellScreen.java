@@ -565,9 +565,10 @@ public class BulletHellScreen implements Screen {
             if (isPaused) {
                 isPaused = false;
                 select.play();
-            } else if((touchPos.x > 15 && touchPos.x <65+15) && (touchPos.y > camera.viewportHeight-65 && touchPos.y < camera.viewportHeight)){
+            } if (touchPos.x >= 15 && touchPos.x <= 15 + 64 &&
+                touchPos.y >= camera.viewportHeight - 65 && touchPos.y <= camera.viewportHeight - 65 + 64) {
                 dispose();
-                game.setScreen(new BulletIntro(game));
+                game.setScreen(new GameEndScreen(game, times, -1));
             }else if (touchPos.x >= pauseButtonPosition.x && touchPos.x <= pauseButtonPosition.x + PAUSE_BUTTON_SIZE &&
                 touchPos.y >= pauseButtonPosition.y && touchPos.y <= pauseButtonPosition.y + PAUSE_BUTTON_SIZE) {
                 isPaused = true;

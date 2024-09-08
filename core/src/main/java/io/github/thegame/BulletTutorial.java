@@ -30,7 +30,7 @@ public class BulletTutorial implements Screen {
     private Screen nextScreen;
     private static final float VIRTUAL_WIDTH = 480;
     private static final float VIRTUAL_HEIGHT = 640;
-    private static final float TRANSITION_DURATION = 0.5f;
+    private static final float TRANSITION_DURATION = 0.25f;
     private Texture mainMenuBackground; // Store background texture for disposal
     private Music left;
     private Image blackBlueBox;
@@ -102,7 +102,7 @@ public class BulletTutorial implements Screen {
         BitmapFont instructionsFont = generator.generateFont(parameter);
         Label.LabelStyle instructionsLabelStyle = new Label.LabelStyle(instructionsFont, Color.WHITE);
         Label instructionsLabel = new Label(
-            "1. Shoot the incoming trashes with chemicals to defend your land!\n" +
+            "1. Shoot the incoming trashes!\n" +
                 "2. Tap left or right to move around and aim your weapon!\n" +
                 "3. Multiple types of enemies will appear at randomized times, be careful as there are boss fights!.\n" +
                 "4. Combine basic chemical compounds to gain temporary OP buffs to help you clean up!\n" +

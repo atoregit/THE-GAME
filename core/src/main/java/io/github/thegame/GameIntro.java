@@ -37,7 +37,7 @@ public class GameIntro implements Screen {
     private Screen nextScreen;
     private static final float VIRTUAL_WIDTH = 480;
     private static final float VIRTUAL_HEIGHT = 640;
-    private static final float TRANSITION_DURATION = 0.5f;
+    private static final float TRANSITION_DURATION = 0.25f;
     private Texture mainMenuBackground; // Store background texture for disposal
 
 

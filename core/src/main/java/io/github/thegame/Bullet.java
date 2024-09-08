@@ -50,7 +50,7 @@ public class Bullet {
         position = new Vector2(x, y);
         texture = defaultTexture;
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
-        speed = 300;
+        speed = 350;
 
 
         this.damage = damage;
