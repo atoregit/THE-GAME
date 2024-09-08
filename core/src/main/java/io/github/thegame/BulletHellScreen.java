@@ -977,22 +977,27 @@ public class BulletHellScreen implements Screen {
                 break;
             case "HCl":
             case "ClH":
+                combo = "HCl";
                 player.setBulletDamage(player.getBulletDamage() * 3f); // Triple damage
                 break;
             case "HO":
             case "OH":
+                combo = "OH";
                 player.setSpeed(player.getSpeed() * 1.5f); // 50% speed increase
                 break;
             case "HNa":
             case "NaH":
+                combo = "NaH";
                 player.setSpeed(player.getSpeed() * 2f); // Double speed
                 break;
             case "NaCl":
             case "ClNa":
+                combo = "NaCl";
                 player.setBulletDamage(player.getBulletDamage() * 5f); // 5x damage
                 break;
             case "NaO":
             case "ONa":
+                combo = "NaO";
                 player.setInvincible(true); // Temporary invincibility
                 break;
         }
