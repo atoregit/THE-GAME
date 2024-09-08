@@ -1225,5 +1225,7 @@ public class BulletHellScreen implements Screen {
         leftArrow.dispose();
         rightArrow.dispose();
         explode.dispose();
+        shootsum.dispose();
+
     }
 }
