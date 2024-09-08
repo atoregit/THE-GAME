@@ -15,23 +15,16 @@ public class Bullet {
     private Rectangle bounds;
     private float speed;
     private float damage;
-    private static Texture defaultTexture;
-    private static Texture hhTexture;
-    private static Texture hclTexture;
-    private static Texture hoTexture;
-    private static Texture hnaTexture;
-    private static Texture naclTexture;
-    private static Texture naoTexture;
+    private Texture defaultTexture;
+    private Texture hhTexture;
+    private Texture hclTexture;
+    private Texture hoTexture;
+    private Texture hnaTexture;
+    private Texture naclTexture;
+    private Texture naoTexture;
 
-    static {
-        defaultTexture = loadTexture("bulletPlayer.png");
-        hhTexture = loadTexture("bulletPlayerBluer.png");
-        hclTexture = loadTexture("bulletPlayerGreen.png");
-        hoTexture = loadTexture("bulletPlayerRed.png");
-        hnaTexture = loadTexture("bulletPlayerMaroon.png");
-        naclTexture = loadTexture("bulletPlayerWhite.png");
-        naoTexture = loadTexture("bulletPlayerViolet.png");
-    }
+
+
 
     private static Texture loadTexture(String fileName) {
         Pixmap originalPixmap = new Pixmap(Gdx.files.internal(fileName));
@@ -47,10 +40,19 @@ public class Bullet {
     }
 
     public Bullet(float x, float y, float damage) {
+        defaultTexture = loadTexture("bulletPlayer.png");
+        hhTexture = loadTexture("bulletPlayerBluer.png");
+        hclTexture = loadTexture("bulletPlayerGreen.png");
+        hoTexture = loadTexture("bulletPlayerRed.png");
+        hnaTexture = loadTexture("bulletPlayerMaroon.png");
+        naclTexture = loadTexture("bulletPlayerWhite.png");
+        naoTexture = loadTexture("bulletPlayerViolet.png");
         position = new Vector2(x, y);
         texture = defaultTexture;
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
         speed = 300;
+
+
         this.damage = damage;
     }
 
@@ -124,7 +126,7 @@ public class Bullet {
         return position.y;
     }
 
-    public static void dispose() {
+    public void dispose() {
         defaultTexture.dispose();
         hhTexture.dispose();
         hclTexture.dispose();
@@ -132,5 +134,6 @@ public class Bullet {
         hnaTexture.dispose();
         naclTexture.dispose();
         naoTexture.dispose();
+        texture.dispose();
     }
 }

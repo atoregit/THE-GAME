@@ -597,13 +597,6 @@ public class BulletHellScreen implements Screen {
                 float exitElapsed = elapsedTime - hoverDuration;
                 float exitOffset = (exitElapsed / exitDuration) * (camera.viewportHeight / 2);
                 batch.draw(splashTexture, splashX, splashY - exitOffset, splashTextureWidth, splashTextureHeight);
-
-                // Draw enemy stats with exit animation
-                font.draw(batch, "New Enemy Encountered!", camera.viewportWidth / 2 - 100, camera.viewportHeight - 50 - exitOffset);
-                font.draw(batch, enemyName, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - exitOffset);
-                font.draw(batch, "Health: " + enemyHealth, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 30 - exitOffset);
-                font.draw(batch, "Speed: " + enemySpeed, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 60 - exitOffset);
-                font.draw(batch, enemyDescription, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 90 - exitOffset, 200, 1, true);
             } else {
                 showSplash = false;
             }
@@ -930,7 +923,7 @@ public class BulletHellScreen implements Screen {
                 enemiesToRemove.add(enemy);
                 if(player.getHealth() <= 0){
                     dispose();
-                    game.setScreen(new MainMenuScreen(game));
+                    game.setScreen(new GameEndScreen(game));
                 }
                 if(player.getInvincible()){
                     player.startGlowing();
@@ -1125,49 +1118,79 @@ public class BulletHellScreen implements Screen {
         font.dispose();
         damageIndicators.clear();
         indicatorsToRemove.clear();
+
+        // Dispose of all particle effects
         for (ParticleEffect particle : activeParticles) {
             particle.dispose();
         }
+
+        // Dispose of all enemies, symbols, and bullets
         for (BulletEnemy enemy : enemies) enemy.dispose();
         for (ChemicalSymbol symbol : symbols) symbol.dispose();
         for (Bullet bullet : bullets) bullet.dispose();
+
+        // Clear pools
         enemyPool.clear();
         symbolPool.clear();
-        powerUps.clear();
         bulletPool.clear();
+        enemyBulletPool.clear();
+
+        // Dispose of textures
         inputHighlight.dispose();
-        hit.dispose();
         blackbg.dispose();
         transparent.dispose();
         heart.dispose();
-        enemiesToRemove.clear();
-        scout.dispose();
+        mainbg.dispose();
+        red.dispose();
+        pauseButtonTexture.dispose();
+
+        // Dispose of audio
         hit.dispose();
+        scout.dispose();
         getChemical.dispose();
         setChemical.dispose();
         wrongChemical.dispose();
         shoot.dispose();
         bgmusic.dispose();
-        shapeRenderer.dispose();
-        mainbg.dispose();
-        screenShake.dispose();
         dead.dispose();
         select.dispose();
-        enemyBulletPool.clear();
-        for (EnemyBullet bullet : enemyBullets) {
-            bullet.dispose(); // Make sure to implement a dispose method in EnemyBullet if needed
-        }
+        opening.dispose();
+        boss.dispose();
+        shootsum.dispose();
+
+        // Dispose of other resources
+        shapeRenderer.dispose();
+        screenShake.dispose();
+
+        // Dispose of boss if it exists
         if (currentBoss != null) {
             currentBoss.dispose();
         }
+
+        // Dispose of splash textures
         if (splashTexture != null) {
             splashTexture.dispose();
         }
         if (splashRectangleTexture != null) {
             splashRectangleTexture.dispose();
         }
-        opening.dispose();
-        boss.dispose();
-        shootsum.dispose();
+
+        // Clear collections
+        powerUps.clear();
+        enemiesToRemove.clear();
+        symbolsToRemove.clear();
+        bulletsToRemove.clear();
+        enemyBulletsToRemove.clear();
+
+        // Dispose of enemy bullets
+        for (EnemyBullet bullet : enemyBullets) {
+            bullet.dispose();
+        }
+
+        // Dispose of stage
+        if (stage != null) {
+            stage.dispose();
+        }
+
     }
 }
