@@ -38,7 +38,7 @@ public class TimerExtension {
         timerExtension.height = EXTENSION_SIZE;
         extensionLastDropTime = TimeUtils.nanoTime();
         timeExtendedSprite = new Texture("timeExtended.png");
-        extensionSound = Gdx.audio.newMusic(Gdx.files.internal("sfx/timeEx.wav"));
+        extensionSound = Gdx.audio.newMusic(Gdx.files.internal("sfx/time.wav"));
 
         extensions = new Array<>();
         spawnExtension();

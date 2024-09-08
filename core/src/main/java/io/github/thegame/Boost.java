@@ -47,8 +47,8 @@ public class Boost {
         boost.height = BOMB_SIZE;
         boostLastDropTime = TimeUtils.nanoTime();
 
-        boom = Gdx.audio.newMusic(Gdx.files.internal("sfx/boost.wav"));
-        boom2 = Gdx.audio.newMusic(Gdx.files.internal("sfx/boostEnd.wav"));
+        boom = Gdx.audio.newMusic(Gdx.files.internal("sfx/boost_collect.wav"));
+        boom2 = Gdx.audio.newMusic(Gdx.files.internal("sfx/boost.wav"));
         boosts = new Array<>();
     }
 
