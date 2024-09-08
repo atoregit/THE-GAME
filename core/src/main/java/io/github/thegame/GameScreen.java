@@ -95,8 +95,8 @@ public class GameScreen implements Screen {
         batch.draw(playerImage, player.x, player.y, 72, 64);
 
         // Update playerImageBoostedX and playerImageIdleX with a smaller delay
-        playerImageBoostedX += (player.x - 120 - playerImageBoostedX) * 0.45f;
-        playerImageIdleX += (player.x - 120 - playerImageIdleX) * 0.45f;
+        playerImageBoostedX += (player.x - 100 - playerImageBoostedX) * 0.4f;
+        playerImageIdleX += (player.x - 100 - playerImageIdleX) * 0.4f;
 
         batch.draw(playerImage, player.x, player.y, 72, 64);
 
@@ -139,7 +139,7 @@ public class GameScreen implements Screen {
 
         batch.begin();
         batch.draw(timerTexture, 10, GAME_SCREEN_Y - timerTexture.getHeight() - 10);
-        batch.draw(scoresTexture, GAME_SCREEN_X * 0.46f, GAME_SCREEN_Y - timerTexture.getHeight() - 18);
+        batch.draw(scoresTexture, GAME_SCREEN_X * 0.46f, GAME_SCREEN_Y - 50 -  18, 70, 50);
         batch.end();
 
         batch.begin();
@@ -297,8 +297,9 @@ public class GameScreen implements Screen {
         timeAdd.create();
 
         backTexture = new Texture(Gdx.files.internal("exit.png"));
-        float backButtonSize = 64;
-        backButtonBounds = new Rectangle(GAME_SCREEN_X - backButtonSize - 10, GAME_SCREEN_Y - backButtonSize - 10, backButtonSize, backButtonSize);
+        float backButtonWidth = 50;
+        float backButtonHeight = 32;
+        backButtonBounds = new Rectangle(GAME_SCREEN_X - backButtonWidth- 10, GAME_SCREEN_Y - backButtonHeight- 10, backButtonWidth, backButtonHeight);
 
         trashButtonTexture = new Texture(Gdx.files.internal("discard.png")); // Load trash button texture
         float trashButtonSize = 64;

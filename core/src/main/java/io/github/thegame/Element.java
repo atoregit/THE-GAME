@@ -74,7 +74,7 @@ public class Element {
             Texture texture = elementTextures.get(elementRect.elementType);
 
             // Draw the texture at the correct position
-            game.batch.draw(texture, elementRect.x, elementRect.y, ELEMENT_SIZE, ELEMENT_SIZE);
+            game.batch.draw(texture, elementRect.x, elementRect.y, 100, ELEMENT_SIZE);
         }
     }
 

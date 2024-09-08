@@ -2,6 +2,7 @@ package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -24,6 +25,8 @@ public class Boost {
     private BitmapFont font;
     private BitmapFont endFont;
     private Music boom;
+    private Texture boostedSprite;
+    private Texture boostEndedSprite;
 
     public Boost(final GameScreen game) {
         this.game = game;
@@ -31,6 +34,8 @@ public class Boost {
         font.getData().setScale(2.5f);
         endFont = new BitmapFont(Gdx.files.internal("pixel.fnt"));
         endFont.getData().setScale(2.5f);
+        boostedSprite = new Texture("boosted.png");
+        boostEndedSprite = new Texture("boostEnded.png");
     }
 
     public void create() {
@@ -69,6 +74,7 @@ public class Boost {
 
     public void draw(SpriteBatch batch) {
         batch.begin(); // Start sprite batch
+
         for (Rectangle bomb : boosts) {
             batch.draw(game.boostImage, bomb.x, bomb.y);
         }
@@ -76,25 +82,42 @@ public class Boost {
         // Draw boost notification if active
         if (game.boosted) {
             long elapsedTime = TimeUtils.nanoTime() - boostStartTime;
-            if (elapsedTime < notifyDuration * 1000000L) {
-                font.setColor(new Color(0.98f, 0.69f, 0.2f, 1));
-                font.draw(batch, "Points Doubled!", game.GAME_SCREEN_X / 2 - 100, game.GAME_SCREEN_Y / 2);
+            if (elapsedTime < 1000000000L) { // 1 second hold
+                batch.setColor(1.2f, 1.2f, 1.2f, 1); // Increase brightness and contrast
+                batch.draw(boostedSprite, game.GAME_SCREEN_X / 2 - 350 / 2, game.GAME_SCREEN_Y / 2 - 35, 350, 70);
+                batch.setColor(1, 1, 1, 1); // Reset color
+            } else if (elapsedTime < 2000000000L) { // 1 second flicker
+                if ((elapsedTime % 200000000) < 100000000) {
+                    batch.setColor(1, 1, 1, 0.5f); // Flicker effect (semi-transparent)
+                } else {
+                    batch.setColor(1, 1, 1, 1); // Full opacity
+                }
+                batch.draw(boostedSprite, game.GAME_SCREEN_X / 2 - 350 / 2, game.GAME_SCREEN_Y / 2 - 35, 350, 70);
             }
         }
 
-        // Draw end of boost message if the boost has ended and within display duration
+        // Draw end of boost message if the boost has ended
         if (boostEnded) {
             long elapsedTime = TimeUtils.nanoTime() - boostEndTime;
-            if (elapsedTime < endMessageDuration * 1000000L) {
-                endFont.setColor(new Color(0.7f, 0.1f, 0.1f, 1));
-                endFont.draw(batch, "Boost Ended!", game.GAME_SCREEN_X / 2 - 100, game.GAME_SCREEN_Y / 2 - 50);
+            if (elapsedTime < 1000000000L) { // 1 second hold
+                batch.setColor(1, 1, 1, 1); // Full opacity
+                batch.draw(boostEndedSprite, game.GAME_SCREEN_X / 2 - 350 / 2, game.GAME_SCREEN_Y / 2 - 35, 350, 70);
+            } else if (elapsedTime < 2000000000L) { // 1 second flicker
+                if ((elapsedTime % 200000000) < 100000000) {
+                    batch.setColor(1, 1, 1, 0.5f); // Flicker effect (semi-transparent)
+                } else {
+                    batch.setColor(1, 1, 1, 1); // Full opacity
+                }
+                batch.draw(boostEndedSprite, game.GAME_SCREEN_X / 2 - 350 / 2, game.GAME_SCREEN_Y / 2 - 35, 350, 70);
             } else {
-                boostEnded = false; // Reset flag when message duration is over
+                boostEnded = false; // Reset flag after flicker duration
             }
         }
 
         batch.end(); // End sprite batch
     }
+
+
 
     public void move() {
         for (Iterator<Rectangle> iter = boosts.iterator(); iter.hasNext(); ) {

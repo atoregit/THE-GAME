@@ -3,7 +3,6 @@ auto.zip
 back.png
 background.png
 backgroundCatchers.png
-backgroundShooters.png
 bg.png
 black_blue_box.png
 bomb.png
@@ -71,12 +70,12 @@ elements/Li.png
 elements/N.png
 elements/Na.png
 elements/O.png
-enemy/enemy1.png
-enemy/enemy2.png
-enemy/enemy3.png
-enemy/enemy4.png
-enemy/enemy5.png
-enemy/enemy6.png
+enemy/plastic1.png
+enemy/plastic5.png
+enemy/textile1.png
+enemy/textile3.png
+enemy/textile4.png
+enemy.png
 exit.png
 figure.png
 flaskWater.png
@@ -114,12 +113,10 @@ scoresbgm.mp3
 scoresbgm.wav
 scorescreen.png
 select.wav
-sfx/boss.wav
 sfx/bulletbg.mp3
 sfx/click.wav
 sfx/damage.wav
 sfx/explosion.wav
-sfx/fastfirerate.wav
 sfx/flamecool.p
 sfx/fruitclear.wav
 sfx/fruitcollect1.wav
@@ -129,7 +126,6 @@ sfx/fruitwrong.wav
 sfx/gameover.wav
 sfx/hit.mp3
 sfx/left.wav
-sfx/opening.wav
 sfx/particle.png
 sfx/play.wav
 sfx/point.wav
@@ -139,7 +135,6 @@ sfx/scout.mp3
 sfx/scout.p
 sfx/select.wav
 sfx/shoot.mp3
-sfx/single.wav
 shootersLogo.png
 skin/199x-export.fnt
 skin/figure.png

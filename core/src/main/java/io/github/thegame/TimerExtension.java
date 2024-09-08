@@ -2,6 +2,7 @@ package io.github.thegame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -21,6 +22,7 @@ public class TimerExtension {
     private final long extensionDuration = 10000L; // 10 seconds
     private final long notifyDuration = 3000L; // 3 seconds
     private BitmapFont font;
+    private Texture timeExtendedSprite;
 
     public TimerExtension(final GameScreen game) {
         this.game = game;
@@ -35,7 +37,7 @@ public class TimerExtension {
         timerExtension.width = EXTENSION_SIZE;
         timerExtension.height = EXTENSION_SIZE;
         extensionLastDropTime = TimeUtils.nanoTime();
-
+        timeExtendedSprite = new Texture("timeExtended.png");
         extensionSound = Gdx.audio.newMusic(Gdx.files.internal("hit.wav"));
 
         extensions = new Array<>();
@@ -59,21 +61,34 @@ public class TimerExtension {
             spawnExtension();
         }
     }
-
     public void draw(SpriteBatch batch) {
         batch.begin(); // Start sprite batch
+
+        // Apply pan up entrance if time extension is active
+        if (extended) {
+            long elapsedTime = TimeUtils.nanoTime() - extensionStartTime;
+            if (elapsedTime < 500000000L) { // 0.5 seconds pan up
+                float y = (float) elapsedTime / 500000000L * (game.GAME_SCREEN_Y / 2 - 35);
+                batch.draw(timeExtendedSprite, game.GAME_SCREEN_X / 2 - 175, y, 350, 70);
+            } else if (elapsedTime < 1000000000L) { // 0.5 seconds hold
+                batch.draw(timeExtendedSprite, game.GAME_SCREEN_X / 2 - 175, game.GAME_SCREEN_Y / 2 - 35, 350, 70);
+            } else if (elapsedTime < 1500000000L) { // 0.5 seconds pan up again
+                float y = (float) (elapsedTime - 1000000000L) / 500000000L * (game.GAME_SCREEN_Y / 2 - 50 - 50);
+                batch.draw(timeExtendedSprite, game.GAME_SCREEN_X / 2 - 175, game.GAME_SCREEN_Y / 2 - 35 - y, 350, 70);
+            } else {
+                // Exit the animation after 1.5 seconds
+                extended = false;
+            }
+        }
+
+        // Draw extensions
         for (Rectangle extension : extensions) {
             batch.draw(game.timerExtensionImage, extension.x, extension.y);
         }
 
-        // Draw extension notification if active
-        if (extended) {
-            long elapsedTime = TimeUtils.nanoTime() - extensionStartTime;
-            if (elapsedTime < notifyDuration * 1000000L) {
-                font.setColor(new Color(0.3f, 0.8f, 0.3f, 1)); // Softer green
-                font.draw(batch, "Time Extended!", game.GAME_SCREEN_X / 2 - 100, game.GAME_SCREEN_Y / 2);
-            }
-        }
+        // Reset color to default
+        batch.setColor(1, 1, 1, 1); // Reset color
+
         batch.end(); // End sprite batch
     }
 
