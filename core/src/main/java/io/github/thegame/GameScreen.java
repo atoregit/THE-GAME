@@ -277,7 +277,7 @@ public class GameScreen implements Screen {
         bottomSpriteBounds = new Rectangle(0, 0, GAME_SCREEN_X, 50);
         dropSound = Gdx.audio.newSound(Gdx.files.internal("hit.wav"));
         clockSound = Gdx.audio.newSound(Gdx.files.internal("clock.wav"));
-        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("catchersBg.wav"));
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("catchersBg.mp3"));
         gameMusic.setVolume(0.6f);
 
         texture = new Texture(Gdx.files.internal("backgroundCatchers.png"));

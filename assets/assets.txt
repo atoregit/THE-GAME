@@ -58,7 +58,7 @@ bulletPlayerWhite.png
 bulletTextile.png
 button2.png
 calico.png
-catchersBg.wav
+catchersBg.mp3
 catchersLogo.png
 cheebi.png
 clock.wav
