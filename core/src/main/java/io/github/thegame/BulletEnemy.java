@@ -18,20 +18,13 @@ public class BulletEnemy {
     private int type;
     private float shootTimer;
     private static final float SHOOT_INTERVAL = 2f;
-    private static Texture lv1;
-    private static Texture lv2;
-    private static Texture lv3;
-    private static Texture lv4;
-    private static Texture lv5;
-    private static Texture lv6;
-    static {
-        lv1 = loadTexture("enemy/enemy1.png");
-        lv2 = loadTexture("enemy/enemy2.png"); //fast
-        lv3 = loadTexture("enemy/enemy3.png"); //tank
-        lv4 = loadTexture("enemy/enemy4.png"); //slow shooter
-        lv5= loadTexture("enemy/enemy5.png"); //fast shooter, really slow tho
-        lv6 = loadTexture("enemy/enemy6.png"); // doesnt do shit
-    }
+    private Texture lv1;
+    private  Texture lv2;
+    private Texture lv3;
+    private Texture lv4;
+    private Texture lv5;
+    private Texture lv6;
+
     private static Texture loadTexture(String fileName) {
         Pixmap originalPixmap = new Pixmap(Gdx.files.internal(fileName));
         Pixmap resizedPixmap = new Pixmap(55 , 55, originalPixmap.getFormat());
@@ -73,7 +66,12 @@ public class BulletEnemy {
         originalPixmap.dispose();
         originalTexture.dispose();
 
-
+        lv1 = loadTexture("enemy/enemy1.png");
+        lv2 = loadTexture("enemy/enemy2.png"); //fast
+        lv3 = loadTexture("enemy/enemy3.png"); //tank
+        lv4 = loadTexture("enemy/enemy4.png"); //slow shooter
+        lv5= loadTexture("enemy/enemy5.png"); //fast shooter, really slow tho
+        lv6 = loadTexture("enemy/enemy6.png"); // doesnt do shit
     }
 
     public void init(float x, float y, float difficultyMultiplier, int type) {
@@ -176,5 +174,6 @@ public class BulletEnemy {
         lv3.dispose();
         lv4.dispose();
         lv5.dispose();
+        lv6.dispose();
     }
 }
