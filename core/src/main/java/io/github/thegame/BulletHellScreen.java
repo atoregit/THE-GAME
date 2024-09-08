@@ -121,8 +121,8 @@ public class BulletHellScreen implements Screen {
     private Array<EnemyBullet> enemyBulletsToRemove;
     private Pool<EnemyBullet> enemyBulletPool;
 
-    private static final float BOSS_SPAWN_INTERVAL_MIN = 300f;
-    private static final float BOSS_SPAWN_INTERVAL_MAX = 360f;
+    private static final float BOSS_SPAWN_INTERVAL_MIN = 200f;
+    private static final float BOSS_SPAWN_INTERVAL_MAX = 240f;
     private float bossSpawnTimer;
     private float nextBossSpawnTime;
     private boolean isBossActive;
@@ -146,6 +146,9 @@ public class BulletHellScreen implements Screen {
     private Music opening;
     private Music shootsum;
     private String enemyDescription;
+    private Texture rightArrow;
+    private Texture leftArrow;
+    private Texture exit;
     public BulletHellScreen(final Main game) {
         Random random = new Random();
 
@@ -156,7 +159,7 @@ public class BulletHellScreen implements Screen {
         batch = new SpriteBatch();
         Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
         pixmap.fillRectangle(0, 0, 30, 30);
-        pixmap.setColor(1,1,1, 0.2f);
+        pixmap.setColor(0,0,0, 0.2f);
         pixmap.fill();
         transparent = new Texture(pixmap);
         heart = new Texture(Gdx.files.internal("heart.png"));
@@ -282,6 +285,9 @@ public class BulletHellScreen implements Screen {
         sa.dispose();
         resetBossSpawnTimer();
         isBossActive = false;
+        leftArrow = new Texture(Gdx.files.internal("back.png"));
+        rightArrow = new Texture(Gdx.files.internal("back2.png"));
+        exit = new Texture(Gdx.files.internal("exit.png"));
     }
     private void resetBossSpawnTimer() {
         bossSpawnTimer = 0;
@@ -473,6 +479,8 @@ public class BulletHellScreen implements Screen {
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
+        batch.draw(leftArrow, 0, 0, halfWidth/2, controlZoneHeight/2);
+        batch.draw(rightArrow, halfWidth*1.5f, 0, halfWidth/2, controlZoneHeight/2);
         for (BulletEnemy enemy : enemies) enemy.draw(batch);
         if (isInitialState) {
             // Draw both left and right highlight areas
@@ -503,7 +511,7 @@ public class BulletHellScreen implements Screen {
         for (int i = 0; i < powerUps.size(); i++) {
             String powerUp = powerUps.get(i);
             float remainingTime = activePowerUps.get(powerUp);
-            font.draw(batch, powerUp + " (" + (int)remainingTime + "s)", camera.viewportWidth/5 * (i + 1), camera.viewportHeight/6);
+            font.draw(batch, powerUp + " (" + (int)remainingTime + "s)", camera.viewportWidth/6 * (i + 1), camera.viewportHeight/6);
         }
 
 
@@ -514,21 +522,21 @@ public class BulletHellScreen implements Screen {
         }
         for (ParticleEffect particle : activeParticles) particle.draw(batch);
 
-
         // Draw pause button
         batch.draw(pauseButtonTexture, pauseButtonPosition.x, pauseButtonPosition.y, PAUSE_BUTTON_SIZE, PAUSE_BUTTON_SIZE);
         if (isPaused) {
             batch.draw(transparent, 0, 0, camera.viewportWidth, camera.viewportHeight);
+            batch.draw(exit, 15, camera.viewportHeight-65 , 64, 64);
             font.setColor(Color.WHITE);
             font.draw(batch, "PAUSED", camera.viewportWidth / 2 - 50, camera.viewportHeight/2 + 300);
             font.draw(batch, "Tap anywhere to continue", camera.viewportWidth / 2 - 120, camera.viewportHeight/2 + 250);
             font.draw(batch, "CHEMICAL CONCOCTIONS", camera.viewportWidth / 2 - 120, camera.viewportHeight / 2 + 100);
-            font.draw(batch, "H + H  = ++fireRate", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2  + 60);
-            font.draw(batch, "H + O  = --moveSpeed", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2  + 20);
-            font.draw(batch, "H + Cl = +damage", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 -20);
-            font.draw(batch, "Na + O = ++hp", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 60);
-            font.draw(batch, "Na + H = ++moveSpeed", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 100);
-            font.draw(batch, "Na + Cl = 2xdamage", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 140);
+            font.draw(batch, "H + H  = FIREFAST!!", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2  + 60);
+            font.draw(batch, "H + O  = MOVEEE * 1.5", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2  + 20);
+            font.draw(batch, "H + Cl = INFINITE DAMAGE", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 -20);
+            font.draw(batch, "Na + O = BE INVINCIBLE!", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 60);
+            font.draw(batch, "Na + H = MOVEE * 2", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 100);
+            font.draw(batch, "Na + Cl = x3 DAMAGE!", camera.viewportWidth / 2 - 105, camera.viewportHeight / 2 - 140);
 
         }
 
@@ -549,7 +557,9 @@ public class BulletHellScreen implements Screen {
             if (isPaused) {
                 isPaused = false;
                 select.play();
-            } else if (touchPos.x >= pauseButtonPosition.x && touchPos.x <= pauseButtonPosition.x + PAUSE_BUTTON_SIZE &&
+            } else if(touchPos.x == 1){
+
+            }else if (touchPos.x >= pauseButtonPosition.x && touchPos.x <= pauseButtonPosition.x + PAUSE_BUTTON_SIZE &&
                 touchPos.y >= pauseButtonPosition.y && touchPos.y <= pauseButtonPosition.y + PAUSE_BUTTON_SIZE) {
                 isPaused = true;
                 select.play();
@@ -658,7 +668,7 @@ public class BulletHellScreen implements Screen {
         }
 
         for (BulletEnemy enemy : enemies) {
-            if(enemy.canShoot() && enemy.getType() == 1 || enemy.getType() == 5){
+            if(enemy.canShoot() && (enemy.getType() == 1 || enemy.getType() == 5)){
                 EnemyBullet bullet = enemyBulletPool.obtain();
                 bullet.init(enemy.getX() + enemy.getWidth() / 2, enemy.getY());
                 enemyBullets.add(bullet);
@@ -817,6 +827,7 @@ public class BulletHellScreen implements Screen {
     private void updateEnemies(float delta) {
         for (BulletEnemy enemy : enemies) {
             enemy.update(delta);
+            enemy.updateShootTimer(delta);
         }
     }
 
@@ -1191,6 +1202,8 @@ public class BulletHellScreen implements Screen {
         if (stage != null) {
             stage.dispose();
         }
-
+        exit.dispose();
+        leftArrow.dispose();
+        rightArrow.dispose();
     }
 }

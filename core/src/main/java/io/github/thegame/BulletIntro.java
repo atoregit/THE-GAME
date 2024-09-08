@@ -137,7 +137,7 @@ public class BulletIntro implements Screen {
         labelTable.add(new Label("YOU: ", labelStyle)).row();
         labelTable.add(new Label("YOU: ", labelStyle));
 
-        bottomTable.add(labelTable).padLeft(70).padRight(70);
+        bottomTable.add(labelTable).padLeft(80).padRight(80);
 
         bottomTable.add(rightButton);
 
@@ -245,7 +245,7 @@ public class BulletIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
         blackBlueBox.toFront();
-        Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("backgroundShooters.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);

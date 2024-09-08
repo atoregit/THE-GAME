@@ -1,6 +1,7 @@
 auto.jar
 auto.zip
 back.png
+back2.png
 background.png
 backgroundCatchers.png
 backgroundShooters.png
@@ -58,6 +59,7 @@ calico.png
 catchersLogo.png
 cheebi.png
 clock.wav
+credits.png
 cursor.png
 discard.png
 drop.wav

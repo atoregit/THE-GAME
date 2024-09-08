@@ -111,7 +111,7 @@ public class BulletPlayer {
     public boolean isStunned() { return isStunned; }
     public void setStunned(boolean stunned) { isStunned = stunned; }
     public void heal(){
-        health+=1;
+        setHealth(getHealth()+1);
     }
     public Rectangle getBounds() {
         return bounds;

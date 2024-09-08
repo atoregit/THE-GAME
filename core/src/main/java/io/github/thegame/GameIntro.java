@@ -61,7 +61,7 @@ public class GameIntro implements Screen {
         stage.addActor(root);
 
         // Load background texture
-        mainMenuBackground = new Texture(Gdx.files.internal("menubg.png"));
+        mainMenuBackground = new Texture(Gdx.files.internal("backgroundCatchers.png"));
 
         // Set background image
         Image background = new Image(mainMenuBackground);
@@ -82,7 +82,7 @@ public class GameIntro implements Screen {
 
         Texture logoTexture = new Texture(Gdx.files.internal("catchersLogo.png"));
         Image logo = new Image(logoTexture);
-        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(200);
+        table.add(logo).width(Value.percentWidth(0.8f, table)).height(Value.percentWidth(0.25f, table)).padBottom(100);
         table.row();
 
         Texture leftArrowTexture = new Texture(Gdx.files.internal("leftArrow.png"));
@@ -137,7 +137,7 @@ public class GameIntro implements Screen {
         labelTable.add(new Label("YOU: ", labelStyle)).row();
         labelTable.add(new Label("YOU: ", labelStyle));
 
-        bottomTable.add(labelTable).padLeft(70).padRight(70);
+        bottomTable.add(labelTable).padLeft(80).padRight(80);
 
         bottomTable.add(rightButton);
 

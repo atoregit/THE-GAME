@@ -112,9 +112,6 @@ public class BulletEnemy {
     public void update(float delta) {
         position.y -= speed * delta;
         bounds.setPosition(position);
-        if(type == 1 || type ==5){
-            shootTimer += delta;
-        }
 
     }
     public EnemyBullet shoot() {
@@ -154,7 +151,7 @@ public class BulletEnemy {
         return texture.getWidth();
     }
     public void updateShootTimer(float delta) {
-        if (type == 4) {
+        if (type == 1 || type == 5) {
             shootTimer += delta;
         }
     }
