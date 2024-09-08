@@ -25,12 +25,12 @@ public class BulletEnemy {
     private static Texture lv5;
     private static Texture lv6;
     static {
-        lv1 = loadTexture("enemy.png");
-        lv2 = loadTexture("enemy/textile3.png"); //fast
-        lv3 = loadTexture("enemy/textile1.png"); //tank
-        lv4 = loadTexture("enemy/textile4.png"); //slow shooter
-        lv5= loadTexture("enemy/plastic5.png"); //fast shooter, really slow tho
-        lv6 = loadTexture("enemy/plastic1.png"); // doesnt do shit
+        lv1 = loadTexture("enemy/enemy1.png");
+        lv2 = loadTexture("enemy/enemy2.png"); //fast
+        lv3 = loadTexture("enemy/enemy3.png"); //tank
+        lv4 = loadTexture("enemy/enemy4.png"); //slow shooter
+        lv5= loadTexture("enemy/enemy5.png"); //fast shooter, really slow tho
+        lv6 = loadTexture("enemy/enemy6.png"); // doesnt do shit
     }
     private static Texture loadTexture(String fileName) {
         Pixmap originalPixmap = new Pixmap(Gdx.files.internal(fileName));
@@ -48,10 +48,10 @@ public class BulletEnemy {
         position = new Vector2(x, y);
         type = types;
 
-        Texture originalTexture = new Texture(Gdx.files.internal("enemy.png"));
+        Texture originalTexture = new Texture(Gdx.files.internal("enemy/enemy1.png"));
 
         // Create a Pixmap from the original texture
-        Pixmap originalPixmap = new Pixmap(Gdx.files.internal("enemy.png"));
+        Pixmap originalPixmap = new Pixmap(Gdx.files.internal("enemy/enemy1.png"));
 
         // Create a new Pixmap with the desired size (50x50)
         Pixmap resizedPixmap = new Pixmap(55, 55, originalPixmap.getFormat());
@@ -86,7 +86,7 @@ public class BulletEnemy {
             health = 50;
             texture = lv1;
         }else if(type == 2){
-            speed = 250;
+            speed = 230;
             health = 25;
             texture = lv2;
         }else if(type == 3){
@@ -103,13 +103,20 @@ public class BulletEnemy {
             health = 50;
             texture = lv5;
         }
+        else if(type == 6){
+            speed = 140;
+            health = 50;
+            texture = lv5;
+        }
         // Reset any other necessary fields
     }
 
     public void update(float delta) {
         position.y -= speed * delta;
         bounds.setPosition(position);
-        shootTimer += delta;
+        if(type == 1 || type ==5){
+            shootTimer += delta;
+        }
 
     }
     public EnemyBullet shoot() {
@@ -155,7 +162,7 @@ public class BulletEnemy {
     }
 
     public boolean canShoot() {
-        return type == 4 && shootTimer >= SHOOT_INTERVAL;
+        return shootTimer >= SHOOT_INTERVAL;
     }
 
     public void resetShootTimer() {

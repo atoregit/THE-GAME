@@ -121,8 +121,8 @@ public class BulletHellScreen implements Screen {
     private Array<EnemyBullet> enemyBulletsToRemove;
     private Pool<EnemyBullet> enemyBulletPool;
 
-    private static final float BOSS_SPAWN_INTERVAL_MIN = 10f;
-    private static final float BOSS_SPAWN_INTERVAL_MAX = 15f;
+    private static final float BOSS_SPAWN_INTERVAL_MIN = 300f;
+    private static final float BOSS_SPAWN_INTERVAL_MAX = 360f;
     private float bossSpawnTimer;
     private float nextBossSpawnTime;
     private boolean isBossActive;
@@ -131,6 +131,21 @@ public class BulletHellScreen implements Screen {
     private static final float BOSS_ENTRANCE_DURATION = 5f;
     private static final float BOSS_PAUSE_DURATION = 2f;
     private boolean isBossEntering = false;
+
+    private boolean showSplash = false;
+    private float splashTime = 0f;
+    private Texture splashTexture;
+    private Texture splashRectangleTexture;
+    private float splashTextureWidth = 200f; // Adjust as needed
+    private float splashTextureHeight = 200f; // Adjust as needed
+    private int lastEnemyType = 0;
+    private String enemyName;
+    private int enemyHealth;
+    private int enemySpeed;
+    private Music boss;
+    private Music opening;
+    private Music shootsum;
+    private String enemyDescription;
     public BulletHellScreen(final Main game) {
         Random random = new Random();
 
@@ -177,7 +192,7 @@ public class BulletHellScreen implements Screen {
         enemyBulletPool = new Pool<EnemyBullet>() {
             @Override
             protected EnemyBullet newObject() {
-                return new EnemyBullet(0, 0);
+                return new EnemyBullet(50, 100);
             }
         };
         enemyPool = new Pool<BulletEnemy>() {
@@ -242,12 +257,15 @@ public class BulletHellScreen implements Screen {
         getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
         setChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect3.wav"));
         wrongChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
-        shoot = Gdx.audio.newMusic(Gdx.files.internal("sfx/shoot.mp3"));
+        shoot = Gdx.audio.newMusic(Gdx.files.internal("sfx/single.wav"));
+        shootsum = Gdx.audio.newMusic(Gdx.files.internal("sfx/fastfirerate.wav"));
+        opening = Gdx.audio.newMusic(Gdx.files.internal("sfx/opening.wav"));
+        boss = Gdx.audio.newMusic(Gdx.files.internal("sfx/boss.wav"));
         pauseButtonPosition = new Vector2(camera.viewportWidth - PAUSE_BUTTON_SIZE - 10, camera.viewportHeight - PAUSE_BUTTON_SIZE - 10);
         bgmusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/bulletbg.mp3"));
         bgmusic.setLooping(true);
         bgmusic.play();
-        mainbg =  new Texture(Gdx.files.internal("menubg.png"));
+        mainbg =  new Texture(Gdx.files.internal("backgroundShooters.png"));
         Image background = new Image(mainbg);
         background.setScaling(Scaling.stretch);
         background.setFillParent(true);
@@ -331,10 +349,13 @@ public class BulletHellScreen implements Screen {
             }
         }
     }
+
     private void spawnBossBullet() {
         EnemyBullet bullet = enemyBulletPool.obtain();
-        bullet.init(currentBoss.getX() + currentBoss.getWidth() / 2, currentBoss.getY());
-        enemyBullets.add(bullet);
+        for(int i = 0; i <5; i++){
+            bullet.init(MathUtils.random(100,300), currentBoss.getY());
+            enemyBullets.add(bullet);
+        }
     }
     private void updateTimers(float delta) {
         enemySpawnTimer += delta;
@@ -446,6 +467,9 @@ public class BulletHellScreen implements Screen {
                 currentBoss.draw(batch);
             }
         }
+        if(!isBossActive){
+            drawSplash(batch, delta);
+        }
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
@@ -534,7 +558,61 @@ public class BulletHellScreen implements Screen {
 
 
     }
+    public void drawSplash(SpriteBatch batch, float delta) {
+        if (showSplash) {
+            float splashX = camera.viewportWidth / 2 - splashTextureWidth / 2;
+            float splashY = camera.viewportHeight / 2 - splashTextureHeight / 2;
 
+            float animationDuration = 4f;
+            float hoverDuration = 3f;
+            float exitDuration = 1f;
+            float fadeDuration = 0.5f;
+            float fadeOutDuration = exitDuration;
+            float elapsedTime = splashTime;
+
+            float fadeInAlpha = MathUtils.clamp(elapsedTime / fadeDuration, 0f, 0.5f);
+
+            float fadeOutAlpha = 1f;
+            if (elapsedTime > hoverDuration) {
+                float exitElapsed = elapsedTime - hoverDuration;
+                fadeOutAlpha = MathUtils.clamp(1 - (exitElapsed / exitDuration), 0f, 1f);
+            }
+
+            batch.setColor(0f, 0f, 0f, fadeInAlpha * fadeOutAlpha);
+            batch.draw(splashRectangleTexture, 0, 0, camera.viewportWidth, camera.viewportHeight);
+
+            batch.setColor(1f, 1f, 1f, 1f);
+
+            if (elapsedTime <= hoverDuration) {
+                float hoverOffset = (float) Math.sin((elapsedTime / hoverDuration) * Math.PI) * 20;
+                batch.draw(splashTexture, splashX, splashY + hoverOffset, splashTextureWidth, splashTextureHeight);
+                opening.play();
+                // Draw enemy stats
+                font.draw(batch, "New Enemy Encountered!", camera.viewportWidth / 2 - 100, camera.viewportHeight - 200);
+                font.draw(batch, enemyName, splashX + splashTextureWidth + 20, splashY + splashTextureHeight);
+                font.draw(batch, "Health: " + enemyHealth, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 30);
+                font.draw(batch, "Speed: " + enemySpeed, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 60);
+                font.draw(batch, enemyDescription, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 90, 200, 1, true);
+            } else if (elapsedTime <= animationDuration) {
+                float exitElapsed = elapsedTime - hoverDuration;
+                float exitOffset = (exitElapsed / exitDuration) * (camera.viewportHeight / 2);
+                batch.draw(splashTexture, splashX, splashY - exitOffset, splashTextureWidth, splashTextureHeight);
+
+                // Draw enemy stats with exit animation
+                font.draw(batch, "New Enemy Encountered!", camera.viewportWidth / 2 - 100, camera.viewportHeight - 50 - exitOffset);
+                font.draw(batch, enemyName, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - exitOffset);
+                font.draw(batch, "Health: " + enemyHealth, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 30 - exitOffset);
+                font.draw(batch, "Speed: " + enemySpeed, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 60 - exitOffset);
+                font.draw(batch, enemyDescription, splashX + splashTextureWidth + 20, splashY + splashTextureHeight - 90 - exitOffset, 200, 1, true);
+            } else {
+                showSplash = false;
+            }
+
+            splashTime += delta;
+
+            batch.setColor(1f, 1f, 1f, 1f);
+        }
+    }
     private void removePowerUp(String combo) {
         switch (combo) {
             case "HH":
@@ -587,7 +665,7 @@ public class BulletHellScreen implements Screen {
         }
 
         for (BulletEnemy enemy : enemies) {
-            if (enemy.canShoot() && enemy.getType() == 4) {
+            if(enemy.canShoot() && enemy.getType() == 1 || enemy.getType() == 5){
                 EnemyBullet bullet = enemyBulletPool.obtain();
                 bullet.init(enemy.getX() + enemy.getWidth() / 2, enemy.getY());
                 enemyBullets.add(bullet);
@@ -607,7 +685,11 @@ public class BulletHellScreen implements Screen {
         timeSinceLastShot += delta;
         if (timeSinceLastShot >= player.getFireRate()) {
             spawnPlayerBullet();
-            shoot.play();
+            if(powerUps.contains("HH")){
+                shootsum.play();
+            }else {
+                shoot.play();
+            }
             timeSinceLastShot = 0;
         }
     }
@@ -658,10 +740,65 @@ public class BulletHellScreen implements Screen {
 
     private void spawnEnemy() {
         BulletEnemy enemy = enemyPool.obtain();
-        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier, 4); // Initialize with current values
+        int enemytype = 0;
+        if(times > 0 & times < 60){
+            enemytype = 1;
+            enemyName = "DEFAULT";
+            enemyHealth = 50;
+            enemySpeed = 140;
+            enemyDescription = "";
+        }
+        else if(times > 60 & times < 120){
+            enemytype = MathUtils.random(1, 2);
+            enemyName = "FAST BOI";
+            enemyHealth = 25;
+            enemySpeed = 230;
+            enemyDescription = "";
+        }
+        else if(times > 120& times < 180){
+            enemytype = MathUtils.random(1, 3);
+            enemyName = "TANK";
+            enemyHealth = 150;
+            enemySpeed = 70;
+            enemyDescription = "";
+        }
+        else if(times > 180& times < 240){
+            enemytype = MathUtils.random(1, 4);
+            enemyName = "SHOOTAH";
+            enemyHealth = 50;
+            enemySpeed = 140;
+            enemyDescription = "CAN SHOOT";
+
+        }
+        else if(times > 240 & times < 300){
+            enemytype =MathUtils.random(1, 5);
+            enemyName = "SHOOTAH'S FRIEND";
+            enemyHealth = 50;
+            enemySpeed = 140;
+            enemyDescription = "CAN SHOOT";
+        }else if(times > 300 & times < 360){
+            enemytype =MathUtils.random(1, 6);
+            enemyName = "WATER BOTTLE";
+            enemyHealth = 50;
+            enemySpeed = 140;
+            enemyDescription = "N/A";
+        }
+
+        if (enemytype > lastEnemyType) {
+            lastEnemyType = enemytype;
+            showEnemySplash(enemytype);
+        }
+
+        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier, enemytype);
         enemies.add(enemy);
     }
-
+    private void showEnemySplash(int enemyType) {
+        showSplash = true;
+        splashTime = 0f;
+        // Load the appropriate texture for the enemy type
+        splashTexture = new Texture(Gdx.files.internal("enemy/enemy" + enemyType + ".png"));
+        splashRectangleTexture =  new Texture(Gdx.files.internal("enemy/enemy" + enemyType + ".png"));
+    }
     private void spawnSymbol() {
         float random = MathUtils.random(1f);
         String symbolType = "";
@@ -775,7 +912,7 @@ public class BulletHellScreen implements Screen {
                 if (player.getInvincible()) {
                     player.startGlowing();
                 } else {
-                    player.setHealth(player.getHealth() - 2); // Boss deals more damage
+                    player.setHealth(player.getHealth() - 1); // Boss deals more damage
                     screenShake.shake(0.5f, 5f);
                     dead.play();
                 }
@@ -875,13 +1012,19 @@ public class BulletHellScreen implements Screen {
 
             if (!validCombo) {
                 wrongChemical.play();
+                screenShake.shake(0.5f, 3f);
                 player.setStunned(true);
                 stunTimer = STUN_DURATION;
-            } else {
                 damageIndicators.add(new BulletDamage(
                     player.getX() + player.getWidth() / 2,
                     player.getY() + player.getHeight(),
                     -1
+                ));
+            } else {
+                damageIndicators.add(new BulletDamage(
+                    player.getX() + player.getWidth() / 2,
+                    player.getY() + player.getHeight(),
+                    +1
                 ));
                 setChemical.play();
             }
@@ -1017,5 +1160,14 @@ public class BulletHellScreen implements Screen {
         if (currentBoss != null) {
             currentBoss.dispose();
         }
+        if (splashTexture != null) {
+            splashTexture.dispose();
+        }
+        if (splashRectangleTexture != null) {
+            splashRectangleTexture.dispose();
+        }
+        opening.dispose();
+        boss.dispose();
+        shootsum.dispose();
     }
 }

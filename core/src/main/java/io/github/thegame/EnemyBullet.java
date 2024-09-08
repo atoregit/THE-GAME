@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
 public class EnemyBullet {
-    private static final float SPEED = 200f;
+    private static final float SPEED = 250f;
     private Vector2 position;
     private Rectangle bounds;
     private Texture bullet;
@@ -18,7 +18,7 @@ public class EnemyBullet {
         Pixmap originalPixmap = new Pixmap(Gdx.files.internal("bulletTextile.png"));
 
         // Create a new Pixmap with the desired size (50x50)
-        Pixmap resizedPixmap = new Pixmap(15, 35, originalPixmap.getFormat());
+        Pixmap resizedPixmap = new Pixmap(20,35, originalPixmap.getFormat());
 
         // Scale the original pixmap to the new pixmap
         resizedPixmap.drawPixmap(originalPixmap,
