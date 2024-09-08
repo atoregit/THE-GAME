@@ -121,8 +121,8 @@ public class BulletHellScreen implements Screen {
     private Array<EnemyBullet> enemyBulletsToRemove;
     private Pool<EnemyBullet> enemyBulletPool;
 
-    private static final float BOSS_SPAWN_INTERVAL_MIN = 5f;
-    private static final float BOSS_SPAWN_INTERVAL_MAX = 10f;
+    private static final float BOSS_SPAWN_INTERVAL_MIN = 200f;
+    private static final float BOSS_SPAWN_INTERVAL_MAX = 250f;
     private float bossSpawnTimer;
     private float nextBossSpawnTime;
     private boolean isBossActive;
@@ -149,6 +149,7 @@ public class BulletHellScreen implements Screen {
     private Texture rightArrow;
     private Texture leftArrow;
     private Texture exit;
+    private Music explode;
     public BulletHellScreen(final Main game) {
         Random random = new Random();
 
@@ -257,6 +258,7 @@ public class BulletHellScreen implements Screen {
         hit = Gdx.audio.newMusic(Gdx.files.internal("sfx/hit.mp3"));
         scout = Gdx.audio.newMusic(Gdx.files.internal("sfx/scout.mp3"));
         select = Gdx.audio.newMusic(Gdx.files.internal("sfx/select.wav"));
+        explode = Gdx.audio.newMusic(Gdx.files.internal("sfx/explosion.wav"));
         getChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect1.wav"));
         setChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitcollect3.wav"));
         wrongChemical = Gdx.audio.newMusic(Gdx.files.internal("sfx/fruitwrong.wav"));
@@ -300,7 +302,7 @@ public class BulletHellScreen implements Screen {
     }
     private void updateDifficulty(float delta) {
         if (difficultyIncreaseTimer >= DIFFICULTY_INCREASE_INTERVAL) {
-            difficultyMultiplier += 0.5f;
+            difficultyMultiplier += 0.35f;
             difficultyIncreaseTimer = 0;
         }
     }
@@ -337,6 +339,10 @@ public class BulletHellScreen implements Screen {
         currentBoss = new BulletBoss(MathUtils.random(300), 600, difficultyMultiplier);
         isBossEntering = true;
         bossEntranceTimer = 0f;
+        boss.play();
+
+        opening.play();
+        bgmusic.pause();
         screenShake.shake(5f, 5f); // Shake the screen when the boss spawns
     }
     private void updateBoss(float delta) {
@@ -359,8 +365,10 @@ public class BulletHellScreen implements Screen {
     private void spawnBossBullet() {
         BulletEnemy enemy = enemyPool.obtain();
         for(int i = 0; i <3; i++){
-            enemy.init(MathUtils.random(40, 445), 300, difficultyMultiplier, 2);
+            int m = MathUtils.random(4, 6);
+            enemy.init(MathUtils.random(40, 445), 525, difficultyMultiplier, m);
             enemies.add(enemy);
+            shoot.play();
         }
     }
     private void updateTimers(float delta) {
@@ -519,7 +527,6 @@ public class BulletHellScreen implements Screen {
         for (Bullet bullet : bullets) bullet.draw(batch);
         for (EnemyBullet bullet : enemyBullets) {
             bullet.draw(batch);
-            Gdx.app.log("#INFO", "Pls this is working but not");
         }
         for (ParticleEffect particle : activeParticles) particle.draw(batch);
 
@@ -664,7 +671,6 @@ public class BulletHellScreen implements Screen {
     private void updateEnemyBullets(float delta) {
         for (EnemyBullet bullet : enemyBullets) {
             bullet.update(delta);
-            Gdx.app.log("#INFO", ""+bullet.getY());
             if (bullet.getY() < 220) {
                 enemyBulletsToRemove.add(bullet);
             }
@@ -676,7 +682,6 @@ public class BulletHellScreen implements Screen {
                 bullet.init(enemy.getX() + enemy.getWidth() / 2, enemy.getY());
                 enemyBullets.add(bullet);
                 enemy.resetShootTimer();
-                Gdx.app.log("#INFO", "Im ending y life");
             }
         }
     }
@@ -906,8 +911,12 @@ public class BulletHellScreen implements Screen {
                     if (currentBoss.getHealth() <= 0) {
                         hit.play();
                         spawnParticleEffect(currentBoss.getX(), currentBoss.getY(), FLAME_PARTICLE);
+                        boss.stop();
+                        explode.play();
+                        spawnParticleEffect(currentBoss.getX(), currentBoss.getY(), FLAME_PARTICLE);
                         isBossActive = false;
                         currentBoss = null;
+                        bgmusic.play();
                         resetBossSpawnTimer();
                     } else {
                         scout.play();
@@ -1209,5 +1218,6 @@ public class BulletHellScreen implements Screen {
         exit.dispose();
         leftArrow.dispose();
         rightArrow.dispose();
+        explode.dispose();
     }
 }

@@ -93,16 +93,16 @@ public class BulletEnemy {
             health = 150;
             texture = lv3;
         }else if(type == 4){
-            speed = 140;
+            speed = 120;
             health = 50;
             texture = lv4;
         }else if(type == 5){
-            speed = 140;
+            speed = 120;
             health = 50;
             texture = lv5;
         }
         else if(type == 6){
-            speed = 140;
+            speed = 120;
             health = 50;
             texture = lv5;
         }
