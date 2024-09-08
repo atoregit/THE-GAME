@@ -41,6 +41,10 @@ public class GameScreen implements Screen {
         setupInputProcessor();
     }
 
+    private void endGame() {
+        game.setScreen(new GameEndScreen(game, points, specialPoints));
+    }
+
     private void setupInputProcessor() {
         gameInputProcessor = new InputAdapter() {
             @Override
@@ -54,7 +58,8 @@ public class GameScreen implements Screen {
                     return true;
                 }
                 if (backButtonBounds.contains(touchPos.x, touchPos.y)) {
-                    game.setScreen(new GameEndScreen(game));
+                    gameMusic.stop();
+                    endGame();
                 }
 
 
@@ -65,12 +70,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new PauseMenuScreen(game, this));
-            clickSound.play();
-            game.pause();
-            return;
-        }
 
         element.update(delta);
 
@@ -258,7 +257,7 @@ public class GameScreen implements Screen {
 
         if (timer >= timerDuration) {
             gameMusic.stop();
-            game.setScreen(new GameEndScreen(game));
+            endGame();
         }
     }
 
@@ -346,7 +345,8 @@ public class GameScreen implements Screen {
     private Rectangle bottomSpriteBounds = new Rectangle();
     public BitmapFont font;
     private Texture texture;
-    public int points;
+    public float points;
+    public float specialPoints;
     private float touchStartX = -1;
     private float touchCurrentX = -1;
 

@@ -213,6 +213,7 @@ public class Element {
                 lastCompoundName = ElementType.compounds.get(compoundKey);
                 if (lastCompoundName != null && isEligibleForSplash(compoundKey)) {
                     showSplash = true;
+                    game.specialPoints++;
                     currentCompound = lastCompoundName;
                 }
             } else {

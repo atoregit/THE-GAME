@@ -887,7 +887,7 @@ public class BulletHellScreen implements Screen {
 
                 if (player.getHealth() <= 0) {
                     dispose();
-                    game.setScreen(new GameEndScreen(game));
+                    game.setScreen(new GameEndScreen(game, times, -1));
                     return; // Exit the method to prevent further processing
                 }
             }
@@ -923,7 +923,7 @@ public class BulletHellScreen implements Screen {
 
                 if (player.getHealth() <= 0) {
                     dispose();
-                    game.setScreen(new GameEndScreen(game));
+                    game.setScreen(new GameEndScreen(game, times, -1));
                     return;
                 }
             }
@@ -934,7 +934,7 @@ public class BulletHellScreen implements Screen {
                 enemiesToRemove.add(enemy);
                 if(player.getHealth() <= 0){
                     dispose();
-                    game.setScreen(new GameEndScreen(game));
+                    game.setScreen(new GameEndScreen(game, times, -1));
                 }
                 if(player.getInvincible()){
                     player.startGlowing();
