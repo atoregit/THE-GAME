@@ -780,7 +780,7 @@ public class BulletHellScreen implements Screen {
             enemyName = "SHOOTAH";
             enemyHealth = 50;
             enemySpeed = 140;
-            enemyDescription = "CAN SHOOT";
+            enemyDescription = "";
 
         }
         else if(times > 120 & times < 180){
@@ -788,7 +788,7 @@ public class BulletHellScreen implements Screen {
             enemyName = "SHOOTAH'S FRIEND";
             enemyHealth = 50;
             enemySpeed = 140;
-            enemyDescription = "CAN SHOOT";
+            enemyDescription = "";
         }else if(times > 180 & times < 210){
             enemytype =MathUtils.random(1, 6);
             enemyName = "WATER BOTTLE";

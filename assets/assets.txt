@@ -101,6 +101,7 @@ menubg.png
 menumusic.mp3
 music.mp3
 pause.png
+pauseMenu.png
 pixel.fnt
 pixel.png
 placeholder.png
