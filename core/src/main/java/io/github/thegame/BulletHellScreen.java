@@ -741,28 +741,28 @@ public class BulletHellScreen implements Screen {
     private void spawnEnemy() {
         BulletEnemy enemy = enemyPool.obtain();
         int enemytype = 0;
-        if(times > 0 & times < 60){
+        if(times > 0 & times < 30){
             enemytype = 1;
             enemyName = "DEFAULT";
             enemyHealth = 50;
             enemySpeed = 140;
             enemyDescription = "";
         }
-        else if(times > 60 & times < 120){
+        else if(times > 30 & times < 60){
             enemytype = MathUtils.random(1, 2);
             enemyName = "FAST BOI";
             enemyHealth = 25;
             enemySpeed = 230;
             enemyDescription = "";
         }
-        else if(times > 120& times < 180){
+        else if(times > 60& times < 90){
             enemytype = MathUtils.random(1, 3);
             enemyName = "TANK";
             enemyHealth = 150;
             enemySpeed = 70;
             enemyDescription = "";
         }
-        else if(times > 180& times < 240){
+        else if(times > 90& times < 120){
             enemytype = MathUtils.random(1, 4);
             enemyName = "SHOOTAH";
             enemyHealth = 50;
@@ -770,13 +770,13 @@ public class BulletHellScreen implements Screen {
             enemyDescription = "CAN SHOOT";
 
         }
-        else if(times > 240 & times < 300){
+        else if(times > 120 & times < 180){
             enemytype =MathUtils.random(1, 5);
             enemyName = "SHOOTAH'S FRIEND";
             enemyHealth = 50;
             enemySpeed = 140;
             enemyDescription = "CAN SHOOT";
-        }else if(times > 300 & times < 360){
+        }else if(times > 180 & times < 210){
             enemytype =MathUtils.random(1, 6);
             enemyName = "WATER BOTTLE";
             enemyHealth = 50;
