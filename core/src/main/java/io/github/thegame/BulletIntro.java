@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,8 +18,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.Scaling;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BulletIntro implements Screen {
     final Main game;
@@ -33,6 +39,8 @@ public class BulletIntro implements Screen {
     private static final float VIRTUAL_HEIGHT = 640;
     private static final float TRANSITION_DURATION = 0.5f;
     private Texture mainMenuBackground; // Store background texture for disposal
+    private float topCatcherScore;
+    private TextButton startButton;
 
 
     private Image blackBlueBox;
@@ -126,16 +134,23 @@ public class BulletIntro implements Screen {
         BitmapFont font = generator.generateFont(parameter);
 
 
-        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.WHITE);
+        labelStyle = new Label.LabelStyle(font, Color.WHITE);
 
         Table bottomTable = new Table();
 
         bottomTable.add(leftButton);
 
+        List<Float> topScores = getTopScores();
         Table labelTable = new Table();
-        labelTable.add(new Label("YOU: ", labelStyle)).row();
-        labelTable.add(new Label("YOU: ", labelStyle)).row();
-        labelTable.add(new Label("YOU: ", labelStyle));
+        if (topScores.size() > 0) {
+            labelTable.add(new Label("TOP SCORE: " + (int) ((Number) topScores.get(0)).floatValue(), labelStyle)).row();
+        }
+        if (topScores.size() > 1) {
+            labelTable.add(new Label("2ND - " + (int) ((Number) topScores.get(1)).floatValue(), labelStyle)).row();
+        }
+        if (topScores.size() > 2) {
+            labelTable.add(new Label("3RD - " + (int) ((Number) topScores.get(2)).floatValue(), labelStyle)).row();
+        }
 
         bottomTable.add(labelTable).padLeft(80).padRight(80);
 
@@ -155,7 +170,7 @@ public class BulletIntro implements Screen {
 
 
         // Create button
-        TextButton startButton = new TextButton("START GAME", buttonStyle);
+        startButton = new TextButton("START GAME", buttonStyle);
         startButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -184,11 +199,123 @@ public class BulletIntro implements Screen {
         // Method intentionally left empty
     }
 
-    @Override
+    public float getTopCatcherScore() {
+        // Read scores from file
+        try {
+            String filename = "scores1.txt";
+            FileHandle file = Gdx.files.local(filename);
+            if (!file.exists()) {
+                // If the file does not exist, return 0
+                return 0;
+            }
+            String scoresStr = file.readString().trim();
+            if (scoresStr.isEmpty()) {
+                // If the file is empty, return 0
+                return 0;
+            }
+            String[] scoresArray = scoresStr.split("\\r?\\n");
+            List<Float> scoresList = new ArrayList<>();
+            for (String scoreStr : scoresArray) {
+                try {
+                    float score = Float.parseFloat(scoreStr);
+                    scoresList.add(score);
+                } catch (NumberFormatException e) {
+                    // Handle invalid input
+                    Gdx.app.log("Error", "Invalid score value: " + scoreStr);
+                }
+            }
+            // Sort the list in descending order
+            Collections.sort(scoresList, Collections.reverseOrder());
+            // Return the top score
+            return scoresList.isEmpty() ? 0 : scoresList.get(0);
+        } catch (Exception e) {
+            Gdx.app.log("Error", "Failed to read scores: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    public List<Float> getTopScores() {
+        // Read scores from file
+        try {
+            String filename = "scores2.txt";
+            FileHandle file = Gdx.files.local(filename);
+            if (!file.exists()) {
+                // If the file does not exist, return an empty list
+                return new ArrayList<>();
+            }
+            String scoresStr = file.readString().trim();
+            if (scoresStr.isEmpty()) {
+                // If the file is empty, return an empty list
+                return new ArrayList<>();
+            }
+            String[] scoresArray = scoresStr.split("\\r?\\n");
+            List<Float> scoresList = new ArrayList<>();
+            for (String scoreStr : scoresArray) {
+                try {
+                    float score = Float.parseFloat(scoreStr);
+                    scoresList.add(score);
+                } catch (NumberFormatException e) {
+                    // Handle invalid input
+                    Gdx.app.log("Error", "Invalid score value: " + scoreStr);
+                }
+            }
+            // Sort the list in descending order
+            Collections.sort(scoresList, Collections.reverseOrder());
+            // Return the top 3 scores
+            return scoresList.subList(0, Math.min(3, scoresList.size()));
+        } catch (Exception e) {
+            Gdx.app.log("Error", "Failed to read scores: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private Image dimImage;
+
     public void render(float delta) {
+        topCatcherScore = getTopCatcherScore();
         Gdx.gl.glClearColor(38/255f,40/255f,43/255f, 0.4f);// Clear screen with black color
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear the color buffer
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+
+        if (topCatcherScore < 30) {
+            // Add a label to display the message on the start button area
+            if (dimImage == null) {
+                dimImage = new Image(new Texture(Gdx.files.internal("blackgrad.png")));
+                dimImage.setColor(0, 0, 0, 1);
+                dimImage.setSize(VIRTUAL_WIDTH, stage.getHeight() * 0.4f); // 15% of screen height
+                dimImage.setPosition(0, 0); // Position it at the bottom of the screen
+                stage.addActor(dimImage);
+            }
+            if (scoreLabel == null) {
+                scoreLabel = new Label("You need to score at least 30 points\nin Catcher to unlock this game!", labelStyle);
+                scoreLabel.setAlignment(Align.center);
+                float x = Gdx.graphics.getWidth() / 4;
+                float y = Gdx.graphics.getHeight() * 0.03f;
+                scoreLabel.setPosition(x - scoreLabel.getWidth() / 2 - 25, y);
+                scoreLabel.setFontScale(1f); // Scale down the font to make it smaller
+                stage.addActor(scoreLabel);
+            }
+
+
+            // Make the play button inactive
+            startButton.setDisabled(true);
+        } else {
+            // Reset the screen to normal
+            if (scoreLabel != null) {
+                scoreLabel.remove();
+                scoreLabel = null;
+            }
+
+            // Remove the dim image
+            if (dimImage != null) {
+                dimImage.remove();
+                dimImage = null;
+            }
+
+            // Make the play button active
+            startButton.setDisabled(false);
+        }
+
         stage.draw();
 
         if (!isTransitioning) {
@@ -345,4 +472,7 @@ public class BulletIntro implements Screen {
         right.dispose();
         play.dispose();
     }
+    private Label scoreLabel;
+    private Label.LabelStyle labelStyle;
+
 }

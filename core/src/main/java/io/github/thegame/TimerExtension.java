@@ -38,7 +38,7 @@ public class TimerExtension {
         timerExtension.height = EXTENSION_SIZE;
         extensionLastDropTime = TimeUtils.nanoTime();
         timeExtendedSprite = new Texture("timeExtended.png");
-        extensionSound = Gdx.audio.newMusic(Gdx.files.internal("hit.wav"));
+        extensionSound = Gdx.audio.newMusic(Gdx.files.internal("sfx/timeEx.wav"));
 
         extensions = new Array<>();
         spawnExtension();
@@ -100,7 +100,7 @@ public class TimerExtension {
             if (extension.overlaps(game.player)) {
                 game.dropSound.play();
                 startTimer(); // Always update the start time regardless of the current state
-                game.addTime(10); // Add 10 seconds to the game timer
+                game.addTime(20); // Add 10 seconds to the game timer
                 extensionSound.play();
                 iter.remove();
             }

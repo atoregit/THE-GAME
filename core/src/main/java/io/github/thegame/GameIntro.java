@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,6 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.Scaling;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 
 public class GameIntro implements Screen {
     final Main game;
@@ -132,11 +138,17 @@ public class GameIntro implements Screen {
 
         bottomTable.add(leftButton);
 
+        List<Float> topScores = getTopScores();
         Table labelTable = new Table();
-        labelTable.add(new Label("YOU: ", labelStyle)).row();
-        labelTable.add(new Label("YOU: ", labelStyle)).row();
-        labelTable.add(new Label("YOU: ", labelStyle));
-
+        if (topScores.size() > 0) {
+            labelTable.add(new Label("TOP SCORE: " + (int) ((Number) topScores.get(0)).floatValue(), labelStyle)).row();
+        }
+        if (topScores.size() > 1) {
+            labelTable.add(new Label("2ND - " + (int) ((Number) topScores.get(1)).floatValue(), labelStyle)).row();
+        }
+        if (topScores.size() > 2) {
+            labelTable.add(new Label("3RD - " + (int) ((Number) topScores.get(2)).floatValue(), labelStyle)).row();
+        }
         bottomTable.add(labelTable).padLeft(80).padRight(80);
 
         bottomTable.add(rightButton);
@@ -226,6 +238,41 @@ public class GameIntro implements Screen {
     @Override
     public void hide() {
         // Method intentionally left empty
+    }
+
+    public List<Float> getTopScores() {
+        // Read scores from file
+        try {
+            String filename = "scores1.txt";
+            FileHandle file = Gdx.files.local(filename);
+            if (!file.exists()) {
+                // If the file does not exist, return an empty list
+                return new ArrayList<>();
+            }
+            String scoresStr = file.readString().trim();
+            if (scoresStr.isEmpty()) {
+                // If the file is empty, return an empty list
+                return new ArrayList<>();
+            }
+            String[] scoresArray = scoresStr.split("\\r?\\n");
+            List<Float> scoresList = new ArrayList<>();
+            for (String scoreStr : scoresArray) {
+                try {
+                    float score = Float.parseFloat(scoreStr);
+                    scoresList.add(score);
+                } catch (NumberFormatException e) {
+                    // Handle invalid input
+                    Gdx.app.log("Error", "Invalid score value: " + scoreStr);
+                }
+            }
+            // Sort the list in descending order
+            Collections.sort(scoresList, Collections.reverseOrder());
+            // Return the top 3 scores
+            return scoresList.subList(0, Math.min(3, scoresList.size()));
+        } catch (Exception e) {
+            Gdx.app.log("Error", "Failed to read scores: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     private void transitionToScreenRight(Screen newScreen) {

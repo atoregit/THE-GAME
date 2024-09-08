@@ -70,7 +70,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-
         element.update(delta);
 
         ScreenUtils.clear(1, 1, 1, 1);
@@ -107,7 +106,7 @@ public class GameScreen implements Screen {
         batch.end();
 
 
-        String pointsText = "" + points;
+        String pointsText = "" + (int)points;
         float remainingTime = timerDuration - timer;
         updateTimer(Gdx.graphics.getDeltaTime());
 
@@ -345,11 +344,11 @@ public class GameScreen implements Screen {
     private Rectangle bottomSpriteBounds = new Rectangle();
     public BitmapFont font;
     private Texture texture;
-    public float points;
+    public float points = 0;
     public float specialPoints;
     private float touchStartX = -1;
     private float touchCurrentX = -1;
-
+    public float displayPoints;
 
     public final int GAME_SCREEN_X = 480;
     public final int GAME_SCREEN_Y = 640;

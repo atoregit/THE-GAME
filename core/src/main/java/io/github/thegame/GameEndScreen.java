@@ -15,6 +15,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import com.badlogic.gdx.files.FileHandle;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 public class GameEndScreen implements Screen {
     final Main game;
     private final Stage stage;
@@ -54,11 +60,11 @@ public class GameEndScreen implements Screen {
         gameOverLabel = new Label("GAME OVER", skin);
         gameOverLabel.setFontScale(6.0f); // Make the text larger
 
-        pointsLabel = new Label("Points collected - " + (int) points, skin);
+        pointsLabel = new Label("Points collected: " + (int) points, skin);
         pointsLabel.setFontScale(4.0f); // Make the text smaller
 
         if (specialPoints != -1) {
-            specialPointsLabel = new Label("Materials created - " + (int) specialPoints, skin);
+            specialPointsLabel = new Label("Materials created: " + (int) specialPoints, skin);
             specialPointsLabel.setFontScale(4.0f); // Make the text smaller
         }
 
@@ -78,6 +84,7 @@ public class GameEndScreen implements Screen {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
+                savePoints();
                 game.setScreen(new MainMenuScreen(game));
                 dispose();
             }
@@ -129,5 +136,31 @@ public class GameEndScreen implements Screen {
     }
     public void show() {
 
+    }
+
+    private void savePoints() {
+        try {
+            String filename;
+            if(specialPoints == -1) {
+                filename = "scores2.txt";
+            } else {
+                filename = "scores1.txt";
+            }
+            // Create a file in the internal storage
+
+            FileHandle file = Gdx.files.local(filename);
+            // Convert points to string with two decimal places
+            String pointsStr = String.format("%.2f", points);
+            // Append the points to the file
+            PrintWriter writer = new PrintWriter(new FileWriter(file.file(), true));
+            writer.println(pointsStr);
+            // Close the writer
+            writer.close();
+            // Log a success message
+            Gdx.app.log("Success", "Points saved successfully!");
+        } catch (Exception e) {
+            // Handle the exception
+            Gdx.app.log("Error", "Failed to save points: " + e.getMessage());
+        }
     }
 }

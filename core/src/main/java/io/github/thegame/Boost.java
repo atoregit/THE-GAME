@@ -25,6 +25,7 @@ public class Boost {
     private BitmapFont font;
     private BitmapFont endFont;
     private Music boom;
+    private Music boom2;
     private Texture boostedSprite;
     private Texture boostEndedSprite;
 
@@ -46,11 +47,9 @@ public class Boost {
         boost.height = BOMB_SIZE;
         boostLastDropTime = TimeUtils.nanoTime();
 
-        boom = Gdx.audio.newMusic(Gdx.files.internal("sfx/explosion.wav"));
-
+        boom = Gdx.audio.newMusic(Gdx.files.internal("sfx/boost.wav"));
+        boom2 = Gdx.audio.newMusic(Gdx.files.internal("sfx/boostEnd.wav"));
         boosts = new Array<>();
-        // Initialize with an initial spawn to ensure at least one boost is present
-        spawnBoost();
     }
 
     public void spawnBoost() {
@@ -98,6 +97,7 @@ public class Boost {
 
         // Draw end of boost message if the boost has ended
         if (boostEnded) {
+            boom2.play();
             long elapsedTime = TimeUtils.nanoTime() - boostEndTime;
             if (elapsedTime < 1000000000L) { // 1 second hold
                 batch.setColor(1, 1, 1, 1); // Full opacity
