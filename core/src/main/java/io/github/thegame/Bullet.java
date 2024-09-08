@@ -1,8 +1,10 @@
 package io.github.thegame;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 import com.badlogic.gdx.math.Rectangle;
@@ -13,14 +15,40 @@ public class Bullet {
     private Rectangle bounds;
     private float speed;
     private float damage;
+    private static Texture defaultTexture;
+    private static Texture hhTexture;
+    private static Texture hclTexture;
+    private static Texture hoTexture;
+    private static Texture hnaTexture;
+    private static Texture naclTexture;
+    private static Texture naoTexture;
+
+    static {
+        defaultTexture = loadTexture("bulletPlayer.png");
+        hhTexture = loadTexture("bulletPlayerBluer.png");
+        hclTexture = loadTexture("bulletPlayerGreen.png");
+        hoTexture = loadTexture("bulletPlayerRed.png");
+        hnaTexture = loadTexture("bulletPlayerMaroon.png");
+        naclTexture = loadTexture("bulletPlayerWhite.png");
+        naoTexture = loadTexture("bulletPlayerViolet.png");
+    }
+
+    private static Texture loadTexture(String fileName) {
+        Pixmap originalPixmap = new Pixmap(Gdx.files.internal(fileName));
+        Pixmap resizedPixmap = new Pixmap(30, 37, originalPixmap.getFormat());
+        resizedPixmap.drawPixmap(originalPixmap,
+            0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
+            0, 0, resizedPixmap.getWidth() , resizedPixmap.getHeight()
+        );
+        Texture texture = new Texture(resizedPixmap);
+        resizedPixmap.dispose();
+        originalPixmap.dispose();
+        return texture;
+    }
 
     public Bullet(float x, float y, float damage) {
         position = new Vector2(x, y);
-        Pixmap pixmap = new Pixmap(50, 50, Pixmap.Format.RGBA8888);  // 50x50 white square
-        pixmap.setColor(1, 1, 1, 1);  // Set the color to white
-        pixmap.fillRectangle(0, 0, 25, 25);
-        texture = new Texture(pixmap);
-        pixmap.dispose();
+        texture = defaultTexture;
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
         speed = 300;
         this.damage = damage;
@@ -30,15 +58,46 @@ public class Bullet {
         position.y += speed * delta;
         bounds.setPosition(position);
     }
+
     public void init(float x, float y, float damage) {
         this.position.set(x, y);
         this.bounds.setPosition(position);
         this.damage = damage;
-        // Reset any other necessary fields
     }
+
     public void setPosition(float x, float y) {
         position.set(x, y);
         bounds.setPosition(position);
+    }
+
+    public void setTexture(String powerUp) {
+        switch (powerUp) {
+            case "HH":
+                texture = hhTexture;
+                break;
+            case "HCl":
+            case "ClH":
+                texture = hclTexture;
+                break;
+            case "HO":
+            case "OH":
+                texture = hoTexture;
+                break;
+            case "HNa":
+            case "NaH":
+                texture = hnaTexture;
+                break;
+            case "NaCl":
+            case "ClNa":
+                texture = naclTexture;
+                break;
+            case "NaO":
+            case "ONa":
+                texture = naoTexture;
+                break;
+            default:
+                texture = defaultTexture;
+        }
     }
 
     public float getWidth() {
@@ -48,6 +107,7 @@ public class Bullet {
     public float getHeight() {
         return texture.getHeight();
     }
+
     public void draw(SpriteBatch batch) {
         batch.draw(texture, position.x, position.y);
     }
@@ -64,7 +124,13 @@ public class Bullet {
         return position.y;
     }
 
-    public void dispose() {
-        texture.dispose();
+    public static void dispose() {
+        defaultTexture.dispose();
+        hhTexture.dispose();
+        hclTexture.dispose();
+        hoTexture.dispose();
+        hnaTexture.dispose();
+        naclTexture.dispose();
+        naoTexture.dispose();
     }
 }

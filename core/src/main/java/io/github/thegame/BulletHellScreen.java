@@ -106,6 +106,7 @@ public class BulletHellScreen implements Screen {
 
     private static final float POWER_UP_DURATION = 30f; // Duration in seconds
     private Map<String, Float> activePowerUps;
+    private String currentPowerUp = "";
     private BulletShake screenShake;
     private ShapeRenderer shapeRenderer;
     private static final float GLOW_RADIUS = 10f;
@@ -120,6 +121,16 @@ public class BulletHellScreen implements Screen {
     private Array<EnemyBullet> enemyBulletsToRemove;
     private Pool<EnemyBullet> enemyBulletPool;
 
+    private static final float BOSS_SPAWN_INTERVAL_MIN = 10f;
+    private static final float BOSS_SPAWN_INTERVAL_MAX = 15f;
+    private float bossSpawnTimer;
+    private float nextBossSpawnTime;
+    private boolean isBossActive;
+    private BulletBoss currentBoss;
+    private float bossEntranceTimer = 0f;
+    private static final float BOSS_ENTRANCE_DURATION = 5f;
+    private static final float BOSS_PAUSE_DURATION = 2f;
+    private boolean isBossEntering = false;
     public BulletHellScreen(final Main game) {
         Random random = new Random();
 
@@ -251,6 +262,12 @@ public class BulletHellScreen implements Screen {
         sa.fill();
         red = new Texture(sa);
         sa.dispose();
+        resetBossSpawnTimer();
+        isBossActive = false;
+    }
+    private void resetBossSpawnTimer() {
+        bossSpawnTimer = 0;
+        nextBossSpawnTime = MathUtils.random(BOSS_SPAWN_INTERVAL_MIN, BOSS_SPAWN_INTERVAL_MAX);
     }
 
     @Override
@@ -265,7 +282,7 @@ public class BulletHellScreen implements Screen {
     }
 
     private void handleEnemySpawning() {
-        if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL / difficultyMultiplier) {
+        if (!isBossActive && enemySpawnTimer >= ENEMY_SPAWN_INTERVAL / difficultyMultiplier) {
             spawnEnemy();
             enemySpawnTimer = 0;
         }
@@ -285,19 +302,59 @@ public class BulletHellScreen implements Screen {
         }
 
     }
+    private void handleBossSpawning(float delta) {
+        if (!isBossActive && bossSpawnTimer >= nextBossSpawnTime) {
+            spawnBoss();
+            isBossActive = true;
+            bossSpawnTimer = 0;
+        }
+    }
+    private void spawnBoss() {
+        currentBoss = new BulletBoss(MathUtils.random(300), 600, difficultyMultiplier);
+        isBossEntering = true;
+        bossEntranceTimer = 0f;
+        screenShake.shake(5f, 5f); // Shake the screen when the boss spawns
+    }
+    private void updateBoss(float delta) {
+        if (currentBoss != null) {
+            if (isBossEntering) {
+                bossEntranceTimer += delta;
+                if (bossEntranceTimer >= BOSS_ENTRANCE_DURATION + BOSS_PAUSE_DURATION) {
+                    isBossEntering = false;
+                }
+            } else {
+                currentBoss.update(delta);
+                if (currentBoss.canShoot()) {
+                    spawnBossBullet();
+                    currentBoss.resetShootTimer(); // Reset the boss's shoot timer
+                }
+            }
+        }
+    }
+    private void spawnBossBullet() {
+        EnemyBullet bullet = enemyBulletPool.obtain();
+        bullet.init(currentBoss.getX() + currentBoss.getWidth() / 2, currentBoss.getY());
+        enemyBullets.add(bullet);
+    }
     private void updateTimers(float delta) {
         enemySpawnTimer += delta;
         symbolSpawnTimer += delta;
         difficultyIncreaseTimer += delta;
         times += delta;
+        if (!isBossActive) {
+            bossSpawnTimer += delta;
+        }
     }
     private void drawHearts(SpriteBatch batch){
-        for (int i = 0; i < player.getHealth()+1; i++){
-            batch.draw(heart, 40 * (i%4) + 10, (camera.viewportHeight - 40) - (40 * ((int)i/4)) , 25, 25);
+        for (int i = 0; i < player.getHealth(); i++){
+            batch.draw(heart, 40 * (i%4) + 10, (camera.viewportHeight - 50) - (50 * (i/4)) , 25, 25);
         }
     }
     private void updatePowerUps(float delta) {
         Iterator<Map.Entry<String, Float>> iterator = activePowerUps.entrySet().iterator();
+        String mostRecentPowerUp = "";
+        float mostRecentTime = Float.MAX_VALUE;
+
         while (iterator.hasNext()) {
             Map.Entry<String, Float> entry = iterator.next();
             float remainingTime = entry.getValue() - delta;
@@ -306,7 +363,38 @@ public class BulletHellScreen implements Screen {
                 iterator.remove();
             } else {
                 entry.setValue(remainingTime);
+                if (remainingTime < mostRecentTime) {
+                    mostRecentTime = remainingTime;
+                    mostRecentPowerUp = entry.getKey();
+                }
             }
+        }
+
+        currentPowerUp = mostRecentPowerUp;  // Update the current power-up
+    }
+
+
+    private void drawWrappedText(SpriteBatch batch, BitmapFont font, String text, float x, float y) {
+        float textWidth = font.draw(batch, text, 0, 0).width;
+        float screenWidth = camera.viewportWidth;
+
+        if (x < 0) {
+            // Draw on the right side of the screen
+            font.draw(batch, text, screenWidth + x, y);
+            // Draw the beginning on the left side if it's still visible
+            if (x + textWidth > 0) {
+                font.draw(batch, text, x, y);
+            }
+        } else if (x + textWidth > screenWidth) {
+            // Draw on the left side of the screen
+            font.draw(batch, text, x - screenWidth, y);
+            // Draw the end on the right side if it's still visible
+            if (x < screenWidth) {
+                font.draw(batch, text, x, y);
+            }
+        } else {
+            // Normal drawing when not at the edge
+            font.draw(batch, text, x, y);
         }
     }
     @Override
@@ -315,13 +403,21 @@ public class BulletHellScreen implements Screen {
             updateTimers(delta);
             updateDifficulty(delta);
             updatePowerUps(delta);
-            handleEnemySpawning();
+
+            if (!isBossActive) {
+                handleEnemySpawning();
+            }
             handleSymbolSpawning();
+            handleBossSpawning(delta);
+
             updateEnemies(delta);
             updateSymbols(delta);
             updateBullets(delta);
             updateDamageIndicators(delta);
             updateEnemyBullets(delta);
+            if (isBossActive) {
+                updateBoss(delta);
+            }
             removeOffscreenObjects();
             cleanupObjects();
             updateParticles(delta);
@@ -340,9 +436,16 @@ public class BulletHellScreen implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
-
-
+        if (isBossActive && currentBoss != null) {
+            if (isBossEntering) {
+                float progress = Math.min(bossEntranceTimer / BOSS_ENTRANCE_DURATION, 1f);
+                float y = camera.viewportHeight + 100 - (progress * (camera.viewportHeight -300));
+                currentBoss.setPosition(currentBoss.getX(), y);
+                currentBoss.draw(batch);
+            } else {
+                currentBoss.draw(batch);
+            }
+        }
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
@@ -371,12 +474,12 @@ public class BulletHellScreen implements Screen {
         }
         font.setColor(Color.WHITE);
         font.draw(batch, String.valueOf((int)times), camera.viewportWidth/2 - 15, camera.viewportHeight -20);
-        font.draw(batch, collectedSymbols.toString(), camera.viewportWidth - 180, camera.viewportHeight - 100);
+        drawWrappedText(batch, font, collectedSymbols.toString(), player.getX() + 75, player.getY() + 50);
         drawHearts(batch);
         for (int i = 0; i < powerUps.size(); i++) {
             String powerUp = powerUps.get(i);
             float remainingTime = activePowerUps.get(powerUp);
-            font.draw(batch, powerUp + " (" + (int)remainingTime + "s)", camera.viewportWidth/10 * (i + 1), camera.viewportHeight/6);
+            font.draw(batch, powerUp + " (" + (int)remainingTime + "s)", camera.viewportWidth/5 * (i + 1), camera.viewportHeight/6);
         }
 
 
@@ -478,16 +581,17 @@ public class BulletHellScreen implements Screen {
     private void updateEnemyBullets(float delta) {
         for (EnemyBullet bullet : enemyBullets) {
             bullet.update(delta);
-            if (bullet.getY() < 0) {
+            if (bullet.getY() < 220) {
                 enemyBulletsToRemove.add(bullet);
             }
         }
 
         for (BulletEnemy enemy : enemies) {
-            if (enemy.canShoot()) {
+            if (enemy.canShoot() && enemy.getType() == 4) {
                 EnemyBullet bullet = enemyBulletPool.obtain();
                 bullet.init(enemy.getX() + enemy.getWidth() / 2, enemy.getY());
                 enemyBullets.add(bullet);
+                enemy.resetShootTimer();
             }
         }
     }
@@ -526,6 +630,7 @@ public class BulletHellScreen implements Screen {
         Bullet bullet = bulletPool.obtain();
         bullet.setPosition(player.getX() + player.getWidth() / 2 - bullet.getWidth() / 2,
             player.getY() + player.getHeight());
+        bullet.setTexture(currentPowerUp);
         bullets.add(bullet);
     }
     @Override
@@ -553,7 +658,7 @@ public class BulletHellScreen implements Screen {
 
     private void spawnEnemy() {
         BulletEnemy enemy = enemyPool.obtain();
-        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier, 5); // Initialize with current values
+        enemy.init(MathUtils.random(40, 445), 725, difficultyMultiplier, 4); // Initialize with current values
         enemies.add(enemy);
     }
 
@@ -647,7 +752,41 @@ public class BulletHellScreen implements Screen {
             }
         }
 
+        if (isBossActive && currentBoss != null && !isBossEntering) {
+            for (Bullet bullet : bullets) {
+                if (bullet.getBounds().overlaps(currentBoss.getBounds())) {
+                    currentBoss.hit(player.getBulletDamage());
+                    bulletsToRemove.add(bullet);
 
+                    if (currentBoss.getHealth() <= 0) {
+                        hit.play();
+                        spawnParticleEffect(currentBoss.getX(), currentBoss.getY(), FLAME_PARTICLE);
+                        isBossActive = false;
+                        currentBoss = null;
+                        resetBossSpawnTimer();
+                    } else {
+                        scout.play();
+                    }
+                    break;
+                }
+            }
+
+            if (currentBoss != null && player.getBounds().overlaps(currentBoss.getBounds())) {
+                if (player.getInvincible()) {
+                    player.startGlowing();
+                } else {
+                    player.setHealth(player.getHealth() - 2); // Boss deals more damage
+                    screenShake.shake(0.5f, 5f);
+                    dead.play();
+                }
+
+                if (player.getHealth() <= 0) {
+                    dispose();
+                    game.setScreen(new GameEndScreen(game));
+                    return;
+                }
+            }
+        }
         enemyBullets.removeAll(enemyBulletsToRemove, true);
         for (BulletEnemy enemy : enemies){
             if(player.getBounds().overlaps(enemy.getBounds())){
@@ -770,7 +909,7 @@ public class BulletHellScreen implements Screen {
             }
         }
         for (EnemyBullet bullet : enemyBullets){
-            if (bullet.getY() > 775) {
+            if (bullet.getY() > 220) {
                 enemyBulletsToRemove.add(bullet);
             }
         }
@@ -793,6 +932,10 @@ public class BulletHellScreen implements Screen {
             bulletPool.free(bullet);
         }
         bulletsToRemove.clear();
+        for (EnemyBullet bullet : enemyBulletsToRemove) {
+            enemyBullets.removeValue(bullet, true);
+            enemyBulletPool.free(bullet);
+        }
         enemyBulletsToRemove.clear();
     }
     private void handleInput(float delta) {
@@ -870,6 +1013,9 @@ public class BulletHellScreen implements Screen {
         enemyBulletPool.clear();
         for (EnemyBullet bullet : enemyBullets) {
             bullet.dispose(); // Make sure to implement a dispose method in EnemyBullet if needed
+        }
+        if (currentBoss != null) {
+            currentBoss.dispose();
         }
     }
 }

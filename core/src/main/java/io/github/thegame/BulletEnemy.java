@@ -18,6 +18,32 @@ public class BulletEnemy {
     private int type;
     private float shootTimer;
     private static final float SHOOT_INTERVAL = 2f;
+    private static Texture lv1;
+    private static Texture lv2;
+    private static Texture lv3;
+    private static Texture lv4;
+    private static Texture lv5;
+    private static Texture lv6;
+    static {
+        lv1 = loadTexture("enemy.png");
+        lv2 = loadTexture("enemy/textile3.png"); //fast
+        lv3 = loadTexture("enemy/textile1.png"); //tank
+        lv4 = loadTexture("enemy/textile4.png"); //slow shooter
+        lv5= loadTexture("enemy/plastic5.png"); //fast shooter, really slow tho
+        lv6 = loadTexture("enemy/plastic1.png"); // doesnt do shit
+    }
+    private static Texture loadTexture(String fileName) {
+        Pixmap originalPixmap = new Pixmap(Gdx.files.internal(fileName));
+        Pixmap resizedPixmap = new Pixmap(55 , 55, originalPixmap.getFormat());
+        resizedPixmap.drawPixmap(originalPixmap,
+            0, 0, originalPixmap.getWidth(), originalPixmap.getHeight(),
+            0, 0, resizedPixmap.getWidth(), resizedPixmap.getHeight()
+        );
+        Texture texture = new Texture(resizedPixmap);
+        resizedPixmap.dispose();
+        originalPixmap.dispose();
+        return texture;
+    }
     public BulletEnemy(float x, float y, float difficulty, int types) {
         position = new Vector2(x, y);
         type = types;
@@ -28,7 +54,7 @@ public class BulletEnemy {
         Pixmap originalPixmap = new Pixmap(Gdx.files.internal("enemy.png"));
 
         // Create a new Pixmap with the desired size (50x50)
-        Pixmap resizedPixmap = new Pixmap(50, 50, originalPixmap.getFormat());
+        Pixmap resizedPixmap = new Pixmap(55, 55, originalPixmap.getFormat());
 
         // Scale the original pixmap to the new pixmap
         resizedPixmap.drawPixmap(originalPixmap,
@@ -58,17 +84,24 @@ public class BulletEnemy {
             //normal
             speed = 140;
             health = 50;
-
+            texture = lv1;
         }else if(type == 2){
             speed = 250;
             health = 25;
+            texture = lv2;
         }else if(type == 3){
             //textile waste
+            speed = 70;
+            health = 150;
+            texture = lv3;
         }else if(type == 4){
-
+            speed = 140;
+            health = 50;
+            texture = lv4;
         }else if(type == 5){
             speed = 140;
             health = 50;
+            texture = lv5;
         }
         // Reset any other necessary fields
     }
@@ -76,20 +109,13 @@ public class BulletEnemy {
     public void update(float delta) {
         position.y -= speed * delta;
         bounds.setPosition(position);
-        if(type == 5){
-            shootTimer += delta;
-        }
+        shootTimer += delta;
+
     }
     public EnemyBullet shoot() {
         return new EnemyBullet(position.x + bounds.width / 2, position.y);
     }
-    public boolean canShoot() {
-        if (shootTimer >= SHOOT_INTERVAL) {
-            shootTimer = 0;
-            return true;
-        }
-        return false;
-    }
+
 
     public void draw(SpriteBatch batch) {
         batch.draw(texture, position.x, position.y);
@@ -101,7 +127,7 @@ public class BulletEnemy {
     }
 
 
-
+    public int getType(){return type;}
     public float getHealth() {
         return health;
     }
@@ -122,8 +148,26 @@ public class BulletEnemy {
     public float getWidth() {
         return texture.getWidth();
     }
+    public void updateShootTimer(float delta) {
+        if (type == 4) {
+            shootTimer += delta;
+        }
+    }
+
+    public boolean canShoot() {
+        return type == 4 && shootTimer >= SHOOT_INTERVAL;
+    }
+
+    public void resetShootTimer() {
+        shootTimer = 0;
+    }
 
     public void dispose() {
         texture.dispose();
+        lv1.dispose();
+        lv2.dispose();
+        lv3.dispose();
+        lv4.dispose();
+        lv5.dispose();
     }
 }
