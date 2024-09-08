@@ -27,7 +27,7 @@ public class GameEndScreen implements Screen {
     private SpriteBatch batch;
     private float points;
     private float specialPoints;
-
+    private Texture fucl;
     public GameEndScreen(final Main game, float points, float specialPoints) {
         this.game = game;
         this.points = points;
@@ -50,7 +50,7 @@ public class GameEndScreen implements Screen {
         Skin skin = new Skin(Gdx.files.internal("skin/terra-mother-ui.json"));
         BitmapFont font = skin.getFont("font");
         font.getData().setScale(6.0f); // Increase the font size for "GAME OVER"
-
+        fucl = new Texture(Gdx.files.internal("playerCatch.png"));
         gameOverLabel = new Label("GAME OVER", skin);
         gameOverLabel.setFontScale(6.0f); // Make the text larger
 
@@ -94,6 +94,7 @@ public class GameEndScreen implements Screen {
 
         batch.begin();
         batch.draw(background, 0 , 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(fucl, Gdx.graphics.getWidth()/4, 0,  Gdx.graphics.getWidth(),  Gdx.graphics.getWidth());
         batch.end();
 
 
@@ -124,6 +125,7 @@ public class GameEndScreen implements Screen {
     public void dispose() {
         stage.dispose();
         gameOverSound.dispose();
+        fucl.dispose();
     }
     public void show() {
 

@@ -19,7 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.Scaling;
 
-public class BulletTutorial implements Screen {
+public class Credits implements Screen {
     final Main game;
     private final Stage stage;
     private Table table;
@@ -34,7 +34,8 @@ public class BulletTutorial implements Screen {
     private Texture mainMenuBackground; // Store background texture for disposal
     private Music left;
     private Image blackBlueBox;
-    public BulletTutorial(final Main game) {
+
+    public Credits(final Main game) {
         this.game = game;
 
         stage = new Stage(new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
@@ -76,7 +77,7 @@ public class BulletTutorial implements Screen {
         Texture leftArrowTexture = new Texture(Gdx.files.internal("upArrow.png"));
 
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenUp(new BulletIntro(game));
+            transitionToScreenUp(new MainMenuScreen(game));
             left.play();
         });
 
@@ -95,18 +96,20 @@ public class BulletTutorial implements Screen {
         parameter.color = Color.WHITE;
         BitmapFont catchFont = generator.generateFont(parameter);
         Label.LabelStyle catchLabelStyle = new Label.LabelStyle(catchFont, Color.WHITE);
-        Label catchLabel = new Label("SHOOT", catchLabelStyle);
+        Label catchLabel = new Label("CREDITS", catchLabelStyle);
 
         // Create instructions label with smaller font
         parameter.size = 30;
         BitmapFont instructionsFont = generator.generateFont(parameter);
         Label.LabelStyle instructionsLabelStyle = new Label.LabelStyle(instructionsFont, Color.WHITE);
         Label instructionsLabel = new Label(
-            "1. Shoot the incoming trashes with chemicals to defend your land!\n" +
-                "2. Tap left or right to move around and aim your weapon!\n" +
-                "3. Multiple types of enemies will appear at randomized times, be careful as there are boss fights!.\n" +
-                "4. Combine basic chemical compounds to gain temporary OP buffs to help you clean up!\n" +
-                "5. Survive for as long as possible, helping the world rid the trash!",
+            "\n\nLEADER: Chester Thomas C. Pedral\n" +
+                "MAIN DEVELOPER: Reyvel L. Rodriguez\n" +
+                "MAIN ARTIST: Janisha Rane J. Gregorio\n" +
+                "MAIN SFX EDITOR: Samuel Ray S. Apale\n" +
+                "MENTOR: Trextan Thaddeus B. Sanchez\n"+
+                "QA: Seblos, Arenas, Solon, Jayme\n"+
+                "QA: Mercado, Cagud, Operiano",
             instructionsLabelStyle
         );
         instructionsLabel.setWrap(true);

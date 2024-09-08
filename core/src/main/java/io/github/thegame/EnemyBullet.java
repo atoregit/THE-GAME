@@ -45,7 +45,7 @@ public class EnemyBullet {
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(getTexture(), position.x, position.y, bounds.width, bounds.height);
+        batch.draw(bullet, position.x, position.y);
     }
 
     public Rectangle getBounds() {
@@ -60,8 +60,15 @@ public class EnemyBullet {
         // You should create and store this texture somewhere else, like in your asset manager
         return bullet;
     }
+    public float getWidth(){
+        return bounds.width;
+    }
     public void dispose(){
         bullet.dispose();
     }
-
+    public void setPosition(float x, float y){
+        bounds.setPosition(x, y);
+        position.x = x;
+        position.y = y;
+    }
 }

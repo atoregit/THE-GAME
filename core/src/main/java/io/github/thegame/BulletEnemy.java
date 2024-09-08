@@ -17,7 +17,7 @@ public class BulletEnemy {
     private float health;
     private int type;
     private float shootTimer;
-    private static final float SHOOT_INTERVAL = 2f;
+    private static final float SHOOT_INTERVAL = 1f;
     private Texture lv1;
     private  Texture lv2;
     private Texture lv3;

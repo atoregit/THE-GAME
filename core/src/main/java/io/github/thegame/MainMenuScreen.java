@@ -116,7 +116,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 left.play();
-                transitionToScreenDown(new BulletTutorial(game));
+                transitionToScreenDown(new Credits(game));
             }
         });
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));

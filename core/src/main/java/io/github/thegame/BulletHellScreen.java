@@ -55,7 +55,7 @@ public class BulletHellScreen implements Screen {
     private float enemySpawnTimer;
     private float symbolSpawnTimer;
 
-    private static final float DIFFICULTY_INCREASE_INTERVAL = 60f; // Seconds between difficulty increases
+    private static final float DIFFICULTY_INCREASE_INTERVAL = 30f; // Seconds between difficulty increases
     private float difficultyIncreaseTimer;
     private float timeSinceLastShot;
 
@@ -121,8 +121,8 @@ public class BulletHellScreen implements Screen {
     private Array<EnemyBullet> enemyBulletsToRemove;
     private Pool<EnemyBullet> enemyBulletPool;
 
-    private static final float BOSS_SPAWN_INTERVAL_MIN = 200f;
-    private static final float BOSS_SPAWN_INTERVAL_MAX = 240f;
+    private static final float BOSS_SPAWN_INTERVAL_MIN = 5f;
+    private static final float BOSS_SPAWN_INTERVAL_MAX = 10f;
     private float bossSpawnTimer;
     private float nextBossSpawnTime;
     private boolean isBossActive;
@@ -195,7 +195,7 @@ public class BulletHellScreen implements Screen {
         enemyBulletPool = new Pool<EnemyBullet>() {
             @Override
             protected EnemyBullet newObject() {
-                return new EnemyBullet(50, 100);
+                return new EnemyBullet(50, 500);
             }
         };
         enemyPool = new Pool<BulletEnemy>() {
@@ -300,7 +300,7 @@ public class BulletHellScreen implements Screen {
     }
     private void updateDifficulty(float delta) {
         if (difficultyIncreaseTimer >= DIFFICULTY_INCREASE_INTERVAL) {
-            difficultyMultiplier += 0.1f;
+            difficultyMultiplier += 0.5f;
             difficultyIncreaseTimer = 0;
         }
     }
@@ -357,10 +357,10 @@ public class BulletHellScreen implements Screen {
     }
 
     private void spawnBossBullet() {
-        EnemyBullet bullet = enemyBulletPool.obtain();
-        for(int i = 0; i <5; i++){
-            bullet.init(MathUtils.random(100,300), currentBoss.getY());
-            enemyBullets.add(bullet);
+        BulletEnemy enemy = enemyPool.obtain();
+        for(int i = 0; i <3; i++){
+            enemy.init(MathUtils.random(40, 445), 300, difficultyMultiplier, 2);
+            enemies.add(enemy);
         }
     }
     private void updateTimers(float delta) {
@@ -479,8 +479,8 @@ public class BulletHellScreen implements Screen {
         float controlZoneHeight = camera.viewportHeight / 8;
         float halfWidth = camera.viewportWidth / 2;
         batch.draw(blackbg, 0, 0, camera.viewportWidth, camera.viewportHeight / 5);
-        batch.draw(leftArrow, 0, 0, halfWidth/2, controlZoneHeight/2);
-        batch.draw(rightArrow, halfWidth*1.5f, 0, halfWidth/2, controlZoneHeight/2);
+        batch.draw(leftArrow, 0, 0, halfWidth, controlZoneHeight);
+        batch.draw(rightArrow, halfWidth, 0, halfWidth, controlZoneHeight);
         for (BulletEnemy enemy : enemies) enemy.draw(batch);
         if (isInitialState) {
             // Draw both left and right highlight areas
@@ -519,6 +519,7 @@ public class BulletHellScreen implements Screen {
         for (Bullet bullet : bullets) bullet.draw(batch);
         for (EnemyBullet bullet : enemyBullets) {
             bullet.draw(batch);
+            Gdx.app.log("#INFO", "Pls this is working but not");
         }
         for (ParticleEffect particle : activeParticles) particle.draw(batch);
 
@@ -557,8 +558,9 @@ public class BulletHellScreen implements Screen {
             if (isPaused) {
                 isPaused = false;
                 select.play();
-            } else if(touchPos.x == 1){
-
+            } else if((touchPos.x > 15 && touchPos.x <65+15) && (touchPos.y > camera.viewportHeight-65 && touchPos.y < camera.viewportHeight)){
+                dispose();
+                game.setScreen(new BulletIntro(game));
             }else if (touchPos.x >= pauseButtonPosition.x && touchPos.x <= pauseButtonPosition.x + PAUSE_BUTTON_SIZE &&
                 touchPos.y >= pauseButtonPosition.y && touchPos.y <= pauseButtonPosition.y + PAUSE_BUTTON_SIZE) {
                 isPaused = true;
@@ -662,6 +664,7 @@ public class BulletHellScreen implements Screen {
     private void updateEnemyBullets(float delta) {
         for (EnemyBullet bullet : enemyBullets) {
             bullet.update(delta);
+            Gdx.app.log("#INFO", ""+bullet.getY());
             if (bullet.getY() < 220) {
                 enemyBulletsToRemove.add(bullet);
             }
@@ -673,6 +676,7 @@ public class BulletHellScreen implements Screen {
                 bullet.init(enemy.getX() + enemy.getWidth() / 2, enemy.getY());
                 enemyBullets.add(bullet);
                 enemy.resetShootTimer();
+                Gdx.app.log("#INFO", "Im ending y life");
             }
         }
     }
@@ -885,7 +889,7 @@ public class BulletHellScreen implements Screen {
                 }
                 enemyBulletsToRemove.add(bullet);
 
-                if (player.getHealth() <= 0) {
+                if (player.getHealth() < 1) {
                     dispose();
                     game.setScreen(new GameEndScreen(game, times, -1));
                     return; // Exit the method to prevent further processing
@@ -921,7 +925,7 @@ public class BulletHellScreen implements Screen {
                     dead.play();
                 }
 
-                if (player.getHealth() <= 0) {
+                if (player.getHealth() < 1) {
                     dispose();
                     game.setScreen(new GameEndScreen(game, times, -1));
                     return;
@@ -932,7 +936,7 @@ public class BulletHellScreen implements Screen {
         for (BulletEnemy enemy : enemies){
             if(player.getBounds().overlaps(enemy.getBounds())){
                 enemiesToRemove.add(enemy);
-                if(player.getHealth() <= 0){
+                if(player.getHealth() < 1){
                     dispose();
                     game.setScreen(new GameEndScreen(game, times, -1));
                 }

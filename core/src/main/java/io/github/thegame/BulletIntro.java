@@ -61,7 +61,7 @@ public class BulletIntro implements Screen {
         stage.addActor(root);
 
         // Load background texture
-        mainMenuBackground = new Texture(Gdx.files.internal("menubg.png"));
+        mainMenuBackground = new Texture(Gdx.files.internal("backgroundShooters.png"));
 
         // Set background image
         Image background = new Image(mainMenuBackground);
@@ -245,7 +245,7 @@ public class BulletIntro implements Screen {
         incomingTable.setFillParent(true);
         stage.addActor(incomingTable);
         blackBlueBox.toFront();
-        Texture placeholder = new Texture(Gdx.files.internal("backgroundShooters.png"));
+        Texture placeholder = new Texture(Gdx.files.internal("menubg.png"));
         Image placeholderImage = new Image(placeholder);
         placeholderImage.setScaling(Scaling.stretch);
         placeholderImage.setFillParent(true);

@@ -20,7 +20,7 @@ public class ChemicalSymbol {
         position = new Vector2(x, y);
         texture = new Texture(Gdx.files.internal("elements/Al.png"));
         bounds = new Rectangle((int)x, (int)y, texture.getWidth(), texture.getHeight());
-        speed = 65;
+        speed = 120;
     }
     public void init(float x, float y) {
         position = new Vector2(x, y);

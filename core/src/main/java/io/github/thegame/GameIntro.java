@@ -61,7 +61,7 @@ public class GameIntro implements Screen {
         stage.addActor(root);
 
         // Load background texture
-        mainMenuBackground = new Texture(Gdx.files.internal("backgroundCatchers.png"));
+        mainMenuBackground = new Texture(Gdx.files.internal("backgroundCatchersMenu.png"));
 
         // Set background image
         Image background = new Image(mainMenuBackground);
@@ -122,7 +122,7 @@ public class GameIntro implements Screen {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("text.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 40;
-        parameter.color = Color.WHITE;
+        parameter.color = new Color(222/255f, 219/255f, 211/255f, 1);
         BitmapFont font = generator.generateFont(parameter);
 
 

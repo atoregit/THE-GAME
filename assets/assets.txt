@@ -4,6 +4,7 @@ back.png
 back2.png
 background.png
 backgroundCatchers.png
+backgroundCatchersMenu.png
 backgroundShooters.png
 bg.png
 black_blue_box.png

@@ -76,7 +76,7 @@ public class GameTutorial implements Screen {
         Texture leftArrowTexture = new Texture(Gdx.files.internal("upArrow.png"));
 
         ImageTextButton leftButton = createButton("", leftArrowTexture, () -> {
-            transitionToScreenUp(new MainMenuScreen(game));
+            transitionToScreenUp(new GameIntro(game));
             left.play();
         });
 
@@ -91,14 +91,14 @@ public class GameTutorial implements Screen {
 
 
 
-        parameter.size = 125;
+        parameter.size = 80;
         parameter.color = Color.WHITE;
         BitmapFont catchFont = generator.generateFont(parameter);
         Label.LabelStyle catchLabelStyle = new Label.LabelStyle(catchFont, Color.WHITE);
         Label catchLabel = new Label("CATCH", catchLabelStyle);
 
         // Create instructions label with smaller font
-        parameter.size = 40;
+        parameter.size =30;
         BitmapFont instructionsFont = generator.generateFont(parameter);
         Label.LabelStyle instructionsLabelStyle = new Label.LabelStyle(instructionsFont, Color.WHITE);
         Label instructionsLabel = new Label(
@@ -116,7 +116,7 @@ public class GameTutorial implements Screen {
         contentTable.add(catchLabel).padBottom(20).row();
         contentTable.add(instructionsLabel).width(VIRTUAL_WIDTH * 0.8f).row();
         contentTable.row();
-        contentTable.add(leftButton).padTop(30);
+        contentTable.add(leftButton).padTop(20);
         // Add the content table to the main table
         table.add(contentTable).expand().fill().center();
         table.row();
