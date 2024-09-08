@@ -795,6 +795,8 @@ public class BulletHellScreen implements Screen {
             enemyHealth = 50;
             enemySpeed = 140;
             enemyDescription = "N/A";
+        }else{
+            enemytype =MathUtils.random(1, 6);
         }
 
         if (enemytype > lastEnemyType) {
